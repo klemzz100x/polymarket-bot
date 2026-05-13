@@ -1,4 +1,6 @@
-from datetime import UTC, datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
+from polybot.core.compat import UTC
 from decimal import Decimal
 
 from polybot.backtesting import BacktestConfig, BacktestEngine

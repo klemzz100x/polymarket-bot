@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from enum import StrEnum
+from polybot.core.compat import StrEnum
 
 from polybot.live_execution.models import now_utc
 

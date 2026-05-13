@@ -1,4 +1,4 @@
-from enum import StrEnum
+from polybot.core.compat import StrEnum
 
 
 class LiveExecutionMode(StrEnum):

@@ -1,5 +1,6 @@
 from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime
+from polybot.core.compat import UTC
 import json
 from pathlib import Path
 from typing import Any

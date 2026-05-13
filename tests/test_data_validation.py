@@ -1,4 +1,5 @@
-from datetime import UTC, datetime
+from datetime import datetime
+from polybot.core.compat import UTC
 
 from polybot.data.normalization import normalize_orderbook
 from polybot.data.validation import validate_market_dataset

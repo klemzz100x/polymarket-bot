@@ -1,6 +1,8 @@
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
+from polybot.core.compat import UTC
 from decimal import Decimal
 
 from polybot.live_execution.models import LiveOrder

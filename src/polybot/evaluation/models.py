@@ -1,5 +1,6 @@
 from dataclasses import asdict, dataclass, field, is_dataclass
-from datetime import UTC, datetime
+from datetime import datetime
+from polybot.core.compat import UTC
 from decimal import Decimal
 import json
 from typing import Any

@@ -1,4 +1,5 @@
-from datetime import UTC, datetime
+from datetime import datetime
+from polybot.core.compat import UTC
 
 from polybot.monitoring import record_collector_run, record_stale_snapshots
 

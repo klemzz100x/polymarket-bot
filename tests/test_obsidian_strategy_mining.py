@@ -5,6 +5,7 @@ from polybot.research.obsidian_mining import (
     StrategyExtractor,
     parse_polymarket_threads,
 )
+from polybot.research.obsidian_mining.edge_synthesis import analyze_threads, render_edge_synthesis_report
 from polybot.research.obsidian_mining.strategy_candidate import EdgeFamily
 from polybot.research.strategy_registry import StrategyCandidateRegistry
 
@@ -73,3 +74,45 @@ Backtest the gap after fees and reject any case where one venue cannot fill the 
 
     assert ranked[0].status.value == "promising"
     assert ranked[0].backtest_results == ["Backtest-1"]
+
+
+def test_edge_synthesis_flags_placeholders_and_maps_edges(tmp_path: Path) -> None:
+    vault = tmp_path / "vault"
+    thread_dir = vault / "Sources" / "Twitter-Threads"
+    thread_dir.mkdir(parents=True)
+    (thread_dir / "placeholder.md").write_text(
+        """---
+type: "twitter-thread"
+source: "https://x.com/test/status/1"
+---
+# Thread
+
+## Resume
+Polymarket trading thread. A completer apres extraction du contenu complet du thread.
+""",
+        encoding="utf-8",
+    )
+    (thread_dir / "rich.md").write_text(
+        """---
+type: "twitter-thread"
+source: "https://x.com/test/status/2"
+author: "test"
+---
+# Thread
+
+## Resume
+Polymarket market making around stable mid prices can work when maker quotes keep inventory balanced.
+
+## Idees exploitables
+Backtest two-sided quotes with inventory skew, queue assumptions, visible depth, and adverse selection checks.
+""",
+        encoding="utf-8",
+    )
+
+    threads = parse_polymarket_threads(ObsidianVaultReader(vault).iter_markdown_notes())
+    analyses = analyze_threads(threads)
+    report = render_edge_synthesis_report(analyses)
+
+    assert {analysis.extraction_status for analysis in analyses} >= {"placeholder", "content_rich"}
+    assert "market_making" in report
+    assert "Placeholder/raw URL threads" in report

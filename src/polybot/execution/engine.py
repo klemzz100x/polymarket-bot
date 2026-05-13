@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from enum import StrEnum
+from polybot.core.compat import StrEnum
 
 
 class OrderSide(StrEnum):

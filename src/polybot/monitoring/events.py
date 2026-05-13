@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime
+from polybot.core.compat import UTC
 
 
 @dataclass(frozen=True, slots=True)

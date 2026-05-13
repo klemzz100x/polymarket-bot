@@ -1,4 +1,5 @@
-from datetime import UTC, datetime
+from datetime import datetime
+from polybot.core.compat import UTC
 from decimal import Decimal
 from typing import Any
 

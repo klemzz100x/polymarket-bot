@@ -7,7 +7,7 @@ name = "polymarket-bot"
 version = "0.1.0"
 description = "Research, automation, and execution infrastructure for a Polymarket trading system."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
   "alembic>=1.13",
   "asyncpg>=0.29",
@@ -54,7 +54,7 @@ packages = ["src/polybot"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py310"
 src = ["src", "scripts", "tests"]
 
 [tool.ruff.lint]
@@ -62,7 +62,7 @@ select = ["E", "F", "I", "B", "UP", "N", "S", "SIM", "TCH"]
 ignore = ["S101"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.10"
 strict = true
 warn_unused_configs = true
 warn_return_any = true

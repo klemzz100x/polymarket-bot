@@ -1,5 +1,6 @@
 from collections.abc import Mapping, Sequence
-from datetime import UTC, datetime
+from datetime import datetime
+from polybot.core.compat import UTC
 from typing import Any
 
 from polybot.domain.models import AgentRepo, TwitterThreadSource

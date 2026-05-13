@@ -1,7 +1,10 @@
 from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime
-from enum import StrEnum
+from datetime import datetime
+from polybot.core.compat import UTC
+from enum import Enum
 from typing import Any
+
+from polybot.core.compat import StrEnum
 
 from polybot.resources.cleaners import slugify
 
@@ -63,7 +66,7 @@ class StrategyCandidate:
 def _json_ready(value: Any) -> Any:
     if isinstance(value, datetime):
         return value.isoformat()
-    if isinstance(value, StrEnum):
+    if isinstance(value, Enum) and isinstance(value, str):
         return value.value
     if isinstance(value, dict):
         return {key: _json_ready(item) for key, item in value.items()}
