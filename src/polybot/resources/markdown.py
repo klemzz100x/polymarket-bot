@@ -1,10 +1,9 @@
 from collections.abc import Mapping, Sequence
 from datetime import datetime
-from polybot.core.compat import UTC
 from typing import Any
 
+from polybot.core.compat import UTC
 from polybot.domain.models import AgentRepo, TwitterThreadSource
-
 
 DEFAULT_THREAD_LINKS = ["[[Arbitrage]]", "[[Execution]]", "[[Market Making]]"]
 

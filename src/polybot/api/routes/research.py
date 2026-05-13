@@ -8,10 +8,14 @@ from polybot.backtesting import BacktestConfig, BacktestEngine
 from polybot.core.config import Settings, get_settings
 from polybot.core.logging import get_logger
 from polybot.core.security import verify_automation_secret
-from polybot.data.schemas import OrderBookSnapshot, PriceTick, Trade
 from polybot.data.normalization.time import normalize_datetime
+from polybot.data.schemas import OrderBookSnapshot, PriceTick, Trade
 from polybot.data.storage.database import create_session_factory
-from polybot.data.storage.mappers import orderbook_snapshot_from_orm, price_tick_from_orm, trade_from_orm
+from polybot.data.storage.mappers import (
+    orderbook_snapshot_from_orm,
+    price_tick_from_orm,
+    trade_from_orm,
+)
 from polybot.data.storage.repositories import (
     MarketRepository,
     OrderBookRepository,

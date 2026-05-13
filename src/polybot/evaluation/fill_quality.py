@@ -67,9 +67,7 @@ def count_unrealistic_fills(result: BacktestResult | PaperTradingResult) -> int:
             count += 1
             continue
         if order and order.limit_price is not None:
-            if order.side == "buy" and fill.average_price > order.limit_price:
-                count += 1
-            elif order.side == "sell" and fill.average_price < order.limit_price:
+            if order.side == "buy" and fill.average_price > order.limit_price or order.side == "sell" and fill.average_price < order.limit_price:
                 count += 1
     return count
 

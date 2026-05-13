@@ -31,7 +31,6 @@ from polybot.paper_trading.models import PaperTradingResult
 from polybot.research.signals import ResearchSignal
 from polybot.shadow_trading.models import ShadowTradingResult
 
-
 collector_runs_total = Counter(
     "polybot_collector_runs_total",
     "Collector runs by job type and status.",

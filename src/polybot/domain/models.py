@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from polybot.core.compat import UTC
-from polybot.core.compat import StrEnum
+
+from polybot.core.compat import UTC, StrEnum
 
 
 class NoteStatus(StrEnum):

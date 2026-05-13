@@ -1,6 +1,6 @@
+import re
 from collections.abc import Iterable
 from pathlib import Path
-import re
 from urllib.parse import urlparse
 
 from polybot.domain.models import AgentRepo, TwitterThreadSource

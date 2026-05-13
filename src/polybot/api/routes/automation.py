@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
@@ -7,7 +8,11 @@ from polybot.core.config import Settings, get_settings
 from polybot.core.logging import get_logger
 from polybot.core.security import verify_automation_secret
 from polybot.knowledge.obsidian import ObsidianVault
-from polybot.resources.markdown import render_agent_note, render_generic_note, render_twitter_thread_note
+from polybot.resources.markdown import (
+    render_agent_note,
+    render_generic_note,
+    render_twitter_thread_note,
+)
 from polybot.resources.parsers import parse_agent_repos, parse_twitter_thread_sources
 
 router = APIRouter()

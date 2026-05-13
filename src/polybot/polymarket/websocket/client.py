@@ -1,7 +1,7 @@
-from collections.abc import AsyncIterator, Sequence
-from dataclasses import dataclass
 import asyncio
 import json
+from collections.abc import AsyncIterator, Sequence
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 try:

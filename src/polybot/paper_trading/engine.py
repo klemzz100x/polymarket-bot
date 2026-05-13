@@ -1,13 +1,13 @@
+import uuid
 from decimal import Decimal
 from pathlib import Path
-import uuid
 
 from polybot.backtesting.engine import BacktestStrategy
 from polybot.backtesting.execution_simulator import ExecutionSimulator
 from polybot.backtesting.fee_model import FeeModel
 from polybot.backtesting.latency_model import LatencyModel
 from polybot.backtesting.portfolio import PortfolioState
-from polybot.backtesting.results import BacktestConfig, BacktestTrade, SimulatedOrder
+from polybot.backtesting.results import BacktestConfig, BacktestTrade
 from polybot.backtesting.slippage_model import SlippageModel
 from polybot.data.schemas import OrderBookSnapshot, Trade
 from polybot.paper_trading.ledger import JsonlPaperLedger

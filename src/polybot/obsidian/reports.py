@@ -1,15 +1,14 @@
 from datetime import datetime
-from polybot.core.compat import UTC
 from decimal import Decimal
 from typing import Any
 
 from polybot.backtesting.results import BacktestResult
-from polybot.data.validation import DataQualityReport
+from polybot.core.compat import UTC
 from polybot.data.schemas import Market
+from polybot.data.validation import DataQualityReport
 from polybot.paper_trading.models import PaperTradingResult
 from polybot.research.inefficiencies import InefficiencyScanReport
-from polybot.research.metrics import MarketMetricsSummary
-from polybot.research.metrics import OrderBookMetrics
+from polybot.research.metrics import MarketMetricsSummary, OrderBookMetrics
 from polybot.resources.markdown import render_frontmatter
 
 

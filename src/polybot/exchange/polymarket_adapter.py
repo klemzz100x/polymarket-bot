@@ -6,13 +6,13 @@ from typing import TYPE_CHECKING, Any
 from polybot.exchange.execution_client import DisabledExecutionClient, ExecutionClient
 from polybot.exchange.market_api import PolymarketMarketAPI
 from polybot.exchange.order_api import PolymarketOrderAPI
+from polybot.live_execution.models import ExecutionReport, LiveOrder, RiskDecision, now_utc
 from polybot.live_execution.modes import (
     LiveExecutionMode,
     mode_allows_order_preparation,
     mode_allows_order_submission,
     parse_live_execution_mode,
 )
-from polybot.live_execution.models import ExecutionReport, LiveOrder, RiskDecision, now_utc
 from polybot.wallet.models import OpenOrderState, WalletBalance, WalletPosition
 
 if TYPE_CHECKING:

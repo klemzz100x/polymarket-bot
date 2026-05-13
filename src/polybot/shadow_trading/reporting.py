@@ -1,6 +1,6 @@
 from polybot.resources.markdown import render_frontmatter
-from polybot.shadow_trading.paper_vs_shadow import PaperShadowComparison
 from polybot.shadow_trading.models import ShadowTradingResult
+from polybot.shadow_trading.paper_vs_shadow import PaperShadowComparison
 
 
 def render_shadow_trading_report(result: ShadowTradingResult) -> str:

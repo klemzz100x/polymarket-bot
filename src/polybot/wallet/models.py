@@ -1,9 +1,10 @@
+import json
 from dataclasses import asdict, dataclass, field, is_dataclass
 from datetime import datetime
-from polybot.core.compat import UTC
 from decimal import Decimal
-import json
 from typing import Any
+
+from polybot.core.compat import UTC
 
 
 @dataclass(frozen=True, slots=True)

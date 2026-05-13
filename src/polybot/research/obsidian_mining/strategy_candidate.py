@@ -1,11 +1,9 @@
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from polybot.core.compat import UTC
 from enum import Enum
 from typing import Any
 
-from polybot.core.compat import StrEnum
-
+from polybot.core.compat import UTC, StrEnum
 from polybot.resources.cleaners import slugify
 
 

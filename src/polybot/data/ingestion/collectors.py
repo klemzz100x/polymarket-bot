@@ -23,7 +23,6 @@ from polybot.data.storage.repositories import (
     PriceTickRepository,
     RawPayloadRepository,
     TradeRepository,
-    WriteResult,
 )
 from polybot.monitoring import record_collector_run
 from polybot.polymarket.api import PolymarketClient

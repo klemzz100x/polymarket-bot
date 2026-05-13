@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from polybot.core.compat import StrEnum
 
 

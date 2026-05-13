@@ -1,11 +1,11 @@
+import json
 from dataclasses import asdict, dataclass, field, is_dataclass
 from datetime import datetime
-from polybot.core.compat import UTC
 from decimal import Decimal
-import json
 from typing import Any
 
 from polybot.backtesting.results import BacktestTrade, SimulatedFill, SimulatedOrder
+from polybot.core.compat import UTC
 from polybot.research.signals import ResearchSignal
 
 

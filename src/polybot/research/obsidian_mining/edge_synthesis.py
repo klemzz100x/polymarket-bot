@@ -3,12 +3,11 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
-from polybot.core.compat import UTC
 
+from polybot.core.compat import UTC
 from polybot.research.obsidian_mining.strategy_candidate import EdgeFamily, StrategyCandidate
 from polybot.research.obsidian_mining.strategy_extractor import EDGE_KEYWORDS, StrategyExtractor
 from polybot.research.obsidian_mining.thread_parser import TwitterThreadNote
-
 
 PLACEHOLDER_MARKERS = (
     "a completer apres extraction",

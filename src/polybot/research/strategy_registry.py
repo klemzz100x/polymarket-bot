@@ -1,15 +1,14 @@
-from dataclasses import asdict, dataclass, field
-from datetime import datetime
-from polybot.core.compat import UTC
 import json
+from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from polybot.core.compat import UTC
 from polybot.research.obsidian_mining.strategy_candidate import (
     CandidateStatus,
     StrategyCandidate,
 )
-
 
 PRIORITY_SCORE = {"high": 3, "medium": 2, "low": 1}
 DIFFICULTY_PENALTY = {"low": 0, "medium": 1, "high": 2}

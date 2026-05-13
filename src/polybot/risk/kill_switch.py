@@ -1,11 +1,10 @@
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from polybot.core.compat import UTC
 from decimal import Decimal
 from enum import Enum
 from typing import Any
 
-from polybot.core.compat import StrEnum
+from polybot.core.compat import UTC, StrEnum
 
 
 class KillSwitchState(StrEnum):

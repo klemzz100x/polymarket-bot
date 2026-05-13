@@ -4,7 +4,6 @@ from polybot.research.obsidian_mining.hypothesis_generator import template_for
 from polybot.research.obsidian_mining.strategy_candidate import EdgeFamily, StrategyCandidate
 from polybot.research.obsidian_mining.thread_parser import TwitterThreadNote
 
-
 EDGE_KEYWORDS: dict[EdgeFamily, tuple[str, ...]] = {
     EdgeFamily.SPREAD_CAPTURE: ("spread", "wide spread", "bid ask", "capture"),
     EdgeFamily.MARKET_MAKING: ("market making", "quote", "maker", "inventory", "two-sided"),
@@ -16,7 +15,7 @@ EDGE_KEYWORDS: dict[EdgeFamily, tuple[str, ...]] = {
     EdgeFamily.NEWS_LATENCY: ("news", "headline", "latency", "breaking"),
     EdgeFamily.EVENT_DRIVEN_REPRICING: ("event-driven", "event", "scheduled", "kickoff", "window"),
     EdgeFamily.BEHAVIORAL_OVERREACTION: ("overreaction", "panic", "retail", "behavioral", "fade"),
-    EdgeFamily.RESOLUTION_EDGE: ("resolution", "settlement", "rules", "source of truth", "oracle"),
+    EdgeFamily.RESOLUTION_EDGE: ("resolution", "settlement", "rules", "source of truth"),
 }
 
 PLACEHOLDER_MARKERS = (

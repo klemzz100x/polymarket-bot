@@ -57,7 +57,8 @@ def parse_twitter_thread_note(note: MarkdownNote) -> TwitterThreadNote:
             "à tester",
         }
     )
-    text = sections or note.body
+    raw_context = note.sections.get("Raw Context") or note.sections.get("Raw context") or ""
+    text = sections or raw_context or note.body
     return TwitterThreadNote(
         note=note,
         source_url=source_url,

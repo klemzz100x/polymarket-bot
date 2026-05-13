@@ -1,8 +1,9 @@
-from datetime import datetime
-from polybot.core.compat import UTC
-from decimal import Decimal
 import re
+from datetime import datetime
+from decimal import Decimal
 from typing import Any
+
+from polybot.core.compat import UTC
 
 
 def utc_now() -> datetime:
@@ -46,9 +47,7 @@ def _normalize_iso_string(iso_string: str) -> str:
 
 def normalize_unix_timestamp(value: int | float | Decimal | str) -> datetime:
     numeric = Decimal(str(value))
-    if numeric > Decimal("1000000000000"):
-        seconds = numeric / Decimal("1000")
-    elif numeric > Decimal("10000000000"):
+    if numeric > Decimal("1000000000000") or numeric > Decimal("10000000000"):
         seconds = numeric / Decimal("1000")
     else:
         seconds = numeric

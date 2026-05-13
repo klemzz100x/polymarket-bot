@@ -1,13 +1,18 @@
+import uuid
 from decimal import Decimal
 from statistics import mean, pstdev
 from typing import Protocol
-import uuid
 
 from polybot.backtesting.execution_simulator import ExecutionSimulator
 from polybot.backtesting.fee_model import FeeModel
 from polybot.backtesting.latency_model import LatencyModel
 from polybot.backtesting.portfolio import PortfolioState
-from polybot.backtesting.results import BacktestConfig, BacktestResult, BacktestTrade, SimulatedOrder
+from polybot.backtesting.results import (
+    BacktestConfig,
+    BacktestResult,
+    BacktestTrade,
+    SimulatedOrder,
+)
 from polybot.backtesting.slippage_model import SlippageModel
 from polybot.data.schemas import OrderBookSnapshot
 from polybot.research.metrics import compute_orderbook_metrics

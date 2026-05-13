@@ -8,7 +8,11 @@ from polybot.core.logging import get_logger
 from polybot.data.normalization import normalize_orderbook, normalize_public_trade
 from polybot.data.normalization.time import utc_now
 from polybot.data.storage.redis_cache import MarketRedisCache
-from polybot.data.storage.repositories import OrderBookRepository, RawPayloadRepository, TradeRepository
+from polybot.data.storage.repositories import (
+    OrderBookRepository,
+    RawPayloadRepository,
+    TradeRepository,
+)
 from polybot.polymarket.websocket.client import PolymarketMarketWebsocket
 
 logger = get_logger(__name__)

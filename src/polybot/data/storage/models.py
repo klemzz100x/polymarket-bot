@@ -1,6 +1,6 @@
+import uuid
 from datetime import datetime
 from decimal import Decimal
-import uuid
 
 from sqlalchemy import (
     JSON,

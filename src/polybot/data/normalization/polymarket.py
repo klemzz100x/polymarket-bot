@@ -1,10 +1,10 @@
-from datetime import datetime
-from polybot.core.compat import UTC
-from decimal import Decimal, InvalidOperation
 import hashlib
 import json
+from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from typing import Any
 
+from polybot.core.compat import UTC
 from polybot.data.normalization.time import normalize_datetime, normalize_unix_timestamp, utc_now
 from polybot.data.schemas import Market, MarketMetadata, OrderBookLevel, OrderBookSnapshot, Outcome
 from polybot.data.schemas.orderbook import OrderBookSide

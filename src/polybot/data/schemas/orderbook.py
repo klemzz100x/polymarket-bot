@@ -1,9 +1,10 @@
 from datetime import datetime
 from decimal import Decimal
-from polybot.core.compat import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from polybot.core.compat import StrEnum
 
 
 class OrderBookSide(StrEnum):

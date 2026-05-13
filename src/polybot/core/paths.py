@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 PROJECT_DIRECTORIES: tuple[str, ...] = (
     "resources/twitter-threads",
     "resources/agents-list",

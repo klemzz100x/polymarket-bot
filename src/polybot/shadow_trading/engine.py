@@ -1,5 +1,5 @@
-from decimal import Decimal
 import uuid
+from decimal import Decimal
 
 from polybot.backtesting.portfolio import PortfolioState
 from polybot.backtesting.results import SimulatedFill
