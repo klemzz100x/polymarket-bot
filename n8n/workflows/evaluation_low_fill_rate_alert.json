@@ -1,0 +1,101 @@
+{
+  "name": "Polymarket - Evaluation Low Fill Rate Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "polymarket/evaluation/low-fill-rate-alert",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-low-fill-rate-alert",
+      "name": "Webhook - Low Fill Rate Alert",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "polymarket-low-fill-rate-alert"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.POLYBOT_API_URL || 'http://api:8000') + '/evaluation/fill-quality' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-automation-secret",
+              "value": "={{ $env.POLYBOT_AUTOMATION_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { market_id: $json.market_id, strategy: $json.strategy || 'wide-spread-mean-reversion', start: $json.start || null, end: $json.end || null, limit: $json.limit || 5000, write_obsidian: true } }}"
+      },
+      "id": "call-fill-quality",
+      "name": "Call Fill Quality",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ Number($json.fill_quality.fill_rate || 0) }}",
+              "operation": "smaller",
+              "value2": "={{ Number($env.POLYBOT_FILL_RATE_ALERT_THRESHOLD || 0.3) }}"
+            }
+          ]
+        }
+      },
+      "id": "if-low-fill-rate",
+      "name": "IF - Low Fill Rate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [560, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { alert: true, type: 'low_fill_rate', evaluation: $json } }}"
+      },
+      "id": "respond-fill-alert",
+      "name": "Respond Alert",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [840, -80]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { alert: false, evaluation: $json } }}"
+      },
+      "id": "respond-fill-ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [840, 120]
+    }
+  ],
+  "connections": {
+    "Webhook - Low Fill Rate Alert": {
+      "main": [[{ "node": "Call Fill Quality", "type": "main", "index": 0 }]]
+    },
+    "Call Fill Quality": {
+      "main": [[{ "node": "IF - Low Fill Rate", "type": "main", "index": 0 }]]
+    },
+    "IF - Low Fill Rate": {
+      "main": [
+        [{ "node": "Respond Alert", "type": "main", "index": 0 }],
+        [{ "node": "Respond OK", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

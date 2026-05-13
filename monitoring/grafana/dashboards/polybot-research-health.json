@@ -1,0 +1,166 @@
+{
+  "uid": "polybot-research-health",
+  "title": "Polybot Research Health",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Ingestion Health",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum by (job_type, status) (rate(polybot_collector_runs_total[5m]))",
+          "legendFormat": "{{job_type}} {{status}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "DB Row Growth",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum by (job_type) (rate(polybot_collector_rows_written_total[5m]))",
+          "legendFormat": "{{job_type}} rows written"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Paper Trading Activity",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum by (strategy, status) (rate(polybot_paper_trading_runs_total[5m]))",
+          "legendFormat": "{{strategy}} {{status}}"
+        },
+        {
+          "expr": "sum by (strategy) (rate(polybot_paper_trading_fills_total[5m]))",
+          "legendFormat": "{{strategy}} fills"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Fill Quality",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "polybot_paper_trading_fill_rate",
+          "legendFormat": "{{strategy}} fill rate"
+        },
+        {
+          "expr": "sum by (strategy) (rate(polybot_paper_trading_rejected_orders_total[5m]))",
+          "legendFormat": "{{strategy}} rejected orders"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Signal Activity",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum by (signal_type, severity) (rate(polybot_research_signals_total[5m]))",
+          "legendFormat": "{{signal_type}} {{severity}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Backtesting",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum by (strategy, status) (rate(polybot_backtests_total[5m]))",
+          "legendFormat": "{{strategy}} {{status}}"
+        },
+        {
+          "expr": "polybot_backtest_net_pnl",
+          "legendFormat": "{{strategy}} net PnL"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Stale Markets",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "targets": [
+        {
+          "expr": "sum by (job_type) (rate(polybot_stale_snapshots_total[5m]))",
+          "legendFormat": "{{job_type}} stale snapshots"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Cache Freshness",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "targets": [
+        {
+          "expr": "sum by (job_type) (rate(polybot_collector_duration_seconds_count[5m]))",
+          "legendFormat": "{{job_type}} collector heartbeat"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Shadow Trading Activity",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 32 },
+      "targets": [
+        {
+          "expr": "sum by (strategy, status) (rate(polybot_shadow_trading_runs_total[5m]))",
+          "legendFormat": "{{strategy}} {{status}}"
+        },
+        {
+          "expr": "sum by (strategy) (rate(polybot_shadow_trading_impossible_fills_total[5m]))",
+          "legendFormat": "{{strategy}} impossible fills"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Shadow Execution Quality",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 32 },
+      "targets": [
+        {
+          "expr": "polybot_shadow_trading_average_slippage",
+          "legendFormat": "{{strategy}} average slippage"
+        },
+        {
+          "expr": "polybot_shadow_trading_fill_probability",
+          "legendFormat": "{{strategy}} fill probability"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Live Readiness",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
+      "targets": [
+        {
+          "expr": "polybot_live_readiness_score",
+          "legendFormat": "readiness score"
+        },
+        {
+          "expr": "sum by (status, severity) (rate(polybot_live_readiness_checks_total[5m]))",
+          "legendFormat": "{{status}} {{severity}} checks"
+        }
+      ]
+    }
+  ]
+}

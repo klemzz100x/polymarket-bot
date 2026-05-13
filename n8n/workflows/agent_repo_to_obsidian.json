@@ -1,0 +1,83 @@
+{
+  "name": "Polymarket - Agent Repos to Obsidian",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "polymarket/agents/import",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-agent-repos",
+      "name": "Webhook - Agent Repos",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "polymarket-agent-repos"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.POLYBOT_API_URL || 'http://api:8000') + '/automation/agents/import' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-automation-secret",
+              "value": "={{ $env.POLYBOT_AUTOMATION_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { source_path: $json.source_path || null, clone: Boolean($json.clone), update_existing: Boolean($json.update_existing), overwrite_notes: Boolean($json.overwrite_notes) } }}"
+      },
+      "id": "call-polybot-agent-import",
+      "name": "Call Polybot Agent Import",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "respond-agent-import",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [560, 0]
+    }
+  ],
+  "connections": {
+    "Webhook - Agent Repos": {
+      "main": [
+        [
+          {
+            "node": "Call Polybot Agent Import",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Polybot Agent Import": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
+

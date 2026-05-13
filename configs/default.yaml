@@ -1,0 +1,43 @@
+project:
+  name: polymarket-bot
+  timezone: Europe/Paris
+
+paths:
+  resources: resources
+  obsidian_vault: obsidian-vault
+  external_agents: external-agents
+
+research:
+  twitter_threads_inbox: resources/twitter-threads
+  agents_list: resources/agents-list
+  default_note_status: to_summarize
+
+execution:
+  default_mode: paper
+  allow_live_trading: false
+  max_order_notional_usd: 25
+  kill_switch_enabled: true
+
+risk:
+  daily_loss_limit_usd: 100
+  max_market_exposure_usd: 50
+  max_strategy_exposure_usd: 100
+  stale_order_seconds: 30
+
+rag:
+  provider: qdrant
+  collection: polymarket_research
+  embedding_model: text-embedding-3-small
+
+polymarket:
+  gamma_api_url: https://gamma-api.polymarket.com
+  data_api_url: https://data-api.polymarket.com
+  clob_api_url: https://clob.polymarket.com
+  ws_url: wss://ws-subscriptions-clob.polymarket.com/ws
+  http_timeout_seconds: 20
+  markets_page_limit: 100
+
+data_layer:
+  raw_payload_retention_days: 90
+  orderbook_snapshot_retention_days: 365
+  default_orderbook_interval_seconds: 5

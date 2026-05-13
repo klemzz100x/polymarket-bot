@@ -1,0 +1,53 @@
+{
+  "name": "Polymarket - Paper Trading Daily Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "schedule-daily-paper-report",
+      "name": "Schedule - Daily Paper Report",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.POLYBOT_API_URL || 'http://api:8000') + '/evaluation/daily-report' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-automation-secret",
+              "value": "={{ $env.POLYBOT_AUTOMATION_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { market_id: $env.POLYBOT_DAILY_MARKET_ID, strategy: $env.POLYBOT_DAILY_STRATEGY || 'wide-spread-mean-reversion', decision_mode: $env.POLYBOT_DAILY_DECISION_MODE || 'hybrid', limit: Number($env.POLYBOT_DAILY_LIMIT || 5000), write_obsidian: true } }}"
+      },
+      "id": "call-daily-paper-report",
+      "name": "Call Daily Paper Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0]
+    }
+  ],
+  "connections": {
+    "Schedule - Daily Paper Report": {
+      "main": [[{ "node": "Call Daily Paper Report", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

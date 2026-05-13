@@ -1,0 +1,101 @@
+{
+  "name": "Polymarket - Data Anomaly Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "polymarket/evaluation/data-anomaly-alert",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-data-anomaly-alert",
+      "name": "Webhook - Data Anomaly Alert",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "polymarket-data-anomaly-alert"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.POLYBOT_API_URL || 'http://api:8000') + '/research/validate-data' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-automation-secret",
+              "value": "={{ $env.POLYBOT_AUTOMATION_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { market_id: $json.market_id, start: $json.start || null, end: $json.end || null, limit: $json.limit || 5000, write_obsidian: true } }}"
+      },
+      "id": "call-data-validation",
+      "name": "Call Data Validation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.report.status }}",
+              "operation": "notEqual",
+              "value2": "ok"
+            }
+          ]
+        }
+      },
+      "id": "if-data-anomaly",
+      "name": "IF - Data Anomaly",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [560, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { alert: true, type: 'data_anomaly', validation: $json } }}"
+      },
+      "id": "respond-data-alert",
+      "name": "Respond Alert",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [840, -80]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { alert: false, validation: $json } }}"
+      },
+      "id": "respond-data-ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [840, 120]
+    }
+  ],
+  "connections": {
+    "Webhook - Data Anomaly Alert": {
+      "main": [[{ "node": "Call Data Validation", "type": "main", "index": 0 }]]
+    },
+    "Call Data Validation": {
+      "main": [[{ "node": "IF - Data Anomaly", "type": "main", "index": 0 }]]
+    },
+    "IF - Data Anomaly": {
+      "main": [
+        [{ "node": "Respond Alert", "type": "main", "index": 0 }],
+        [{ "node": "Respond OK", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

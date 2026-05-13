@@ -1,0 +1,8 @@
+https://github.com/drona23/claude-token-efficient
+https://github.com/alirezarezvani/claude-skills
+https://github.com/atilaahmettaner/tradingview-mcp
+https://github.com/The-Swarm-Corporation/AutoHedge
+https://github.com/Fincept-Corporation/FinceptTerminal
+https://github.com/mksglu/context-mode
+https://github.com/jo-inc/camofox-browser
+

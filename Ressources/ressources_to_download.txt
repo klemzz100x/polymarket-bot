@@ -1,0 +1,15 @@
+Skills/agents to download if you need it : 
+https://github.com/drona23/claude-token-efficient
+https://github.com/alirezarezvani/claude-skills
+https://github.com/atilaahmettaner/tradingview-mcp
+https://github.com/The-Swarm-Corporation/AutoHedge
+https://github.com/Fincept-Corporation/FinceptTerminal
+https://github.com/mksglu/context-mode
+https://github.com/jo-inc/camofox-browser
+
+Outils utilisables : 
+https://obsidian.md/
+https://hermes-agent.nousresearch.com/
+https://n8n.io/integrations/claude/
+
+Si tu as d'autres outils en tête pour rendre le projet le plus performant possible n'hésite pas à les ajouter à la liste.

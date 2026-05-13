@@ -1,0 +1,83 @@
+{
+  "name": "Polymarket - Paper Trading Run",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "polymarket/paper-trading/run",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-paper-trading-run",
+      "name": "Webhook - Paper Trading Run",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "polymarket-paper-trading-run"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.POLYBOT_API_URL || 'http://api:8000') + '/paper-trading/run' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-automation-secret",
+              "value": "={{ $env.POLYBOT_AUTOMATION_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { market_id: $json.market_id, strategy: $json.strategy || 'wide-spread-mean-reversion', decision_mode: $json.decision_mode || 'hybrid', start: $json.start || null, end: $json.end || null, limit: $json.limit || 5000, initial_cash: $json.initial_cash || '1000', order_size: $json.order_size || '10', fee_bps: $json.fee_bps || '0', latency_ms: $json.latency_ms || 500, signal_window: $json.signal_window || 20, persist_db: Boolean($json.persist_db), write_obsidian: Boolean($json.write_obsidian) } }}"
+      },
+      "id": "call-polybot-paper-run",
+      "name": "Call Polybot Paper Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "respond-paper-run",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [560, 0]
+    }
+  ],
+  "connections": {
+    "Webhook - Paper Trading Run": {
+      "main": [
+        [
+          {
+            "node": "Call Polybot Paper Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Polybot Paper Run": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
+

@@ -1,0 +1,66 @@
+{
+  "name": "Polymarket - Shadow Trading Run",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "polymarket/shadow-trading/run",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-shadow-trading-run",
+      "name": "Webhook - Shadow Trading Run",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "polymarket-shadow-trading-run"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.POLYBOT_API_URL || 'http://api:8000') + '/shadow-trading/run' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-automation-secret",
+              "value": "={{ $env.POLYBOT_AUTOMATION_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { market_id: $json.market_id, strategy: $json.strategy || 'wide-spread-mean-reversion', start: $json.start || null, end: $json.end || null, limit: $json.limit || 5000, order_size: $json.order_size || '10', latency_ms: $json.latency_ms || 500, signal_window: $json.signal_window || 20, persist_db: true, write_obsidian: Boolean($json.write_obsidian) } }}"
+      },
+      "id": "call-polybot-shadow-run",
+      "name": "Call Polybot Shadow Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "respond-shadow-run",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [560, 0]
+    }
+  ],
+  "connections": {
+    "Webhook - Shadow Trading Run": {
+      "main": [[{ "node": "Call Polybot Shadow Run", "type": "main", "index": 0 }]]
+    },
+    "Call Polybot Shadow Run": {
+      "main": [[{ "node": "Respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,37 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+.venv*/
+venv/
+dist/
+build/
+backups/
+
+# Local state and large generated data
+logs/
+tmp/
+data/raw/
+data/processed/
+data/features/
+data/vector/
+external-agents/*
+!external-agents/README.md
+!external-agents/.gitkeep
+
+# Obsidian volatile workspace state
+obsidian-vault/.obsidian/workspace.json
+obsidian-vault/.obsidian/workspaces.json
+
+# n8n local exports and secrets
+n8n/.cache/
+n8n/.secrets/

@@ -1,0 +1,66 @@
+{
+  "name": "Polymarket - Kill Switch Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "polymarket/kill-switch-alert",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-kill-switch-alert",
+      "name": "Webhook - Kill Switch Alert",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "polymarket-kill-switch-alert"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.POLYBOT_API_URL || 'http://api:8000') + '/live-readiness/run' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-automation-secret",
+              "value": "={{ $env.POLYBOT_AUTOMATION_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { market_id: $json.market_id || null, drawdown: $json.drawdown || '0', exposure: $json.exposure || '0', stale_data_count: Number($json.stale_data_count || 0), collector_failures: Number($json.collector_failures || 0), missing_market_data: Boolean($json.missing_market_data), persist_db: true, write_obsidian: true, send_telegram_alerts: true } }}"
+      },
+      "id": "call-readiness-alert",
+      "name": "Call Readiness Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "respond-kill-switch-alert",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [560, 0]
+    }
+  ],
+  "connections": {
+    "Webhook - Kill Switch Alert": {
+      "main": [[{ "node": "Call Readiness Alert", "type": "main", "index": 0 }]]
+    },
+    "Call Readiness Alert": {
+      "main": [[{ "node": "Respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

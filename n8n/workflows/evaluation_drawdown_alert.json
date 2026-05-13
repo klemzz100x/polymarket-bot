@@ -1,0 +1,101 @@
+{
+  "name": "Polymarket - Evaluation Drawdown Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "polymarket/evaluation/drawdown-alert",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-evaluation-drawdown-alert",
+      "name": "Webhook - Evaluation Drawdown Alert",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "polymarket-evaluation-drawdown-alert"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.POLYBOT_API_URL || 'http://api:8000') + '/evaluation/run' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-automation-secret",
+              "value": "={{ $env.POLYBOT_AUTOMATION_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { market_id: $json.market_id, strategy: $json.strategy || 'wide-spread-mean-reversion', start: $json.start || null, end: $json.end || null, limit: $json.limit || 5000, write_obsidian: true } }}"
+      },
+      "id": "call-evaluation-run",
+      "name": "Call Evaluation Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ Number($json.report.paper_performance.drawdown.max_drawdown || 0) }}",
+              "operation": "larger",
+              "value2": "={{ Number($env.POLYBOT_DRAWDOWN_ALERT_THRESHOLD || 0.2) }}"
+            }
+          ]
+        }
+      },
+      "id": "if-high-drawdown",
+      "name": "IF - High Drawdown",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [560, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { alert: true, type: 'high_drawdown', evaluation: $json } }}"
+      },
+      "id": "respond-drawdown-alert",
+      "name": "Respond Alert",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [840, -80]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { alert: false, evaluation: $json } }}"
+      },
+      "id": "respond-drawdown-ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [840, 120]
+    }
+  ],
+  "connections": {
+    "Webhook - Evaluation Drawdown Alert": {
+      "main": [[{ "node": "Call Evaluation Run", "type": "main", "index": 0 }]]
+    },
+    "Call Evaluation Run": {
+      "main": [[{ "node": "IF - High Drawdown", "type": "main", "index": 0 }]]
+    },
+    "IF - High Drawdown": {
+      "main": [
+        [{ "node": "Respond Alert", "type": "main", "index": 0 }],
+        [{ "node": "Respond OK", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

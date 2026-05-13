@@ -1,0 +1,53 @@
+{
+  "name": "Polymarket - Live Readiness Daily Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "schedule-live-readiness",
+      "name": "Schedule - Live Readiness",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.POLYBOT_API_URL || 'http://api:8000') + '/live-readiness/run' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-automation-secret",
+              "value": "={{ $env.POLYBOT_AUTOMATION_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { market_id: $env.POLYBOT_DAILY_MARKET_ID, strategy: $env.POLYBOT_DAILY_STRATEGY || 'wide-spread-mean-reversion', limit: Number($env.POLYBOT_DAILY_LIMIT || 5000), persist_db: true, write_obsidian: true, send_telegram_alerts: true } }}"
+      },
+      "id": "call-live-readiness",
+      "name": "Call Live Readiness",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0]
+    }
+  ],
+  "connections": {
+    "Schedule - Live Readiness": {
+      "main": [[{ "node": "Call Live Readiness", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

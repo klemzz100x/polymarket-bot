@@ -1,0 +1,53 @@
+{
+  "name": "Polymarket - Evaluation Daily Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "schedule-daily-evaluation",
+      "name": "Schedule - Daily Evaluation",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.POLYBOT_API_URL || 'http://api:8000') + '/evaluation/run' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-automation-secret",
+              "value": "={{ $env.POLYBOT_AUTOMATION_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { market_id: $env.POLYBOT_DAILY_MARKET_ID, strategy: $env.POLYBOT_DAILY_STRATEGY || 'wide-spread-mean-reversion', limit: Number($env.POLYBOT_DAILY_LIMIT || 5000), write_obsidian: true } }}"
+      },
+      "id": "call-daily-evaluation",
+      "name": "Call Daily Evaluation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0]
+    }
+  ],
+  "connections": {
+    "Schedule - Daily Evaluation": {
+      "main": [[{ "node": "Call Daily Evaluation", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
