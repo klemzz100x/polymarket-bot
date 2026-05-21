@@ -180,7 +180,24 @@
       "created_at": "2026-05-21",
       "implemented_at": "2026-05-21",
       "implementation": "scripts/scan_behavioral_bias.py. --mode (overreaction/anchoring/both), --min-move (seuil 24h move), --top-markets, --obsidian. Données : startTs=30j + fidelity=60 → ~720 points horaires par marché."
+    },
+    {
+      "id": "SC-012",
+      "name": "reflexivity-whale-loop",
+      "status": "implemented",
+      "priority": "high",
+      "source": "threads PDF — @0xChaseTM 'Iceberg' thread. 5ème biais : Réflexivité (Soros). Whale → X amplifie → crowd suit → self-fulfilling.",
+      "description": "Détecte la boucle réflexive : whale entre (détectable via imbalance book + smart money cross-ref) + spike volatilité 24h vs baseline. Join le momentum tôt, exit quand volume s'effondre.",
+      "edge_hypothesis": "Marché de prédiction n'est pas uniquement informatif — il est lui-même une force sociale. Quand whale entre et X amplifie, le signal crée la réalité (ou du moins le prix). Edge = entrer dans la boucle AVANT la masse.",
+      "key_formulas": ["imbalance = (bid_vol - ask_vol) / (bid_vol + ask_vol)", "volatility_spike = std_24h / std_prior_7d", "score = min(move_pct×2, 40) + min(|imbalance|×60, 30) + 20×sm_active"],
+      "implementation_complexity": "medium",
+      "requires": ["CLOB orderbook (top 5 levels)", "prix history 30j (startTs + fidelity=60)", "smart money scan output (optionnel)"],
+      "backtest_feasibility": "medium — signal est momentum, difficile à backtester sans Twitter data pour la cause",
+      "notes": "Limitation principale : sans Twitter API, on ne peut pas détecter directement l'amplification X. Les proxies (imbalance + vol spike) capturent l'effet mais pas la cause. Combiner avec --from-smart-money pour les setups les plus solides.",
+      "created_at": "2026-05-21",
+      "implemented_at": "2026-05-21",
+      "implementation": "scripts/scan_reflexivity.py. --min-move (seuil 24h %), --min-imbalance (book déséquilibre), --min-vol-spike, --from-smart-money, --obsidian. Dashboard page : Reflexivity."
     }
   ],
-  "updated_at": "2026-05-21T14:00:00.000000+00:00"
+  "updated_at": "2026-05-21T15:00:00.000000+00:00"
 }

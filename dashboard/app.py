@@ -53,6 +53,8 @@ def main() -> None:
             "Daily Research",
             "Weather Markets",
             "End-of-Event",
+            "Behavioral Bias",
+            "Reflexivity",
             "Overview",
             "Data Coverage",
             "Equity Curve",
@@ -80,6 +82,10 @@ def main() -> None:
         weather_markets_page()
     elif page == "End-of-Event":
         end_of_event_page()
+    elif page == "Behavioral Bias":
+        behavioral_bias_page()
+    elif page == "Reflexivity":
+        reflexivity_page()
     elif page == "Overview":
         overview_page()
     elif page == "Data Coverage":
@@ -530,6 +536,160 @@ def end_of_event_page() -> None:
         st.write("- Marchés esports/sports < 72h expiry")
         st.write("- Volume < $50K (thin liquidity)")
         st.write("- Prix favori 0.65–0.92 (pas encore extrême)")
+
+
+def behavioral_bias_page() -> None:
+    inject_terminal_css()
+    st.subheader("Behavioral Bias — SC-011")
+    st.caption("Overreaction (price jump >8% → fade) and Anchoring (7d range <8% + historical std >2%). Run `scan_behavioral_bias.py --obsidian` to refresh.")
+
+    BIAS_JSON = Path(os.getenv("BIAS_SCAN_JSON", "tmp/behavioral_bias_signals.json"))
+    if not BIAS_JSON.exists():
+        st.warning(f"No behavioral bias scan at `{BIAS_JSON}`.")
+        st.code("PYTHONPATH=src python scripts/scan_behavioral_bias.py --top-markets 50 --obsidian")
+        return
+
+    try:
+        signals = json.loads(BIAS_JSON.read_text(encoding="utf-8"))
+    except Exception as exc:
+        st.error(f"Failed to load: {exc}")
+        return
+
+    from datetime import datetime as _dt
+    last_run = _dt.fromtimestamp(BIAS_JSON.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+    st.caption(f"Last scan: {last_run} | {len(signals)} signals")
+
+    if not signals:
+        st.info("Aucun signal biais comportemental. Essayer --min-move 0.08 --min-volume 20000.")
+        return
+
+    overreaction = [s for s in signals if s.get("bias") == "overreaction"]
+    anchoring = [s for s in signals if s.get("bias") == "anchoring"]
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total signaux", len(signals))
+    col2.metric("Overreaction", len(overreaction), help="Mouvement >8% en 24h → fade dans la direction opposée")
+    col3.metric("Anchoring", len(anchoring), help="Range 7j <8% mais std historique >2% → breakout attendu")
+
+    if overreaction:
+        st.markdown("### ⚡ Overreaction (style aenews2 — $1.94M)")
+        st.caption("Prix saute >8% → retail entre → liquidité rattrapée → réversion vers base rate. Fade = position inverse.")
+        rows = []
+        for s in overreaction:
+            rows.append({
+                "Question": s.get("question", "")[:52],
+                "Side": s.get("signal_side", ""),
+                "Prix signal": f"{s.get('signal_price', 0):.3f}",
+                "Move 24h": f"{s.get('recent_move_pct', 0):+.1f}%",
+                "Prix actuel": f"{s.get('current_price', 0):.3f}",
+                "Moy 7j": f"{s.get('mean_7d', 0):.3f}",
+                "Vol$M": f"{s.get('volume', 0)/1e6:.2f}M",
+            })
+        data_table(rows, height=200)
+
+        best = overreaction[0]
+        with st.expander(f"TOP: [{best.get('signal_side')}] {best.get('question', '')[:65]}"):
+            st.write(best.get("description", ""))
+            st.metric("Move 24h", f"{best.get('recent_move_pct', 0):+.1f}%")
+            st.metric("Prix signal (fade)", f"{best.get('signal_price', 0):.3f}")
+            st.metric("Vol", f"${best.get('volume', 0):,.0f}")
+            st.write(f"**Wallet référence :** `0x44c1dfe4...` — aenews2 ($1.94M, overreaction fader)")
+
+    if anchoring:
+        st.markdown("### ⚓ Anchoring (style YatSen — $2.3M)")
+        st.caption("Marché stable 7j+ mais historique volatile → prix ancré à ancien niveau. Breakout attendu quand info arrive.")
+        rows = []
+        for s in anchoring:
+            rows.append({
+                "Question": s.get("question", "")[:52],
+                "Prix": f"{s.get('signal_price', 0):.3f}",
+                "Range 7j": f"{s.get('range_7d', 0):.2%}",
+                "Std 30j": f"{s.get('std_30d', 0):.2%}",
+                "Vol$M": f"{s.get('volume', 0)/1e6:.2f}M",
+                "Cat": s.get("category", ""),
+            })
+        data_table(rows, height=200)
+
+        best = anchoring[0]
+        with st.expander(f"TOP ANCHOR: {best.get('question', '')[:65]}"):
+            st.write(best.get("description", ""))
+            st.metric("Range 7j", f"{best.get('range_7d', 0):.2%}")
+            st.metric("Std 30j", f"{best.get('std_30d', 0):.2%}")
+            st.write(f"**Wallet référence :** `0x5bffcf56...` — YatSen ($2.3M, 702 trades, anchoring exploiter)")
+
+    st.markdown("---")
+    st.markdown("**Sources :** @0xChaseTM 'Iceberg' thread | `aenews2` (overreaction) + `YatSen` (anchoring)")
+
+
+def reflexivity_page() -> None:
+    inject_terminal_css()
+    st.subheader("Reflexivity — SC-012")
+    st.caption("Whale entry + social amplification loop. Follow momentum early, exit when volume collapses. Run `scan_reflexivity.py --obsidian` to refresh.")
+
+    REFL_JSON = Path(os.getenv("REFLEXIVITY_SCAN_JSON", "tmp/reflexivity_signals.json"))
+    if not REFL_JSON.exists():
+        st.warning(f"No reflexivity scan at `{REFL_JSON}`.")
+        st.code("PYTHONPATH=src python scripts/scan_reflexivity.py --top-markets 80 --obsidian")
+        return
+
+    try:
+        signals = json.loads(REFL_JSON.read_text(encoding="utf-8"))
+    except Exception as exc:
+        st.error(f"Failed to load: {exc}")
+        return
+
+    from datetime import datetime as _dt
+    last_run = _dt.fromtimestamp(REFL_JSON.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+    st.caption(f"Last scan: {last_run} | {len(signals)} signals")
+
+    if not signals:
+        st.info("Aucun signal réflexivité. Essayer --min-move 3.0 --min-imbalance 0.10 --min-vol-spike 1.2")
+        st.markdown("""
+**Quand ce pattern se déclenche :**
+1. Whale prend une grande position
+2. X/Twitter amplifie (bots de tracking, KOL qui commentent)
+3. Crowd suit → prix monte encore → self-fulfilling loop
+4. Pas de nouvelle fondamentale réelle
+
+**Proxies de détection :** imbalance book >15% + spike volatilité >1.5× + smart money cross-ref
+        """)
+        return
+
+    sm_active = [s for s in signals if s.get("sm_active")]
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Signaux totaux", len(signals))
+    col2.metric("Smart Money confirmés", len(sm_active), help="Condition_id aussi présent dans dernier scan SM")
+    col3.metric("Score moyen", f"{sum(s.get('score', 0) for s in signals) / len(signals):.1f}")
+
+    st.markdown("### Signaux par score décroissant")
+    rows = []
+    for s in signals:
+        rows.append({
+            "Question": s.get("question", "")[:52],
+            "Side": s.get("signal_side", ""),
+            "Prix": f"{s.get('signal_price', 0):.3f}",
+            "Move 24h": f"{s.get('move_24h_pct', 0):+.1f}%",
+            "Imbalance": f"{s.get('book_imbalance', 0):+.2f}",
+            "VolSpike": f"{s.get('volatility_spike', 1):.1f}×",
+            "SM": "OUI" if s.get("sm_active") else "-",
+            "Score": f"{s.get('score', 0):.0f}",
+            "Vol$M": f"{s.get('volume', 0)/1e6:.2f}M",
+        })
+    data_table(rows, height=300)
+
+    if signals:
+        best = signals[0]
+        with st.expander(f"TOP: [{best.get('signal_side')}] {best.get('question', '')[:65]} (Score {best.get('score', 0):.0f})"):
+            st.write(best.get("description", ""))
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Move 24h", f"{best.get('move_24h_pct', 0):+.1f}%")
+            col2.metric("Book imbalance", f"{best.get('book_imbalance', 0):+.2f}")
+            col3.metric("Vol spike", f"{best.get('volatility_spike', 1):.1f}×")
+            st.write(f"**Smart money actif :** {'Oui — cross-ref SM scan' if best.get('sm_active') else 'Non'}")
+
+    st.markdown("---")
+    st.markdown("""**Règles de sortie :** (1) Volume/jour retombe sous baseline → exit | (2) Smart money sell détecté → exit | (3) Stop sur retour au niveau pré-entrée""")
+    st.markdown("**Source :** @0xChaseTM 'Iceberg' thread — Réflexivité (Soros style)")
 
 
 def edge_research_page() -> None:
