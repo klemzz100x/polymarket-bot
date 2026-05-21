@@ -131,5 +131,40 @@
       "implementation": "scripts/scan_btc_lag.py. --discover-markets liste les marchés crypto actifs. --duration/--interval contrôle la fenêtre de scan. Regex word-boundary pour éviter faux positifs ('eth' dans 'Netherlands'). LatencyArbitrageDetector dans src/polybot/strategies/latency_arbitrage.py."
     }
   ],
-  "updated_at": "2026-05-21T10:30:00.000000+00:00"
+    {
+      "id": "SC-009",
+      "name": "end-of-event-bias",
+      "status": "implemented",
+      "priority": "high",
+      "source": "threads PDF — @0xChaseTM 'Iceberg' thread. Reference wallets: 0xheavy888 ($772K, esports), Poligarch ($132K)",
+      "description": "Scanner les marchés expirables dans < 72h pour la décote structurelle : favourite_discount (détenteurs paniqués vendent favoris à rabais) et longshot_premium (loterie amplifiée près de l'expiry). M(t) = α × σ × √(T-t) × (1/L(t)).",
+      "edge_hypothesis": "Quand t → T : liquidité s'effondre plus vite que volatilité décroît → spread s'élargit. Favoris à > 70% sont vendus à 85¢ par panique. Longshots < 30% sont surévalués par espoir. Edge = écart prix/proba juste amplifié par LP withdrawal.",
+      "key_formulas": ["M(t) = α × σ × √(T-t) × (1/L(t))", "favourite_discount : YES_price < true_prob near resolution", "longshot_premium : YES_price > true_prob near resolution"],
+      "implementation_complexity": "low",
+      "requires": ["Gamma API (dates)", "prix historiques pour MA-5j (optionnel)"],
+      "backtest_feasibility": "high — données historiques Gamma disponibles",
+      "notes": "Scanner créé, fonctionne. Marchés BTC 5-min (81 actifs à un moment donné) expirent trop vite pour batch scan. Sweet spot : esports (30-60min), sports (multi-heures), weather (journalier). Pas de signal aujourd'hui car marchés actifs courts ont expiré pendant le scan.",
+      "created_at": "2026-05-21",
+      "implemented_at": "2026-05-21",
+      "implementation": "scripts/scan_end_of_event.py. --max-hours (défaut 168h), --max-volume. Becker correction pour longshot_premium. Enrichissement Claude optionnel (--claude)."
+    },
+    {
+      "id": "SC-010",
+      "name": "weather-temperature-markets",
+      "status": "implemented",
+      "priority": "high",
+      "source": "threads PDF — @AlterEgo_eth weather bot technique + @stacyonchain (wallet 0xa5Ed…4fE9 $27K weather specialist)",
+      "description": "Découvrir les marchés température Polymarket via pattern slug, comparer avec forecast Open-Meteo (gratuit, sans auth) pour trouver les buckets mal pricés.",
+      "edge_hypothesis": "Polymarket pricing des marchés météo reflète l'opinion retail + spreads larges. Open-Meteo prévisionnistes professionnels ont meilleure calibration → edge quand forecast tombe dans un bucket à <50% de probabilité implicite.",
+      "key_formulas": ["slug: highest-temperature-in-{city}-on-{month}-{day}-{year}", "edge = 1.0 - yes_price si forecast dans le bucket", "forecast uncertainty ~±1.5°C → ajuster confiance"],
+      "implementation_complexity": "low",
+      "requires": ["Gamma events API (sans auth)", "Open-Meteo API (sans auth, gratuit)"],
+      "backtest_feasibility": "high — données historiques météo + résolutions Polymarket disponibles",
+      "notes": "Scanner opérationnel. Premier run : Paris 27-28°C à 14.5% avec forecast 27.8°C = signal réel pour demain. 10 villes suivies. Edge théorique = (1 - yes_price) mais calibrer avec incertitude forecast (±1.5°C). Wallet weather spécialiste 0xa5Ed à ajouter quand adresse complète trouvée.",
+      "created_at": "2026-05-21",
+      "implemented_at": "2026-05-21",
+      "implementation": "scripts/scan_weather_markets.py. --days (jours ahead), --cities (all ou liste), --min-edge. Open-Meteo temperature_2m_max. Buckets parsés via regex depuis texte question."
+    }
+  ],
+  "updated_at": "2026-05-21T12:00:00.000000+00:00"
 }
