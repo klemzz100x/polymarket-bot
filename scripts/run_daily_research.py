@@ -129,6 +129,11 @@ async def run_oracle(client: PolymarketClient, settings, min_volume: float, top:
 
 WATCHLIST = [
     {"address": "0xe1d6b51521bd4365769199f392f9818661bd907", "label": "HFT-crypto-728k", "tier": "1"},
+    {"address": "0xb40e89677d59665d5188541ad860450a6e2a7cc9", "label": "Poligarch", "tier": "1"},
+    {"address": "0x44c1dfe43260c94ed4f1d00de2e1f80fb113ebc1", "label": "aenews2", "tier": "1"},
+    {"address": "0x5bffcf561bcae83af680ad600cb99f1184d6ffbe", "label": "YatSen", "tier": "1"},
+    {"address": "0xec981ed70ae69c5cbcac08c1ba063e734f6bafcd", "label": "0xheavy888", "tier": "1"},
+    {"address": "0x9d84ce0306f8551e02efef1680475fc0f1dc1344", "label": "ImJustKen", "tier": "1"},
     {"address": "0xf705fa045201391d9632b7f3cde06a5e24453ca7", "label": "btc-bot-A", "tier": "3"},
     {"address": "0x1979ae6b7e6534de9c4539d0c205e582ca637c9d", "label": "btc-bot-B", "tier": "3"},
 ]

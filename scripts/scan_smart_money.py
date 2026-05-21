@@ -38,6 +38,37 @@ WATCHLIST: list[dict[str, str]] = [
         "tier": "1",
         "note": "$728K/month HFT crypto markets",
     },
+    # Tier 1 — Top leaderboard traders with documented edge (@0xChaseTM thread)
+    {
+        "address": "0xb40e89677d59665d5188541ad860450a6e2a7cc9",
+        "label": "Poligarch",
+        "tier": "1",
+        "note": "$132K profit, 20K trades — systematic longshot fader (SC-001 aligned)",
+    },
+    {
+        "address": "0x44c1dfe43260c94ed4f1d00de2e1f80fb113ebc1",
+        "label": "aenews2",
+        "tier": "1",
+        "note": "$1.94M profit, 2583 trades — overreaction fader, buys near-impossible sides",
+    },
+    {
+        "address": "0x5bffcf561bcae83af680ad600cb99f1184d6ffbe",
+        "label": "YatSen",
+        "tier": "1",
+        "note": "$2.3M profit, 702 trades — anchoring bias exploiter, patient multi-week setups",
+    },
+    {
+        "address": "0xec981ed70ae69c5cbcac08c1ba063e734f6bafcd",
+        "label": "0xheavy888",
+        "tier": "1",
+        "note": "$772K profit, 4579 trades — end-of-event bias, thin esports markets near resolution",
+    },
+    {
+        "address": "0x9d84ce0306f8551e02efef1680475fc0f1dc1344",
+        "label": "ImJustKen",
+        "tier": "1",
+        "note": "$3.03M profit, 9650 trades — reflexivity trader, pre-narrative entries",
+    },
     # Tier 3 — BTC 5-min bots (source: @0xRicker)
     {
         "address": "0xf705fa045201391d9632b7f3cde06a5e24453ca7",
