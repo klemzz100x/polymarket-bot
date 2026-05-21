@@ -50,6 +50,9 @@ def main() -> None:
         [
             "Terminal Cockpit",
             "Oracle Scan",
+            "Daily Research",
+            "Weather Markets",
+            "End-of-Event",
             "Overview",
             "Data Coverage",
             "Equity Curve",
@@ -71,6 +74,12 @@ def main() -> None:
         terminal_cockpit_page()
     elif page == "Oracle Scan":
         oracle_scan_page()
+    elif page == "Daily Research":
+        daily_research_page()
+    elif page == "Weather Markets":
+        weather_markets_page()
+    elif page == "End-of-Event":
+        end_of_event_page()
     elif page == "Overview":
         overview_page()
     elif page == "Data Coverage":
@@ -297,6 +306,230 @@ def oracle_scan_page() -> None:
             "Vol$M": f"{s['volume_usd']/1e6:.1f}M",
         })
     data_table(all_rows, height=360)
+
+
+def daily_research_page() -> None:
+    inject_terminal_css()
+    st.subheader("Daily Research — Oracle + Smart Money")
+    st.caption("Cross-referenced signals with conviction score. Run `run_daily_research.py --obsidian` to refresh.")
+
+    DAILY_JSON = Path(os.getenv("DAILY_RESEARCH_JSON", "tmp/daily_research.json"))
+    SIGNAL_LOG = Path("tmp/signal_log.json")
+
+    if not DAILY_JSON.exists():
+        st.warning(f"No daily research file at `{DAILY_JSON}`.")
+        st.code("PYTHONPATH=src python scripts/run_daily_research.py --obsidian")
+        return
+
+    try:
+        data = json.loads(DAILY_JSON.read_text(encoding="utf-8"))
+    except Exception as exc:
+        st.error(f"Failed to load: {exc}")
+        return
+
+    from datetime import datetime as _dt
+    last_run = _dt.fromtimestamp(DAILY_JSON.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+    actionable = data.get("actionable", [])
+    all_signals = data.get("oracle_signals", [])
+    sm_markets = data.get("smart_money_markets", 0)
+
+    # Signal log stats
+    log_total, log_resolved, log_accuracy = 0, 0, None
+    if SIGNAL_LOG.exists():
+        try:
+            log = json.loads(SIGNAL_LOG.read_text(encoding="utf-8"))
+            log_total = len(log)
+            log_resolved = sum(1 for e in log if e.get("resolved"))
+            correct = sum(1 for e in log if e.get("correct") is True)
+            log_accuracy = correct / log_resolved if log_resolved else None
+        except Exception:
+            pass
+
+    st.caption(f"Last run: {last_run} | Date: {data.get('date', '?')}")
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+    col1.metric("Oracle signals", len(all_signals))
+    col2.metric("Actionnables", len(actionable))
+    col3.metric("SM markets", sm_markets)
+    col4.metric("Signal log", log_total)
+    col5.metric("Accuracy", f"{log_accuracy:.0%}" if log_accuracy else "—")
+
+    if actionable:
+        st.markdown("### Signaux cross-référencés (Oracle + Smart Money)")
+        rows = []
+        for s in actionable:
+            sm = "✓" if s.get("sm_aligned") else ("✗" if s.get("sm_opposed") else "–")
+            rows.append({
+                "Question": s.get("question", "")[:55],
+                "Side": s.get("recommended_side", ""),
+                "ClEdge": f"{s['claude_edge']:+.2%}" if s.get("claude_edge") is not None else "n/a",
+                "Conf": s.get("claude_confidence", ""),
+                "SM": sm,
+                "Score": f"{s.get('conviction_score', 0):.0f}",
+                "Vol$M": f"{s.get('volume_usd', 0)/1e6:.1f}M",
+            })
+        data_table(rows, height=300)
+
+        for s in actionable[:5]:
+            sm_label = "ALIGNÉ ✓" if s.get("sm_aligned") else ("OPPOSÉ ✗" if s.get("sm_opposed") else "non suivi")
+            with st.expander(f"[{s.get('recommended_side')}] Score {s.get('conviction_score', 0):.0f} — {s.get('question', '')[:65]}"):
+                st.write(f"**ClEdge** : {s.get('claude_edge', 0):+.2%} | **Conf** : {s.get('claude_confidence')} | **Kelly¼** : {s.get('kelly_quarter', 0):.2%}")
+                st.write(f"**Smart money** : {sm_label}")
+                if s.get("sm_wallets"):
+                    st.write(f"**Wallets** : {', '.join(s['sm_wallets'])}")
+                for factor in (s.get("claude_key_factors") or []):
+                    st.write(f"- {factor}")
+                st.code(s.get("condition_id", ""))
+    else:
+        st.info("Aucun signal cross-référencé. Relancer le scanner.")
+
+    if log_total:
+        st.markdown("### Signal log")
+        try:
+            log_data = json.loads(SIGNAL_LOG.read_text(encoding="utf-8"))
+            log_rows = []
+            for e in sorted(log_data, key=lambda x: x.get("logged_at", ""), reverse=True)[:20]:
+                log_rows.append({
+                    "Date": e.get("scan_date", ""),
+                    "Question": e.get("question", "")[:50],
+                    "Side": e.get("side", ""),
+                    "ClEdge": f"{e['claude_edge']:+.2%}" if e.get("claude_edge") is not None else "n/a",
+                    "Score": f"{e.get('kelly_quarter', 0):.2%}" if e.get("kelly_quarter") else "—",
+                    "Resolved": "✓" if e.get("resolved") else "○",
+                    "Correct": "✓" if e.get("correct") is True else ("✗" if e.get("correct") is False else "—"),
+                })
+            data_table(log_rows, height=300)
+        except Exception:
+            pass
+
+
+def weather_markets_page() -> None:
+    inject_terminal_css()
+    st.subheader("Weather Markets — SC-010")
+    st.caption("Temperature bucket markets via Gamma slug API + Open-Meteo forecast. Run `scan_weather_markets.py --days 3 --obsidian` to refresh.")
+
+    WEATHER_JSON = Path(os.getenv("WEATHER_SCAN_JSON", "tmp/weather_market_scan.json"))
+    if not WEATHER_JSON.exists():
+        st.warning(f"No weather scan at `{WEATHER_JSON}`.")
+        st.code("PYTHONPATH=src python scripts/scan_weather_markets.py --days 3 --obsidian")
+        return
+
+    try:
+        signals = json.loads(WEATHER_JSON.read_text(encoding="utf-8"))
+    except Exception as exc:
+        st.error(f"Failed to load: {exc}")
+        return
+
+    from datetime import datetime as _dt
+    last_run = _dt.fromtimestamp(WEATHER_JSON.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+    st.caption(f"Last scan: {last_run} | {len(signals)} opportunities found")
+
+    if not signals:
+        st.info("Aucune opportunité météo. Les marchés ont peut-être expiré ou les forecasts sont alignés.")
+        return
+
+    buy_yes = [s for s in signals if s.get("signal") == "BUY_YES"]
+    buy_no = [s for s in signals if s.get("signal") == "BUY_NO"]
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Opportunités totales", len(signals))
+    col2.metric("BUY YES", len(buy_yes))
+    col3.metric("BUY NO", len(buy_no))
+
+    st.markdown("### Signaux par edge décroissant")
+    rows = []
+    for s in signals:
+        bucket_lo = s.get("bucket_low", -999)
+        bucket_hi = s.get("bucket_high", 999)
+        bucket_str = f"[{bucket_lo:.0f}–{bucket_hi:.0f}]" if bucket_hi < 900 else f"[{bucket_lo:.0f}+]"
+        rows.append({
+            "Ville": s.get("city", ""),
+            "Date": s.get("target_date", ""),
+            "Signal": s.get("signal", ""),
+            "Prix YES": f"{s.get('yes_price', 0):.3f}",
+            "Edge%": f"{s.get('edge_pct', 0):+.1f}%",
+            "Forecast": f"{s.get('forecast_temp', 0):.1f}°C",
+            "Bucket": bucket_str,
+        })
+    data_table(rows, height=300)
+
+    st.markdown("### Détails")
+    for s in signals[:5]:
+        bucket_lo = s.get("bucket_low", -999)
+        bucket_hi = s.get("bucket_high", 999)
+        bucket_str = f"[{bucket_lo:.0f}–{bucket_hi:.0f}°C]" if bucket_hi < 900 else f"[{bucket_lo:.0f}°C+]"
+        with st.expander(f"[{s.get('signal')}] {s.get('city')} {s.get('target_date')} {bucket_str} → edge {s.get('edge_pct', 0):+.1f}%"):
+            st.write(f"**Forecast** : {s.get('forecast_temp')}°C | **Prix YES** : {s.get('yes_price', 0):.3f} | **Edge** : {s.get('edge_pct', 0):+.1f}%")
+            st.write(f"**Rationale** : {s.get('rationale', '')}")
+            st.write(f"⚠️ Edge théorique (forecast supposé exact). Incertitude forecast ~±1.5°C à prendre en compte.")
+            st.code(s.get("condition_id", ""))
+
+    st.markdown("---")
+    st.caption("Slug pattern : `highest-temperature-in-{city}-on-{month}-{day}-{year}` | Source : @AlterEgo_eth")
+
+
+def end_of_event_page() -> None:
+    inject_terminal_css()
+    st.subheader("End-of-Event Bias — SC-009")
+    st.caption("Structural mispricing near resolution: LP withdrawal → favourite discounts + longshot premiums. Run `scan_end_of_event.py --obsidian` to refresh.")
+
+    EOE_JSON = Path(os.getenv("EOE_SCAN_JSON", "tmp/end_of_event_signals.json"))
+    if not EOE_JSON.exists():
+        st.warning(f"No end-of-event scan at `{EOE_JSON}`.")
+        st.code("PYTHONPATH=src python scripts/scan_end_of_event.py --max-hours 168 --obsidian")
+        return
+
+    try:
+        signals = json.loads(EOE_JSON.read_text(encoding="utf-8"))
+    except Exception as exc:
+        st.error(f"Failed to load: {exc}")
+        return
+
+    from datetime import datetime as _dt
+    last_run = _dt.fromtimestamp(EOE_JSON.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+    st.caption(f"Last scan: {last_run} | {len(signals)} signals")
+
+    if not signals:
+        st.info("Aucun signal end-of-event. Marchés près de l'expiry manquants ou prix déjà extrêmes.")
+        st.write("**Quand ce scanner est actif :** marchés esports/sports/weather expirables dans 24-72h avec prix 0.30–0.90.")
+        return
+
+    fav = [s for s in signals if s.get("edge_type") == "favourite_discount"]
+    long = [s for s in signals if s.get("edge_type") == "longshot_premium"]
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total signaux", len(signals))
+    col2.metric("Favourite discounts", len(fav), help="BUY YES — favoris bradés par panique")
+    col3.metric("Longshot premiums", len(long), help="BUY NO — longshots surévalués par espoir")
+
+    st.markdown("### Signaux (triés par edge)")
+    rows = []
+    for s in signals:
+        type_label = "FAV-DISC" if s.get("edge_type") == "favourite_discount" else "LONG-PREM"
+        rows.append({
+            "Question": s.get("question", "")[:52],
+            "Side": s.get("signal_side", ""),
+            "Prix": f"{s.get('signal_price', 0):.3f}",
+            "Edge%": f"{s.get('est_edge', 0):+.2%}",
+            "Heures": f"{s.get('hours_left', 0):.1f}h",
+            "Vol$K": f"{s.get('volume_usd', 0)/1000:.0f}K",
+            "Type": type_label,
+            "Cat": s.get("category", ""),
+        })
+    data_table(rows, height=300)
+
+    st.markdown("### Référence théorique")
+    st.write("**M(t) = α × σ × √(T-t) × (1/L(t))** — Mispricing augmente quand liquidité s'effondre près de la résolution.")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("**Wallets spécialistes end-of-event :**")
+        st.write("- `0xec981ed...` — 0xheavy888 ($772K, 4579 trades)")
+        st.write("- `0xb40e896...` — Poligarch ($132K, 20K trades)")
+    with col2:
+        st.write("**Setup optimal :**")
+        st.write("- Marchés esports/sports < 72h expiry")
+        st.write("- Volume < $50K (thin liquidity)")
+        st.write("- Prix favori 0.65–0.92 (pas encore extrême)")
 
 
 def edge_research_page() -> None:
