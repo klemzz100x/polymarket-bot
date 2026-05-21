@@ -164,9 +164,66 @@ async def run_scan(
     return signals
 
 
+async def load_markets_from_smart_money(sm_json_path: Path, client: PolymarketClient) -> list[dict]:
+    """Load BTC condition_ids from smart money scan and cross-reference with Gamma market list."""
+    import re as _re
+
+    try:
+        sm_data = json.loads(sm_json_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"  [!] Could not load smart money JSON: {exc}")
+        return []
+
+    btc_pats = [_re.compile(p, _re.I) for p in [r'\bbtc\b', r'\bbitcoin\b', r'\bsolana\b', r'\bethereum\b']]
+    sm_cids = set()
+    for entry in sm_data:
+        question = str(entry.get("question") or "")
+        cid = str(entry.get("condition_id") or "")
+        if cid and any(p.search(question) for p in btc_pats):
+            sm_cids.add(cid)
+
+    if not sm_cids:
+        print("  No BTC condition_ids in smart money output.")
+        return []
+
+    print(f"  {len(sm_cids)} BTC condition_ids from smart money — scanning Gamma market list...")
+
+    # Fetch all markets and cross-reference by conditionId (Gamma field)
+    markets = []
+    for page in range(10):
+        batch = await client.list_markets(active=True, closed=False, limit=500, offset=page * 500)
+        if not batch:
+            break
+        for m in batch:
+            gamma_cid = str(m.get("conditionId") or "")
+            if gamma_cid in sm_cids:
+                try:
+                    token_ids = json.loads(m.get("clobTokenIds") or "[]")
+                    outcomes = json.loads(m.get("outcomes") or "[]")
+                    prices = json.loads(m.get("outcomePrices") or "[]")
+                except Exception:
+                    continue
+                if len(token_ids) < 2:
+                    continue
+                markets.append({
+                    "condition_id": gamma_cid,
+                    "question": str(m.get("question") or "")[:70],
+                    "volume": float(m.get("volumeNum") or 0),
+                    "outcomes": outcomes,
+                    "token_ids": token_ids[:2],
+                    "prices": [float(p) for p in prices] if prices else [],
+                })
+
+    print(f"  Matched {len(markets)} markets from smart money condition_ids")
+    return markets
+
+
 async def run() -> int:
     parser = argparse.ArgumentParser(description="BTC cross-market lag scanner")
     parser.add_argument("--discover-markets", action="store_true", help="List active BTC markets and exit")
+    parser.add_argument("--from-smart-money", type=Path, default=None,
+                        metavar="JSON_FILE",
+                        help="Load BTC condition_ids from smart money scan output (e.g. tmp/smart_money_scan.json)")
     parser.add_argument("--duration", type=int, default=60, help="Scan duration in seconds")
     parser.add_argument("--interval", type=float, default=5.0, help="Poll interval in seconds")
     parser.add_argument("--min-edge", type=float, default=5.0, help="Min edge %% to report")
@@ -177,9 +234,20 @@ async def run() -> int:
     settings = get_settings()
 
     async with PolymarketClient(settings) as client:
-        print(f"\nDiscovering active BTC markets (vol >${args.min_volume:,.0f})...")
-        markets = await discover_btc_markets(client, min_volume=args.min_volume)
-        print(f"  -> {len(markets)} BTC markets found")
+        if args.from_smart_money:
+            print(f"\nLoading BTC markets from smart money scan: {args.from_smart_money}")
+            markets = await load_markets_from_smart_money(args.from_smart_money, client)
+            # Augment with discovery scan
+            discovered = await discover_btc_markets(client, min_volume=args.min_volume)
+            existing_cids = {m["condition_id"] for m in markets}
+            for m in discovered:
+                if m["condition_id"] not in existing_cids:
+                    markets.append(m)
+            print(f"  -> {len(markets)} BTC markets total (SM + discovery)")
+        else:
+            print(f"\nDiscovering active BTC markets (vol >${args.min_volume:,.0f})...")
+            markets = await discover_btc_markets(client, min_volume=args.min_volume)
+            print(f"  -> {len(markets)} BTC markets found")
 
         if not markets:
             print("No active BTC markets with orderbooks. Nothing to scan.")
