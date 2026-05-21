@@ -79,7 +79,7 @@ async def run() -> int:
             )
         ).run(snapshots=snapshots, trades=trades)
         db_healthy = bool((await session.execute(text("SELECT 1"))).scalar_one_or_none())
-        stale_count = await _stale_data_count(session)
+        stale_count = await _stale_data_count(session, condition_id=args.market_id)
         rejected_rate = (
             Decimal(sum(1 for item in shadow.decisions if item.status == "risk_rejected"))
             / Decimal(shadow.decision_count)
@@ -146,7 +146,7 @@ async def run() -> int:
     return 0
 
 
-async def _stale_data_count(session) -> int:
+async def _stale_data_count(session, *, condition_id: str) -> int:
     result = await session.execute(
         text(
             """
@@ -154,13 +154,15 @@ async def _stale_data_count(session) -> int:
                 SELECT DISTINCT ON (condition_id, asset_id)
                     condition_id, asset_id, snapshot_ts
                 FROM app.orderbook_snapshots
+                WHERE condition_id = :condition_id
                 ORDER BY condition_id, asset_id, snapshot_ts DESC
             )
             SELECT COUNT(*) AS stale_count
             FROM latest
             WHERE EXTRACT(EPOCH FROM (now() - snapshot_ts)) > 60
             """
-        )
+        ),
+        {"condition_id": condition_id},
     )
     return int(result.scalar_one() or 0)
 

@@ -129,8 +129,7 @@
       "created_at": "2026-05-21",
       "implemented_at": "2026-05-21",
       "implementation": "scripts/scan_btc_lag.py. --discover-markets liste les marchés crypto actifs. --duration/--interval contrôle la fenêtre de scan. Regex word-boundary pour éviter faux positifs ('eth' dans 'Netherlands'). LatencyArbitrageDetector dans src/polybot/strategies/latency_arbitrage.py."
-    }
-  ],
+    },
     {
       "id": "SC-009",
       "name": "end-of-event-bias",
@@ -164,7 +163,24 @@
       "created_at": "2026-05-21",
       "implemented_at": "2026-05-21",
       "implementation": "scripts/scan_weather_markets.py. --days (jours ahead), --cities (all ou liste), --min-edge. Open-Meteo temperature_2m_max. Buckets parsés via regex depuis texte question."
+    },
+    {
+      "id": "SC-011",
+      "name": "behavioral-bias-fade",
+      "status": "implemented",
+      "priority": "high",
+      "source": "threads PDF — @0xChaseTM 'Iceberg' thread. Reference wallets: aenews2 ($1.94M), YatSen ($2.3M)",
+      "description": "Scanner deux biais comportementaux : overreaction (mouvement prix >8% → réversion) et anchoring (range 7j < 8% + std historique > 2% = marché ancré). Utilise 30j historique horaire via startTs+fidelity=60.",
+      "edge_hypothesis": "Overreaction : prix dépasse la vraie probabilité suite à news → retour base rate en 3-48h. Anchoring : prix figé à ancien niveau malgré changement fondamental → re-pricing lent = fenêtre d'entrée.",
+      "key_formulas": ["overreaction: |move_24h| > 8% → fade", "anchoring: range_7d < 8% AND std_30d > 2%", "signal_side: opposite direction pour overreaction, MONITOR pour anchoring"],
+      "implementation_complexity": "low",
+      "requires": ["CLOB /prices-history (startTs + fidelity=60)", "Gamma API (marchés list)"],
+      "backtest_feasibility": "high — 30j historique disponible pour chaque marché",
+      "notes": "Premier run (50 marchés vol > $50K) : MicroStrategy -21.6% → BUY YES à 0.431 (overreaction forte), Knicks anchored à 0.174, NBA Finals anchored. F1 Antonelli + OpenSea FDV aussi ancrés. Total : 2 overreaction + 11 anchoring.",
+      "created_at": "2026-05-21",
+      "implemented_at": "2026-05-21",
+      "implementation": "scripts/scan_behavioral_bias.py. --mode (overreaction/anchoring/both), --min-move (seuil 24h move), --top-markets, --obsidian. Données : startTs=30j + fidelity=60 → ~720 points horaires par marché."
     }
   ],
-  "updated_at": "2026-05-21T12:00:00.000000+00:00"
+  "updated_at": "2026-05-21T14:00:00.000000+00:00"
 }

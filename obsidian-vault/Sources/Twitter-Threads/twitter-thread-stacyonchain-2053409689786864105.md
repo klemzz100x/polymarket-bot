@@ -3,9 +3,8 @@ type: "twitter-thread"
 source: "https://x.com/stacyonchain/status/2053409689786864105?s=20"
 author: "stacyonchain"
 status_id: "2053409689786864105"
-status: "to_summarize"
-created: "2026-05-12"
-tags: ["source/twitter", "polymarket", "research"]
+status: "scraped_excerpt"
+tags: ["source/twitter", "polymarket", "research", "scraped-excerpt"]
 ---
 # Twitter Thread - stacyonchain - 2053409689786864105
 
@@ -13,32 +12,27 @@ tags: ["source/twitter", "polymarket", "research"]
 https://x.com/stacyonchain/status/2053409689786864105?s=20
 
 ## Resume
-A completer apres extraction du contenu complet du thread.
+https://t.co/BwJlDb19VY
+— StacyOnChain (@stacyonchain)
+May 10, 2026
 
 ## Concepts cles
-- Polymarket
-- Trading automatise
-- Recherche a qualifier
+- A qualifier depuis l'extrait public.
 
 ## Idees exploitables
-- Verifier si le thread contient une hypothese testable.
-- Transformer toute strategie mentionnee en spec de backtest.
-- Classer les idees entre execution, pricing, market making, arbitrage, data ou tooling.
+- Transformer l'extrait en hypothese testable seulement si le signal est mesurable.
 
 ## Strategies mentionnees
-- A extraire.
+- A confirmer avec le thread complet si l'extrait est tronque.
 
 ## Risques / limites
-- Source non auditee.
-- Performance annoncee potentiellement non reproductible.
-- Risque de survivorship bias et de marketing.
+- Extrait public incomplet.
+- Claims de performance non audites.
+- Le contenu complet du thread peut modifier l'interpretation.
 
 ## A tester
-- Extraire le contenu via workflow n8n ou script de scraping autorise.
-- Faire une note strategie separee si une idee semble robuste.
-- Lier les hypotheses a un backtest reproductible.
+- Extraire le thread complet via export/source autorisee.
+- Relier cette note a un backtest reproductible si une hypothese survit.
 
-## Liens lies
-- [[Arbitrage]]
-- [[Execution]]
-- [[Market Making]]
+## Research Id
+`stacyonchain-2053409689786864105`
