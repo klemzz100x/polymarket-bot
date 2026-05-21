@@ -4,6 +4,7 @@ import asyncio
 from datetime import UTC, datetime
 from decimal import Decimal
 from html import escape
+import json
 import os
 from pathlib import Path
 import re
@@ -13,7 +14,6 @@ from urllib.request import urlopen
 
 import asyncpg
 import streamlit as st
-import streamlit.components.v1 as components
 
 try:
     import pandas as pd
@@ -49,6 +49,7 @@ def main() -> None:
         "Page",
         [
             "Terminal Cockpit",
+            "Oracle Scan",
             "Overview",
             "Data Coverage",
             "Equity Curve",
@@ -62,11 +63,14 @@ def main() -> None:
             "Execution Quality",
             "Wallet",
             "OMS",
+            "Edge Research",
             "Twitter Research",
         ],
     )
     if page == "Terminal Cockpit":
         terminal_cockpit_page()
+    elif page == "Oracle Scan":
+        oracle_scan_page()
     elif page == "Overview":
         overview_page()
     elif page == "Data Coverage":
@@ -93,6 +97,8 @@ def main() -> None:
         wallet_page()
     elif page == "OMS":
         oms_page()
+    elif page == "Edge Research":
+        edge_research_page()
     else:
         twitter_research_page()
 
@@ -139,8 +145,7 @@ def terminal_cockpit_page() -> None:
         """
     )
 
-    st.markdown("### Terminal Cockpit")
-    st.caption("Dense read-only view. All widgets refresh from Postgres/API; no order placement or live controls.")
+    render_cockpit_header(summary, readiness, equity, refresh_label)
 
     status_cols = st.columns(6)
     status_cols[0].metric("API", api_health())
@@ -163,6 +168,8 @@ def terminal_cockpit_page() -> None:
         render_compact_table("Latest validation runs", fetch_all(_latest_runs_query())[:10], height=240)
         render_orderbook_depth(fetch_all(_orderbook_pressure_query(limit=8)))
     with center:
+        render_btc_5m_radar()
+        render_weather_radar()
         render_equity_panel()
         render_compact_table("Freshest markets", fetch_all(_market_coverage_query(limit=12)), height=255)
     with right:
@@ -205,40 +212,364 @@ def twitter_research_page() -> None:
         st.success(f"Research batch created: {result['batch_id']}")
         st.write("Raw inbox file:", str(result["raw_path"]))
         st.write("Research index note:", str(result["index_note_path"]))
-        st.dataframe(to_frame(result["notes"]), use_container_width=True)
+        data_table(result["notes"])
 
     st.subheader("Recent Twitter Source Notes")
     source_dir = OBSIDIAN_VAULT_DIR / "Sources" / "Twitter-Threads"
     notes = list_recent_markdown_notes(source_dir, limit=25)
-    st.dataframe(to_frame(notes), use_container_width=True)
+    data_table(notes)
+
+
+def oracle_scan_page() -> None:
+    inject_terminal_css()
+    st.subheader("Oracle Scan — Becker + Claude")
+    st.caption("Signals from the Becker calibration + Claude oracle. Run `scan_becker_oracle.py --live --claude --obsidian` to refresh.")
+
+    ORACLE_JSON = Path(os.getenv("ORACLE_SCAN_JSON", "tmp/becker_oracle_scan.json"))
+    if not ORACLE_JSON.exists():
+        st.warning(f"No scan file found at `{ORACLE_JSON}`. Run the scanner first.")
+        st.code("PYTHONPATH=src python scripts/scan_becker_oracle.py --live --claude --min-volume 20000 --obsidian")
+        return
+
+    try:
+        signals = json.loads(ORACLE_JSON.read_text(encoding="utf-8"))
+    except Exception as exc:
+        st.error(f"Failed to load scan: {exc}")
+        return
+
+    if not signals:
+        st.info("No signals in last scan.")
+        return
+
+    scan_date = ORACLE_JSON.stat().st_mtime
+    from datetime import datetime as _dt
+    last_run = _dt.fromtimestamp(scan_date).strftime("%Y-%m-%d %H:%M")
+    st.caption(f"Last scan: {last_run} | {len(signals)} signals")
+
+    actionable = [s for s in signals if s.get("claude_edge") is not None and s["claude_edge"] > 0.03 and s.get("claude_confidence") in ("medium", "high") and s.get("recommended_side") in ("YES", "NO")]
+    near_miss = [s for s in signals if s.get("claude_edge") is not None and 0 < s["claude_edge"] <= 0.03 and s.get("recommended_side") in ("YES", "NO")]
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Signaux Becker", len(signals))
+    col2.metric("Actionnables (>3%)", len(actionable))
+    col3.metric("Near-miss", len(near_miss))
+    best_edge = max((s["claude_edge"] for s in signals if s.get("claude_edge") is not None), default=0)
+    col4.metric("Best ClEdge", f"{best_edge:+.2%}")
+
+    if actionable:
+        st.markdown("### Signaux actionnables (ClEdge >3%, confiance medium+)")
+        rows = []
+        for s in actionable:
+            rows.append({
+                "Question": s["question"][:60],
+                "Prix": f"{s['market_price']:.1%}",
+                "Side": s["recommended_side"],
+                "BkrEdge": f"{s['becker_edge']:+.2%}",
+                "ClEdge": f"{s['claude_edge']:+.2%}",
+                "Kelly¼": f"{s['kelly_quarter']:.2%}",
+                "Conf": s.get("claude_confidence", ""),
+                "Vol$M": f"{s['volume_usd']/1e6:.1f}M",
+            })
+        data_table(rows, height=200)
+        for s in actionable:
+            with st.expander(f"[{s['recommended_side']}] {s['question'][:70]}"):
+                st.write(f"**Prix** : {s['market_price']:.2%} | **ClEdge** : {s['claude_edge']:+.2%} | **Kelly¼** : {s['kelly_quarter']:.2%}")
+                st.write(f"**Confiance** : {s.get('claude_confidence')} | **Volume** : ${s['volume_usd']:,.0f}")
+                st.write("**Facteurs clés :**")
+                for factor in (s.get("claude_key_factors") or []):
+                    st.write(f"- {factor}")
+                st.code(s["condition_id"])
+    else:
+        st.info("Aucun signal actionnable dans le dernier scan.")
+
+    st.markdown("### Tous les signaux")
+    all_rows = []
+    for s in signals:
+        cl = f"{s['claude_edge']:+.2%}" if s.get("claude_edge") is not None else "n/a"
+        all_rows.append({
+            "Question": s["question"][:55],
+            "Prix": f"{s['market_price']:.1%}",
+            "Side": s.get("recommended_side", ""),
+            "BkrEdge": f"{s['becker_edge']:+.2%}",
+            "ClEdge": cl,
+            "Kelly¼": f"{s['kelly_quarter']:.2%}",
+            "Conf": s.get("claude_confidence", ""),
+            "Vol$M": f"{s['volume_usd']/1e6:.1f}M",
+        })
+    data_table(all_rows, height=360)
+
+
+def edge_research_page() -> None:
+    inject_terminal_css()
+    st.subheader("Edge Research")
+    st.caption("Thread-to-edge synthesis. Read-only view: candidates, evidence quality, and missing extraction work.")
+
+    source_dir = OBSIDIAN_VAULT_DIR / "Sources" / "Twitter-Threads"
+    registry_path = OBSIDIAN_VAULT_DIR / "Research" / "Strategy-Candidates" / "strategy-candidate-registry.json"
+    synthesis_path = OBSIDIAN_VAULT_DIR / "Research" / "Edge-Research" / "twitter-edge-synthesis.md"
+    full_matrix_path = RESOURCES_DIR / "twitter-threads" / "full-content" / "thread_value_matrix.json"
+
+    source_notes = list_recent_markdown_notes(source_dir, limit=500)
+    candidates = load_strategy_candidate_records(registry_path)
+    families = aggregate_candidates_by_family(candidates)
+    thread_statuses = aggregate_thread_status(source_dir)
+    full_threads = load_full_thread_matrix(full_matrix_path)
+    full_thread_families = aggregate_full_thread_families(full_threads)
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Twitter notes", fmt_compact(len(source_notes)))
+    col2.metric("Candidates", fmt_compact(len(candidates)))
+    col3.metric("Full threads", fmt_compact(len(full_threads)))
+    col4.metric("Edge families", fmt_compact(len(full_thread_families) or len(families)))
+
+    st.markdown("**Full-thread edge map**")
+    if full_threads:
+        direct_edges = sum(1 for row in full_threads if row.get("relevance") == "direct_edge")
+        high_priority = sum(1 for row in full_threads if row.get("priority") == "high")
+        metric_cols = st.columns(4)
+        metric_cols[0].metric("Direct edge threads", fmt_compact(direct_edges))
+        metric_cols[1].metric("High priority", fmt_compact(high_priority))
+        metric_cols[2].metric("Source JSON", "present")
+        metric_cols[3].metric("Synthesis", "present" if synthesis_path.exists() else "missing")
+        data_table(full_thread_families, height=260)
+    else:
+        st.info(f"No full-thread matrix found yet: `{full_matrix_path}`")
+
+    left, right = st.columns([1.35, 1.0])
+    with left:
+        st.markdown("**Candidate registry family map**")
+        data_table(families, height=300)
+    with right:
+        st.markdown("**Thread extraction status**")
+        if not thread_statuses:
+            st.caption("No Twitter notes found.")
+        for row in thread_statuses:
+            render_status_badge(str(row["status"]), row["count"])
+        st.caption(f"Synthesis note: `{synthesis_path}`")
+        st.caption(f"Full thread matrix: `{full_matrix_path}`")
+
+    st.markdown("**Full-thread research backlog**")
+    data_table(
+        [
+            {
+                "priority": row.get("priority"),
+                "relevance": row.get("relevance"),
+                "primary_family": row.get("primary_family"),
+                "author": row.get("author"),
+                "title": row.get("title"),
+                "first_action": first_item(row.get("actionable_takeaways")),
+                "source": row.get("source"),
+            }
+            for row in full_threads
+        ],
+        height=360,
+    )
+
+    st.markdown("**Top strategy candidates**")
+    data_table(candidates[:50], height=360)
+
+    st.markdown("**Recent source notes**")
+    data_table(source_notes[:50], height=300)
 
 
 def inject_terminal_css() -> None:
     st.markdown(
         """
         <style>
-        .block-container { padding-top: 2rem; }
-        div[data-testid="stMetric"] {
-            border: 1px solid rgba(118, 255, 189, 0.16);
-            border-radius: 6px;
-            padding: 0.65rem 0.75rem;
-            background: rgba(0, 0, 0, 0.22);
+        :root {
+            --ops-bg: #040301;
+            --ops-panel: rgba(12, 9, 4, 0.92);
+            --ops-line: rgba(247, 174, 57, 0.23);
+            --ops-amber: #f5a623;
+            --ops-green: #20ff68;
+            --ops-red: #ff3b3b;
+            --ops-blue: #5aa7ff;
+            --ops-muted: rgba(247, 213, 150, 0.62);
         }
+        .stApp {
+            background:
+                linear-gradient(rgba(255,176,45,0.025) 1px, transparent 1px),
+                radial-gradient(circle at 50% 0%, rgba(245,166,35,0.08), transparent 34%),
+                var(--ops-bg);
+            background-size: 100% 18px, auto, auto;
+            color: #f8dca3;
+        }
+        .block-container {
+            padding-top: 0.7rem;
+            padding-bottom: 1rem;
+            max-width: 100%;
+        }
+        h1, h2, h3, .stMarkdown, .stCaption, label, p, div {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            letter-spacing: 0;
+        }
+        header[data-testid="stHeader"] { background: transparent; }
+        section[data-testid="stSidebar"] {
+            background: #070501;
+            border-right: 1px solid var(--ops-line);
+        }
+        section[data-testid="stSidebar"] * {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+        div[data-testid="stMetric"] {
+            border: 1px solid var(--ops-line);
+            border-radius: 2px;
+            padding: 0.52rem 0.6rem;
+            background: linear-gradient(180deg, rgba(31,20,5,0.92), rgba(8,6,2,0.96));
+            box-shadow: inset 0 0 18px rgba(245,166,35,0.05);
+            min-height: 78px;
+        }
+        div[data-testid="stMetricLabel"] p {
+            color: var(--ops-muted);
+            font-size: 0.68rem;
+            text-transform: uppercase;
+        }
+        div[data-testid="stMetricValue"] {
+            color: var(--ops-amber);
+            font-size: 1.28rem;
+            text-shadow: 0 0 12px rgba(245,166,35,0.26);
+        }
+        div[data-testid="stMetricDelta"] {
+            color: var(--ops-green);
+            font-size: 0.72rem;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"] {
+            border-color: var(--ops-line);
+            border-radius: 2px;
+            background: rgba(9,7,3,0.78);
+        }
+        div[data-testid="stDataFrame"] {
+            border: 1px solid rgba(245,166,35,0.16);
+            box-shadow: inset 0 0 24px rgba(0,0,0,0.34);
+        }
+        .stProgress > div > div > div {
+            background-color: var(--ops-green);
+        }
+        .ops-header {
+            border: 1px solid var(--ops-line);
+            border-radius: 2px;
+            background: linear-gradient(180deg, rgba(18,12,3,0.96), rgba(5,4,1,0.98));
+            padding: 0.55rem 0.75rem;
+            margin-bottom: 0.65rem;
+            box-shadow: 0 0 28px rgba(245,166,35,0.08);
+        }
+        .ops-topline {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: center;
+            border-bottom: 1px solid rgba(245,166,35,0.18);
+            padding-bottom: 0.35rem;
+        }
+        .ops-brand {
+            color: var(--ops-amber);
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .ops-live {
+            color: var(--ops-green);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .ops-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 0.6rem;
+            padding-top: 0.5rem;
+        }
+        .ops-cell {
+            border-left: 1px solid rgba(245,166,35,0.18);
+            padding-left: 0.55rem;
+            min-width: 0;
+        }
+        .ops-label {
+            color: var(--ops-muted);
+            font-size: 0.64rem;
+            text-transform: uppercase;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .ops-value {
+            color: var(--ops-amber);
+            font-size: 1.08rem;
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .ops-value.green { color: var(--ops-green); }
+        .ops-value.red { color: var(--ops-red); }
+        .ops-value.blue { color: var(--ops-blue); }
         .terminal-line {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-size: 0.82rem;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            padding: 0.28rem 0;
+            font-size: 0.74rem;
+            border-bottom: 1px solid rgba(245,166,35,0.09);
+            padding: 0.22rem 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .terminal-good { color: #5df2a0; }
-        .terminal-warn { color: #ffb84d; }
-        .terminal-bad { color: #ff6b6b; }
-        .terminal-muted { color: rgba(255,255,255,0.56); }
+        .terminal-good { color: var(--ops-green); }
+        .terminal-warn { color: var(--ops-amber); }
+        .terminal-bad { color: var(--ops-red); }
+        .terminal-muted { color: var(--ops-muted); }
+        @media (max-width: 900px) {
+            .ops-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .ops-topline { grid-template-columns: 1fr; }
+        }
         </style>
         """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_cockpit_header(
+    summary: dict[str, Any], readiness: dict[str, Any], equity: dict[str, Any], refresh_label: str
+) -> None:
+    now = datetime.now(UTC).strftime("%H:%M:%S UTC")
+    api = api_health()
+    live_mode = os.getenv("LIVE_EXECUTION_MODE", "DISABLED")
+    live_class = "green" if live_mode == "DISABLED" else "red"
+    cells = [
+        ("API", api, "green" if api == "ok" else "red"),
+        ("EQUITY", fmt_money(equity.get("equity")), ""),
+        ("NET PNL", fmt_money(summary.get("net_pnl")), "green"),
+        ("SNAPSHOTS", fmt_compact(summary.get("snapshots")), "blue"),
+        ("READINESS", fmt_compact(readiness.get("status")), "green"),
+        ("LIVE MODE", live_mode, live_class),
+    ]
+    cell_html = "".join(
+        f"<div class='ops-cell'><div class='ops-label'>{escape(label)}</div>"
+        f"<div class='ops-value {css}'>{escape(str(value))}</div></div>"
+        for label, value, css in cells
+    )
+    st.markdown(
+        f"""
+        <div class="ops-header">
+            <div class="ops-topline">
+                <div class="ops-brand">POLYBOT COCKPIT // PAPER + SHADOW OPS</div>
+                <div class="ops-live">READ ONLY // AUTO {escape(refresh_label)} // {escape(now)}</div>
+            </div>
+            <div class="ops-grid">{cell_html}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_status_badge(label: str, value: Any) -> None:
+    normalized = label.lower()
+    css_class = "terminal-muted"
+    if normalized in {"candidate_ready", "content_rich"}:
+        css_class = "terminal-good"
+    elif normalized in {"needs_extraction", "placeholder", "raw_url_only", "missing"}:
+        css_class = "terminal-warn"
+    st.markdown(
+        f"<div class='terminal-line {css_class}'><strong>{escape(label)}</strong>: {escape(str(value))}</div>",
         unsafe_allow_html=True,
     )
 
@@ -246,15 +577,14 @@ def inject_terminal_css() -> None:
 def maybe_auto_refresh(seconds: int) -> None:
     if seconds <= 0:
         return
-    components.html(
+    st.html(
         f"""
         <script>
         setTimeout(function() {{
             window.parent.location.reload();
         }}, {seconds * 1000});
         </script>
-        """,
-        height=0,
+        """
     )
 
 
@@ -265,7 +595,7 @@ def render_compact_table(title: str, rows: list[dict[str, Any]], *, height: int)
         if pd is not None and frame.empty:
             st.caption("empty")
         else:
-            st.dataframe(frame, use_container_width=True, height=height)
+            data_table(frame, height=height)
 
 
 def render_equity_panel() -> None:
@@ -285,6 +615,240 @@ def render_equity_panel() -> None:
             st.line_chart(frame, x="snapshot_ts", y=chart_cols, height=260)
         else:
             st.caption("empty")
+
+
+def render_btc_5m_radar() -> None:
+    latest = fetch_one(
+        """
+        SELECT observed_at, condition_id, market_slug, market_title, binance_price,
+               binance_change_30s_pct, up_ask, down_ask, pair_cost, spread,
+               market_state, rejected_reason, has_latency_signal, has_pair_arb_signal
+        FROM app.btc_5m_monitor_ticks
+        ORDER BY observed_at DESC
+        LIMIT 1
+        """
+    )
+    summary = fetch_one(
+        """
+        SELECT
+            COUNT(*) AS ticks,
+            COUNT(DISTINCT condition_id) AS markets,
+            COUNT(*) FILTER (WHERE market_state = 'SIGNAL') AS signals,
+            COUNT(*) FILTER (WHERE market_state = 'TRADEABLE') AS tradeable,
+            COUNT(*) FILTER (WHERE market_state = 'ILLIQUID') AS illiquid,
+            MIN(spread) AS best_spread,
+            MAX(abs(binance_change_30s_pct)) AS max_abs_btc_move_30s
+        FROM app.btc_5m_monitor_ticks
+        WHERE observed_at > now() - interval '24 hours'
+        """
+    )
+    recent = fetch_all(
+        """
+        SELECT observed_at, market_state, binance_change_30s_pct, spread, pair_cost,
+               up_ask, down_ask, rejected_reason
+        FROM app.btc_5m_monitor_ticks
+        ORDER BY observed_at DESC
+        LIMIT 12
+        """
+    )
+
+    with st.container(border=True):
+        st.markdown("**BTC 5M Radar**")
+        if not latest:
+            st.caption("No BTC 5-min monitor ticks yet. Run `scripts/monitor_btc_5min.py` to feed this panel.")
+            return
+
+        cols = st.columns(6)
+        cols[0].metric("State", fmt_compact(latest.get("market_state")))
+        cols[1].metric("BTC", fmt_money(latest.get("binance_price")))
+        cols[2].metric("BTC 30s", f"{fmt_compact(latest.get('binance_change_30s_pct'))}%")
+        cols[3].metric("Spread", fmt_pct(latest.get("spread")))
+        cols[4].metric("YES+NO", fmt_compact(latest.get("pair_cost")))
+        cols[5].metric("Signals 24h", fmt_compact(summary.get("signals")))
+
+        state = str(latest.get("market_state") or "")
+        css_class = {
+            "SIGNAL": "terminal-good",
+            "TRADEABLE": "terminal-good",
+            "WATCH": "terminal-warn",
+            "ILLIQUID": "terminal-bad",
+            "NO_BOOK": "terminal-muted",
+        }.get(state, "terminal-muted")
+        status_text = (
+            f"{fmt_time(latest.get('observed_at'))} {latest.get('market_slug')} "
+            f"{state} | {latest.get('rejected_reason') or 'no rejection'}"
+        )
+        st.markdown(
+            f"<div class='terminal-line {css_class}'>{escape(status_text)}</div>",
+            unsafe_allow_html=True,
+        )
+
+        stat_cols = st.columns(5)
+        stat_cols[0].metric("Ticks 24h", fmt_compact(summary.get("ticks")))
+        stat_cols[1].metric("Markets 24h", fmt_compact(summary.get("markets")))
+        stat_cols[2].metric("Tradeable", fmt_compact(summary.get("tradeable")))
+        stat_cols[3].metric("Illiquid", fmt_compact(summary.get("illiquid")))
+        stat_cols[4].metric("Max BTC move", f"{fmt_compact(summary.get('max_abs_btc_move_30s'))}%")
+
+        data_table(recent, height=210)
+
+
+def render_weather_radar() -> None:
+    latest = fetch_one(
+        """
+        SELECT observed_at, scan_id, market_state, weather_family, question,
+               location_hint, threshold_hint, best_yes_ask, best_no_ask,
+               pair_cost, spread, rejected_reason, edge_hypothesis
+        FROM app.weather_market_radar_ticks
+        ORDER BY observed_at DESC, spread ASC NULLS LAST
+        LIMIT 1
+        """
+    )
+    summary = fetch_one(
+        """
+        WITH latest_scan AS (
+            SELECT scan_id
+            FROM app.weather_market_radar_ticks
+            ORDER BY observed_at DESC
+            LIMIT 1
+        )
+        SELECT
+            COUNT(*) AS markets,
+            COUNT(*) FILTER (WHERE market_state = 'FORECAST_WATCH') AS forecast_watch,
+            COUNT(*) FILTER (WHERE market_state = 'PAIR_ARB_WATCH') AS pair_arb_watch,
+            COUNT(*) FILTER (WHERE market_state = 'WATCH') AS watch,
+            COUNT(*) FILTER (WHERE market_state = 'NO_BOOK') AS no_book,
+            MIN(spread) AS best_spread,
+            MAX(observed_at) AS latest_scan_at
+        FROM app.weather_market_radar_ticks
+        WHERE scan_id = (SELECT scan_id FROM latest_scan)
+        """
+    )
+    rows = fetch_all(
+        """
+        WITH latest_scan AS (
+            SELECT scan_id
+            FROM app.weather_market_radar_ticks
+            ORDER BY observed_at DESC
+            LIMIT 1
+        )
+        SELECT market_state, spread, weather_family, location_hint, threshold_hint,
+               LEFT(question, 86) AS question, rejected_reason
+        FROM app.weather_market_radar_ticks
+        WHERE scan_id = (SELECT scan_id FROM latest_scan)
+        ORDER BY
+            CASE market_state
+                WHEN 'PAIR_ARB_WATCH' THEN 0
+                WHEN 'FORECAST_WATCH' THEN 1
+                WHEN 'WATCH' THEN 2
+                WHEN 'ILLIQUID' THEN 3
+                ELSE 9
+            END,
+            spread ASC NULLS LAST
+        LIMIT 14
+        """
+    )
+    forecast_summary = fetch_one(
+        """
+        SELECT
+            COUNT(*) AS scored,
+            COUNT(*) FILTER (WHERE model_state = 'EDGE_CANDIDATE') AS edge_candidates,
+            MAX(GREATEST(COALESCE(edge_yes, -99), COALESCE(edge_no, -99))) AS best_proxy_edge,
+            MAX(observed_at) AS latest_score_at
+        FROM app.weather_forecast_edges
+        WHERE observed_at > now() - interval '24 hours'
+        """
+    )
+    forecast_edges = fetch_all(
+        """
+        SELECT model_state, action_bias, fair_yes, market_mid, edge_yes, edge_no,
+               forecast_max_c, location_hint, LEFT(question, 78) AS question, reason,
+               raw->>'source_adapter' AS source_adapter
+        FROM app.weather_forecast_edges
+        WHERE observed_at = (
+            SELECT MAX(observed_at)
+            FROM app.weather_forecast_edges
+        )
+        ORDER BY
+            CASE model_state
+                WHEN 'EDGE_CANDIDATE' THEN 0
+                WHEN 'MODEL_WATCH' THEN 1
+                WHEN 'FAIR_ALIGNED' THEN 2
+                ELSE 9
+            END,
+            GREATEST(COALESCE(edge_yes, -99), COALESCE(edge_no, -99)) DESC
+        LIMIT 8
+        """
+    )
+    live_gate = fetch_one(
+        """
+        SELECT status, score, generated_at, blockers
+        FROM app.weather_live_gate_reports
+        ORDER BY generated_at DESC
+        LIMIT 1
+        """
+    )
+    station_observations = fetch_all(
+        """
+        SELECT station_id, temp_c, report_time, collected_at, LEFT(raw_metar, 96) AS raw_metar
+        FROM app.weather_station_observations
+        ORDER BY collected_at DESC, station_id
+        LIMIT 6
+        """
+    )
+
+    with st.container(border=True):
+        st.markdown("**Weather Edge Radar**")
+        if not latest:
+            st.caption("No weather scan yet. Run `scripts/discover_weather_markets.py --obsidian`.")
+            return
+
+        cols = st.columns(6)
+        cols[0].metric("State", fmt_compact(latest.get("market_state")))
+        cols[1].metric("Markets", fmt_compact(summary.get("markets")))
+        cols[2].metric("Forecast watch", fmt_compact(summary.get("forecast_watch")))
+        cols[3].metric("Pair arb watch", fmt_compact(summary.get("pair_arb_watch")))
+        cols[4].metric("Best spread", fmt_pct(summary.get("best_spread")))
+        cols[5].metric("Proxy edges", fmt_compact(forecast_summary.get("edge_candidates")))
+
+        state = str(latest.get("market_state") or "")
+        css_class = {
+            "PAIR_ARB_WATCH": "terminal-good",
+            "FORECAST_WATCH": "terminal-good",
+            "WATCH": "terminal-warn",
+            "ILLIQUID": "terminal-bad",
+            "NO_BOOK": "terminal-muted",
+            "NO_TOKENS": "terminal-muted",
+        }.get(state, "terminal-muted")
+        text = (
+            f"{fmt_time(latest.get('observed_at'))} {state} "
+            f"{latest.get('weather_family') or ''} | "
+            f"{latest.get('location_hint') or 'global'} | "
+            f"{latest.get('question') or ''}"
+        )
+        st.markdown(
+            f"<div class='terminal-line {css_class}'>{escape(text)}</div>",
+            unsafe_allow_html=True,
+        )
+        st.caption(latest.get("edge_hypothesis") or latest.get("rejected_reason") or "")
+        data_table(rows, height=230)
+        if forecast_edges:
+            st.markdown("**Forecast proxy scores**")
+            score_cols = st.columns(3)
+            score_cols[0].metric("Scored 24h", fmt_compact(forecast_summary.get("scored")))
+            score_cols[1].metric("Edge candidates", fmt_compact(forecast_summary.get("edge_candidates")))
+            score_cols[2].metric("Best proxy edge", fmt_pct(forecast_summary.get("best_proxy_edge")))
+            data_table(forecast_edges, height=190)
+        st.markdown("**Weather live gate**")
+        gate_cols = st.columns(4)
+        gate_cols[0].metric("Gate", fmt_compact(live_gate.get("status")))
+        gate_cols[1].metric("Score", fmt_compact(live_gate.get("score")))
+        gate_cols[2].metric("Generated", age_label(live_gate.get("generated_at")))
+        gate_cols[3].metric("Station reads", fmt_compact(len(station_observations)))
+        if live_gate.get("blockers"):
+            st.caption(f"Blockers: {live_gate.get('blockers')}")
+        if station_observations:
+            data_table(station_observations, height=160)
 
 
 def render_orderbook_depth(rows: list[dict[str, Any]]) -> None:
@@ -549,6 +1113,130 @@ def list_recent_markdown_notes(directory: Path, *, limit: int) -> list[dict[str,
     ]
 
 
+def load_strategy_candidate_records(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    records: list[dict[str, Any]] = []
+    for item in payload.get("records", []):
+        candidate = item.get("candidate", {})
+        records.append(
+            {
+                "rank_score": item.get("rank_score"),
+                "status": item.get("status", "new"),
+                "name": candidate.get("name"),
+                "edge_family": candidate.get("edge_family"),
+                "priority": candidate.get("priority"),
+                "difficulty": candidate.get("implementation_difficulty"),
+                "summary": candidate.get("summary"),
+                "next_action": candidate.get("next_action"),
+                "source": candidate.get("source_obsidian_path"),
+            }
+        )
+    return records
+
+
+def aggregate_candidates_by_family(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    groups: dict[str, dict[str, Any]] = {}
+    for candidate in candidates:
+        family = str(candidate.get("edge_family") or "unknown")
+        group = groups.setdefault(
+            family,
+            {
+                "edge_family": family,
+                "candidates": 0,
+                "high_priority": 0,
+                "best_rank": 0,
+                "next_action": candidate.get("next_action"),
+            },
+        )
+        group["candidates"] += 1
+        group["high_priority"] += 1 if candidate.get("priority") == "high" else 0
+        group["best_rank"] = max(int(group["best_rank"] or 0), int(candidate.get("rank_score") or 0))
+        if not group.get("next_action") and candidate.get("next_action"):
+            group["next_action"] = candidate.get("next_action")
+    return sorted(groups.values(), key=lambda row: (-row["best_rank"], row["edge_family"]))
+
+
+def load_full_thread_matrix(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    if not isinstance(payload, list):
+        return []
+    return [item for item in payload if isinstance(item, dict)]
+
+
+def aggregate_full_thread_families(threads: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    groups: dict[str, dict[str, Any]] = {}
+    for thread in threads:
+        families = thread.get("families")
+        if not isinstance(families, list) or not families:
+            families = [thread.get("primary_family") or "unclassified"]
+        for family_value in families:
+            family = str(family_value or "unclassified")
+            group = groups.setdefault(
+                family,
+                {
+                    "edge_family": family,
+                    "threads": 0,
+                    "high_priority": 0,
+                    "direct_edge": 0,
+                    "research_edge": 0,
+                    "infrastructure_edge": 0,
+                    "first_action": first_item(thread.get("actionable_takeaways")),
+                },
+            )
+            group["threads"] += 1
+            group["high_priority"] += 1 if thread.get("priority") == "high" else 0
+            group["direct_edge"] += 1 if thread.get("relevance") == "direct_edge" else 0
+            group["research_edge"] += 1 if thread.get("relevance") == "research_edge" else 0
+            group["infrastructure_edge"] += 1 if thread.get("relevance") == "infrastructure_edge" else 0
+            if not group.get("first_action"):
+                group["first_action"] = first_item(thread.get("actionable_takeaways"))
+    return sorted(groups.values(), key=lambda row: (-row["high_priority"], -row["threads"], row["edge_family"]))
+
+
+def first_item(value: Any) -> str:
+    if isinstance(value, list) and value:
+        return str(value[0])
+    if value:
+        return str(value)
+    return ""
+
+
+def aggregate_thread_status(directory: Path) -> list[dict[str, Any]]:
+    counts: dict[str, int] = {}
+    if not directory.exists():
+        return []
+    for path in directory.glob("*.md"):
+        status = classify_thread_note(path)
+        counts[status] = counts.get(status, 0) + 1
+    return [{"status": status, "count": count} for status, count in sorted(counts.items())]
+
+
+def classify_thread_note(path: Path) -> str:
+    try:
+        text = path.read_text(encoding="utf-8").lower()
+    except UnicodeDecodeError:
+        text = path.read_text(encoding="latin-1").lower()
+    if "a completer apres extraction" in text or "a extraire" in text:
+        return "placeholder"
+    if "research tasks" in text and "strategy candidate hooks" in text and "hypothesis:\n-" not in text:
+        return "needs_extraction"
+    if len(text.strip()) < 900:
+        return "raw_url_only"
+    if any(keyword in text for keyword in ("hypothesis", "testable signal", "backtest", "queue", "orderbook")):
+        return "candidate_ready"
+    return "content_rich"
+
+
 def overview_page() -> None:
     data = fetch_one(
         """
@@ -596,19 +1284,19 @@ def overview_page() -> None:
     col12.metric("Kill switch", fmt(readiness.get("kill_switch_state")))
 
     st.subheader("Latest Validation Runs")
-    st.dataframe(to_frame(fetch_all(_latest_runs_query())))
+    data_table(fetch_all(_latest_runs_query()))
 
     st.subheader("Freshest Market Data")
-    st.dataframe(to_frame(fetch_all(_market_coverage_query(limit=20))))
+    data_table(fetch_all(_market_coverage_query(limit=20)))
 
     st.subheader("Recent Signals")
-    st.dataframe(to_frame(fetch_all(_recent_signals_query(limit=50))))
+    data_table(fetch_all(_recent_signals_query(limit=50)))
 
 
 def data_coverage_page() -> None:
     coverage = fetch_all(_market_coverage_query(limit=200))
     st.subheader("Market Data Coverage")
-    st.dataframe(to_frame(coverage))
+    data_table(coverage)
 
     freshness = fetch_one(
         """
@@ -642,7 +1330,7 @@ def data_coverage_page() -> None:
         """
     )
     st.subheader("Ingestion Runs")
-    st.dataframe(to_frame(logs))
+    data_table(logs)
 
     books = fetch_all(
         """
@@ -660,7 +1348,7 @@ def data_coverage_page() -> None:
         """
     )
     st.subheader("Latest Orderbooks")
-    st.dataframe(to_frame(books))
+    data_table(books)
 
 
 def equity_curve_page() -> None:
@@ -678,7 +1366,7 @@ def equity_curve_page() -> None:
         st.line_chart(frame, x="snapshot_ts", y="equity", color="strategy_name")
         st.line_chart(frame, x="snapshot_ts", y="net_pnl", color="strategy_name")
     else:
-        st.dataframe(frame)
+        data_table(frame)
 
     st.subheader("Drawdown Approximation")
     drawdown_rows = fetch_all(
@@ -699,7 +1387,7 @@ def equity_curve_page() -> None:
     if pd is not None and not drawdown.empty:
         st.line_chart(drawdown, x="snapshot_ts", y="drawdown", color="strategy_name")
     else:
-        st.dataframe(drawdown)
+        data_table(drawdown)
 
 
 def strategy_performance_page() -> None:
@@ -722,7 +1410,7 @@ def strategy_performance_page() -> None:
         """
     )
     st.subheader("Strategy Ranking")
-    st.dataframe(to_frame(rows))
+    data_table(rows)
 
 
 def market_performance_page() -> None:
@@ -740,7 +1428,7 @@ def market_performance_page() -> None:
         """
     )
     st.subheader("Market Performance")
-    st.dataframe(to_frame(rows))
+    data_table(rows)
 
     spreads = fetch_all(
         """
@@ -763,7 +1451,7 @@ def market_performance_page() -> None:
         """
     )
     st.subheader("Average Spread by Market")
-    st.dataframe(to_frame(spreads))
+    data_table(spreads)
 
 
 def signals_page() -> None:
@@ -771,7 +1459,7 @@ def signals_page() -> None:
         _recent_signals_query(limit=200)
     )
     st.subheader("Latest Signals")
-    st.dataframe(to_frame(rows))
+    data_table(rows)
 
     signal_counts = fetch_all(
         """
@@ -786,7 +1474,7 @@ def signals_page() -> None:
         """
     )
     st.subheader("Signal Counts")
-    st.dataframe(to_frame(signal_counts))
+    data_table(signal_counts)
 
     hit_rows = fetch_all(
         """
@@ -804,7 +1492,7 @@ def signals_page() -> None:
         """
     )
     st.subheader("Signal Hit Rate")
-    st.dataframe(to_frame(hit_rows))
+    data_table(hit_rows)
 
 
 def risk_page() -> None:
@@ -817,7 +1505,7 @@ def risk_page() -> None:
         """
     )
     st.subheader("Latest Exposure")
-    st.dataframe(to_frame(exposure_rows))
+    data_table(exposure_rows)
 
     rejections = fetch_all(
         """
@@ -829,7 +1517,7 @@ def risk_page() -> None:
         """
     )
     st.subheader("Rejected Orders")
-    st.dataframe(to_frame(rejections))
+    data_table(rejections)
 
 
 def system_health_page() -> None:
@@ -847,7 +1535,7 @@ def system_health_page() -> None:
         """
     )
     st.subheader("Collector Status")
-    st.dataframe(to_frame(logs))
+    data_table(logs)
 
     stale = fetch_all(
         """
@@ -866,7 +1554,7 @@ def system_health_page() -> None:
         """
     )
     st.subheader("Stale Markets")
-    st.dataframe(to_frame(stale))
+    data_table(stale)
 
 
 def shadow_trading_page() -> None:
@@ -915,7 +1603,7 @@ def shadow_trading_page() -> None:
         """
     )
     st.subheader("Latest Shadow Runs")
-    st.dataframe(to_frame(runs))
+    data_table(runs)
 
     decisions = fetch_all(
         """
@@ -931,7 +1619,7 @@ def shadow_trading_page() -> None:
         """
     )
     st.subheader("Shadow Decisions")
-    st.dataframe(to_frame(decisions))
+    data_table(decisions)
 
 
 def live_readiness_page() -> None:
@@ -965,7 +1653,7 @@ def live_readiness_page() -> None:
         """
     )
     st.subheader("Readiness Reports")
-    st.dataframe(to_frame(reports))
+    data_table(reports)
 
     events = fetch_all(
         """
@@ -976,7 +1664,7 @@ def live_readiness_page() -> None:
         """
     )
     st.subheader("Kill Switch Events")
-    st.dataframe(to_frame(events))
+    data_table(events)
 
 
 def execution_quality_page() -> None:
@@ -1019,7 +1707,7 @@ def execution_quality_page() -> None:
         """
     )
     st.subheader("Shadow Execution Quality")
-    st.dataframe(to_frame(quality))
+    data_table(quality)
 
     spreads = fetch_all(
         """
@@ -1046,7 +1734,7 @@ def execution_quality_page() -> None:
         """
     )
     st.subheader("Spread and Depth Conditions")
-    st.dataframe(to_frame(spreads))
+    data_table(spreads)
 
     stale = fetch_all(
         """
@@ -1065,7 +1753,7 @@ def execution_quality_page() -> None:
         """
     )
     st.subheader("Stale Books")
-    st.dataframe(to_frame(stale))
+    data_table(stale)
 
     live_quality = fetch_all(
         """
@@ -1076,7 +1764,7 @@ def execution_quality_page() -> None:
         """
     )
     st.subheader("Live Execution Reports")
-    st.dataframe(to_frame(live_quality))
+    data_table(live_quality)
 
 
 def wallet_page() -> None:
@@ -1095,11 +1783,11 @@ def wallet_page() -> None:
     col4.metric("Open orders", fmt_len(latest.get("open_orders")))
 
     st.subheader("Balances")
-    st.dataframe(to_frame(latest.get("balances") or []))
+    data_table(latest.get("balances") or [])
     st.subheader("Positions")
-    st.dataframe(to_frame(latest.get("positions") or []))
+    data_table(latest.get("positions") or [])
     st.subheader("Open Orders")
-    st.dataframe(to_frame(latest.get("open_orders") or []))
+    data_table(latest.get("open_orders") or [])
 
     history = fetch_all(
         """
@@ -1110,7 +1798,7 @@ def wallet_page() -> None:
         """
     )
     st.subheader("Wallet Sync History")
-    st.dataframe(to_frame(history))
+    data_table(history)
 
 
 def oms_page() -> None:
@@ -1124,7 +1812,7 @@ def oms_page() -> None:
         """
     )
     st.subheader("OMS Orders")
-    st.dataframe(to_frame(orders))
+    data_table(orders)
 
     fills = fetch_all(
         """
@@ -1136,7 +1824,7 @@ def oms_page() -> None:
         """
     )
     st.subheader("Fills")
-    st.dataframe(to_frame(fills))
+    data_table(fills)
 
     risk_events = fetch_all(
         """
@@ -1147,7 +1835,7 @@ def oms_page() -> None:
         """
     )
     st.subheader("Risk Gate Events")
-    st.dataframe(to_frame(risk_events))
+    data_table(risk_events)
 
     reconciliation = fetch_all(
         """
@@ -1158,7 +1846,7 @@ def oms_page() -> None:
         """
     )
     st.subheader("Reconciliation")
-    st.dataframe(to_frame(reconciliation))
+    data_table(reconciliation)
 
 
 def _latest_runs_query() -> str:
@@ -1397,7 +2085,27 @@ def api_health() -> str:
 def to_frame(rows: list[dict[str, Any]]):
     if pd is None:
         return rows
-    return pd.DataFrame(rows)
+    return pd.DataFrame(_normalize_for_table(rows))
+
+
+def data_table(rows: Any, *, height: int | None = None) -> None:
+    frame = rows if pd is not None and hasattr(rows, "empty") else to_frame(rows)
+    kwargs: dict[str, Any] = {"width": "stretch"}
+    if height is not None:
+        kwargs["height"] = height
+    st.dataframe(frame, **kwargs)
+
+
+def _normalize_for_table(value: Any) -> Any:
+    if isinstance(value, Decimal):
+        return float(value)
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, dict):
+        return {key: _normalize_for_table(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_normalize_for_table(item) for item in value]
+    return value
 
 
 def fmt(value: Any) -> str:
@@ -1428,6 +2136,14 @@ def fmt_money(value: Any) -> str:
         return "n/a"
     if isinstance(value, (Decimal, int, float)):
         return f"${float(value):,.2f}"
+    return str(value)
+
+
+def fmt_pct(value: Any) -> str:
+    if value is None:
+        return "n/a"
+    if isinstance(value, (Decimal, int, float)):
+        return f"{float(value) * 100:.2f}%"
     return str(value)
 
 
