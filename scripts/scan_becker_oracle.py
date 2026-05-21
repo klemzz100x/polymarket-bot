@@ -23,6 +23,7 @@ if hasattr(sys.stdout, "buffer"):
 
 from polybot.core.config import get_settings
 from polybot.research.signals.becker_oracle import enrich_with_claude, scan_becker
+from polybot.research.sizing import quarter_kelly_size
 
 
 async def fetch_markets_live(settings, min_volume: float, price_low: float, price_high: float, pages: int = 5) -> list[dict]:
@@ -124,6 +125,7 @@ async def run() -> int:
     parser.add_argument("--price-low", type=float, default=0.10)
     parser.add_argument("--price-high", type=float, default=0.40)
     parser.add_argument("--top", type=int, default=20)
+    parser.add_argument("--bankroll", type=float, default=20.0, help="Total bankroll in USD for Kelly sizing")
     parser.add_argument("--obsidian", action="store_true", help="Write Obsidian report automatically")
     parser.add_argument("--json-out", type=Path, default=Path("tmp/becker_oracle_scan.json"))
     args = parser.parse_args()
@@ -160,18 +162,26 @@ async def run() -> int:
 
     top = signals[:args.top]
 
-    print(f"\n{'='*90}")
-    print(f"{'#':<3} {'Question':<48} {'Price':>6} {'Side':>4} {'BkrEdge':>8} {'ClEdge':>8} {'Kelly¼':>7} {'Vol$M':>6}")
-    print(f"{'='*90}")
+    # Compute dollar sizing for each signal
+    for sig in top:
+        edge = sig.claude_edge if sig.claude_edge is not None else sig.becker_edge
+        price = sig.market_price if sig.recommended_side == "YES" else 1.0 - sig.market_price
+        sig._size = quarter_kelly_size(edge_decimal=max(0.0, edge), signal_price=price, bankroll=args.bankroll)
+
+    print(f"\n{'='*100}")
+    print(f"{'#':<3} {'Question':<46} {'Price':>6} {'Side':>4} {'BkrEdge':>8} {'ClEdge':>8} {'Kelly¼':>7} {'Size$':>6} {'Vol$M':>6}")
+    print(f"{'='*100}")
     for i, sig in enumerate(top, 1):
         claude_edge_str = f"{sig.claude_edge:+.2%}" if sig.claude_edge is not None else "   n/a"
+        size_str = f"${sig._size.size_usd:.2f}" if hasattr(sig, '_size') and sig._size.size_usd > 0 else "  skip"
         print(
-            f"{i:<3} {sig.question[:48]:<48} "
+            f"{i:<3} {sig.question[:46]:<46} "
             f"{sig.market_price:>6.1%} "
             f"{sig.recommended_side:>4} "
             f"{sig.becker_edge:>+8.2%} "
             f"{claude_edge_str:>8} "
             f"{sig.kelly_quarter:>7.2%} "
+            f"{size_str:>6} "
             f"{sig.volume_usd/1e6:>6.1f}M"
         )
 
@@ -190,7 +200,8 @@ async def run() -> int:
             print(f"ACTIONABLE SIGNALS (ClaudeEdge >{threshold:.0%}, confidence medium/high): {len(actionable)}")
             for sig in actionable:
                 print(f"\n  [{sig.recommended_side}] {sig.question}")
-                print(f"       Price={sig.market_price:.2%} | BeckerEdge={sig.becker_edge:+.2%} | ClaudeEdge={sig.claude_edge:+.2%} | Kelly¼={sig.kelly_quarter:.2%}")
+                size_str = f"${sig._size.size_usd:.2f} ({sig._size.cap_applied})" if hasattr(sig, '_size') else "n/a"
+                print(f"       Price={sig.market_price:.2%} | BeckerEdge={sig.becker_edge:+.2%} | ClaudeEdge={sig.claude_edge:+.2%} | Kelly¼={sig.kelly_quarter:.2%} | Size={size_str}")
                 print(f"       Confidence={sig.claude_confidence} | Factors: {', '.join(sig.claude_key_factors or [])}")
         else:
             print(f"\nNo signals cleared the {threshold:.0%} Claude-edge threshold at this time.")
@@ -200,7 +211,15 @@ async def run() -> int:
                 print(f"  [{sig.recommended_side}] {sig.question[:70]} | ClEdge={sig.claude_edge:+.2%} conf={sig.claude_confidence}")
 
     args.json_out.parent.mkdir(parents=True, exist_ok=True)
-    args.json_out.write_text(json.dumps([s.to_dict() for s in top], indent=2), encoding="utf-8")
+    out = []
+    for s in top:
+        d = s.to_dict()
+        if hasattr(s, '_size'):
+            d["size_usd"] = s._size.size_usd
+            d["kelly_full_pct"] = s._size.kelly_full_pct
+            d["size_cap"] = s._size.cap_applied
+        out.append(d)
+    args.json_out.write_text(json.dumps(out, indent=2), encoding="utf-8")
     print(f"\nJSON → {args.json_out}")
 
     if args.obsidian:

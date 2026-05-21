@@ -37,6 +37,7 @@ if hasattr(sys.stdout, "buffer"):
 
 from polybot.core.config import get_settings
 from polybot.polymarket.api import PolymarketClient
+from polybot.research.sizing import quarter_kelly_size
 
 
 def _price_stats(history: list[dict]) -> dict:
@@ -135,6 +136,7 @@ async def run() -> int:
     parser.add_argument("--min-move", type=float, default=0.12, help="Min recent price move for overreaction (default 12%%)")
     parser.add_argument("--top-markets", type=int, default=50, help="Top N markets by volume to scan")
     parser.add_argument("--top", type=int, default=20, help="Display top N results")
+    parser.add_argument("--bankroll", type=float, default=20.0, help="Total bankroll in USD for Kelly sizing")
     parser.add_argument("--obsidian", action="store_true")
     parser.add_argument("--json-out", type=Path, default=Path("tmp/behavioral_bias_signals.json"))
     args = parser.parse_args()
@@ -232,27 +234,47 @@ async def run() -> int:
     overreaction = [s for s in signals if s.get("bias") == "overreaction"]
     anchoring = [s for s in signals if s.get("bias") == "anchoring"]
 
-    print(f"\n{'='*110}")
-    print(f"{'#':<3} {'Question':<52} {'Bias':<14} {'Side':>4} {'Price':>6} {'Move%/Rng':>10} {'Vol$M':>7}")
-    print(f"{'='*110}")
+    # Compute Kelly sizing
+    # Overreaction: edge ≈ 50% of the move (expect partial reversion — conservative)
+    # Anchoring: MONITOR only, no sizing (direction unknown)
+    for sig in signals:
+        if sig["bias"] == "overreaction":
+            edge_dec = abs(sig.get("recent_move_pct", 0)) / 100 * 0.5
+            sz = quarter_kelly_size(
+                edge_decimal=max(0.0, edge_dec),
+                signal_price=sig.get("signal_price", 0.5),
+                bankroll=args.bankroll,
+            )
+            sig["size_usd"] = sz.size_usd
+            sig["kelly_full_pct"] = sz.kelly_full_pct
+        else:
+            sig["size_usd"] = 0.0
+            sig["kelly_full_pct"] = 0.0
+
+    print(f"\n{'='*118}")
+    print(f"{'#':<3} {'Question':<50} {'Bias':<10} {'Side':>4} {'Price':>6} {'Move%/Rng':>10} {'Size$':>6} {'Vol$M':>7}")
+    print(f"{'='*118}")
 
     for i, sig in enumerate(signals[:args.top], 1):
         bias_label = "OVERREACT" if sig["bias"] == "overreaction" else "ANCHOR"
         move_val = f"{sig.get('recent_move_pct', 0):+.1f}%" if sig["bias"] == "overreaction" else f"{sig.get('range_7d', 0):.2%}"
+        size_str = f"${sig['size_usd']:.2f}" if sig["size_usd"] > 0 else "  MNTR"
         print(
-            f"{i:<3} {sig['question'][:52]:<52} "
-            f"{bias_label:<14} "
+            f"{i:<3} {sig['question'][:50]:<50} "
+            f"{bias_label:<10} "
             f"{sig.get('signal_side', ''):>4} "
             f"{sig.get('signal_price', 0):>6.3f} "
             f"{move_val:>10} "
+            f"{size_str:>6} "
             f"{sig['volume']/1e6:>7.2f}M"
         )
 
     if overreaction:
         best = overreaction[0]
+        size_str = f"${best['size_usd']:.2f}" if best['size_usd'] > 0 else "skip"
         print(f"\n⭐ TOP OVERREACTION: [{best['signal_side']}] {best['question'][:65]}")
         print(f"   {best['description']}")
-        print(f"   Vol: ${best['volume']:,.0f} | Category: {best['category']}")
+        print(f"   Size: {size_str} | Kelly full: {best['kelly_full_pct']:.1f}% | Vol: ${best['volume']:,.0f} | Category: {best['category']}")
     if anchoring:
         best = anchoring[0]
         print(f"\n⚓ TOP ANCHOR: {best['question'][:65]}")

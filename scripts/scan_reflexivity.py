@@ -39,6 +39,7 @@ if hasattr(sys.stdout, "buffer"):
 
 from polybot.core.config import get_settings
 from polybot.polymarket.api import PolymarketClient
+from polybot.research.sizing import size_from_score
 
 
 def _compute_book_imbalance(bids: list, asks: list) -> float:
@@ -154,6 +155,7 @@ async def run() -> int:
     parser.add_argument("--min-vol-spike", type=float, default=1.5, help="Min volatility spike ratio vs prior week")
     parser.add_argument("--top-markets", type=int, default=80, help="Top N markets by volume to scan")
     parser.add_argument("--top", type=int, default=20, help="Display top N results")
+    parser.add_argument("--bankroll", type=float, default=20.0, help="Total bankroll in USD for Kelly sizing")
     parser.add_argument("--from-smart-money", type=Path, default=None,
                         metavar="JSON_FILE",
                         help="Load smart money scan output to boost scores for markets whales touched")
@@ -278,20 +280,32 @@ async def run() -> int:
     # Sort by score desc
     signals.sort(key=lambda x: x.get("score", 0), reverse=True)
 
-    print(f"\n{'='*115}")
-    print(f"{'#':<3} {'Question':<52} {'Side':>4} {'Move%':>6} {'Imbal':>6} {'VolSpike':>9} {'SM':>3} {'Score':>6} {'Vol$M':>7}")
-    print(f"{'='*115}")
+    # Compute Kelly sizing from score (score×0.001 = edge estimate, max 10% at score 100)
+    for sig in signals:
+        sz = size_from_score(
+            score=sig.get("score", 0),
+            signal_price=sig.get("signal_price", 0.5),
+            bankroll=args.bankroll,
+        )
+        sig["size_usd"] = sz.size_usd
+        sig["kelly_full_pct"] = sz.kelly_full_pct
+
+    print(f"\n{'='*122}")
+    print(f"{'#':<3} {'Question':<50} {'Side':>4} {'Move%':>6} {'Imbal':>6} {'VolSpike':>9} {'SM':>3} {'Score':>6} {'Size$':>6} {'Vol$M':>7}")
+    print(f"{'='*122}")
 
     for i, sig in enumerate(signals[:args.top], 1):
         sm_flag = "YES" if sig.get("sm_active") else "-"
+        size_str = f"${sig['size_usd']:.2f}" if sig["size_usd"] > 0 else "  skip"
         print(
-            f"{i:<3} {sig['question'][:52]:<52} "
+            f"{i:<3} {sig['question'][:50]:<50} "
             f"{sig.get('signal_side', ''):>4} "
             f"{sig.get('move_24h_pct', 0):>+6.1f}% "
             f"{sig.get('book_imbalance', 0):>+6.2f} "
             f"{sig.get('volatility_spike', 1):>8.1f}× "
             f"{sm_flag:>3} "
             f"{sig.get('score', 0):>6.1f} "
+            f"{size_str:>6} "
             f"{sig.get('volume', 0)/1e6:>7.2f}M"
         )
 
@@ -299,7 +313,7 @@ async def run() -> int:
         best = signals[0]
         print(f"\n⚡ TOP REFLEXIVITY: [{best['signal_side']}] {best['question'][:65]}")
         print(f"   {best['description']}")
-        print(f"   Score: {best['score']:.1f}/100 | Vol: ${best['volume']:,.0f}")
+        print(f"   Score: {best['score']:.1f}/100 | Size: ${best['size_usd']:.2f} | Vol: ${best['volume']:,.0f}")
     else:
         print("\nNo reflexivity signals at current thresholds.")
         print("  Try: --min-move 3.0 --min-imbalance 0.10 --min-vol-spike 1.2")

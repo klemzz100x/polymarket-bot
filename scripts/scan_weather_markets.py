@@ -32,6 +32,7 @@ if hasattr(sys.stdout, "buffer"):
 import httpx
 
 from polybot.core.config import get_settings
+from polybot.research.sizing import quarter_kelly_size
 
 # Cities tracked by Polymarket (common ones)
 # Source: discovered from Polymarket event slugs
@@ -173,6 +174,7 @@ async def run() -> int:
     parser.add_argument("--days", type=int, default=3, help="Days ahead to scan (today + N days)")
     parser.add_argument("--cities", type=str, default="all", help="Comma-separated city names, or 'all'")
     parser.add_argument("--min-edge", type=float, default=0.05, help="Min edge to report (default 5%%)")
+    parser.add_argument("--bankroll", type=float, default=20.0, help="Total bankroll in USD for Kelly sizing")
     parser.add_argument("--obsidian", action="store_true")
     parser.add_argument("--json-out", type=Path, default=Path("tmp/weather_market_scan.json"))
     args = parser.parse_args()
@@ -261,17 +263,27 @@ async def run() -> int:
 
     results.sort(key=lambda x: x["edge"], reverse=True)
 
-    print(f"\n{'='*100}")
-    print(f"{'#':<3} {'City':<12} {'Date':<12} {'Signal':>6} {'Price':>6} {'Edge%':>6} {'Forecast':>9} {'Bucket':<25}")
-    print(f"{'='*100}")
+    # Compute Kelly sizing for each signal
+    for r in results:
+        edge_dec = r["edge"]  # already decimal (e.g., 0.85 for BUY_NO where yes_price=0.145)
+        signal_price = r["yes_price"] if r["signal"] == "BUY_YES" else (1.0 - r["yes_price"])
+        sz = quarter_kelly_size(edge_decimal=max(0.0, edge_dec), signal_price=signal_price, bankroll=args.bankroll)
+        r["size_usd"] = sz.size_usd
+        r["kelly_full_pct"] = sz.kelly_full_pct
+
+    print(f"\n{'='*110}")
+    print(f"{'#':<3} {'City':<12} {'Date':<12} {'Signal':>6} {'Price':>6} {'Edge%':>6} {'Size$':>6} {'Forecast':>9} {'Bucket':<25}")
+    print(f"{'='*110}")
 
     for i, r in enumerate(results[:20], 1):
         bucket_str = f"[{r['bucket_low']:.0f}–{r['bucket_high']:.0f}]" if r["bucket_high"] < 900 else f"[{r['bucket_low']:.0f}+]"
+        size_str = f"${r['size_usd']:.2f}" if r["size_usd"] > 0 else "  skip"
         print(
             f"{i:<3} {r['city']:<12} {r['target_date']:<12} "
             f"{r['signal']:>6} "
             f"{r['yes_price']:>6.3f} "
             f"{r['edge_pct']:>+5.2f}% "
+            f"{size_str:>6} "
             f"{r['forecast_temp']:>7.1f}°C "
             f"{bucket_str:<25}"
         )
@@ -284,6 +296,7 @@ async def run() -> int:
         best = results[0]
         print(f"\n⭐ BEST: [{best['signal']}] {best['city']} {best['target_date']}")
         print(f"   {best['rationale']}")
+        print(f"   Size: ${best['size_usd']:.2f} | Kelly full: {best['kelly_full_pct']:.1f}% | Bankroll: ${args.bankroll:.0f}")
 
     args.json_out.parent.mkdir(parents=True, exist_ok=True)
     args.json_out.write_text(json.dumps(results, indent=2, default=str), encoding="utf-8")

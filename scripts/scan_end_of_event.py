@@ -34,6 +34,7 @@ if hasattr(sys.stdout, "buffer"):
 from polybot.core.config import get_settings
 from polybot.polymarket.api import PolymarketClient
 from polybot.research.signals.becker_oracle import becker_correction
+from polybot.research.sizing import quarter_kelly_size
 
 
 def hours_to_resolution(end_date_str: str) -> float | None:
@@ -98,6 +99,7 @@ async def run() -> int:
     parser.add_argument("--min-price", type=float, default=0.55, help="Min YES price for favourite discount signal")
     parser.add_argument("--max-longshot", type=float, default=0.35, help="Max YES price for longshot premium signal")
     parser.add_argument("--top", type=int, default=20)
+    parser.add_argument("--bankroll", type=float, default=20.0, help="Total bankroll in USD for Kelly sizing")
     parser.add_argument("--claude", action="store_true", help="Enrich top signals with Claude oracle")
     parser.add_argument("--obsidian", action="store_true")
     parser.add_argument("--json-out", type=Path, default=Path("tmp/end_of_event_signals.json"))
@@ -232,26 +234,37 @@ async def run() -> int:
 
     print(f"\n  Found {len(signals)} end-of-event signals ({fav_count} favourite discounts, {long_count} longshot premiums)")
 
-    print(f"\n{'='*105}")
-    print(f"{'#':<3} {'Question':<50} {'Side':>4} {'Price':>6} {'Edge%':>6} {'Hours':>6} {'Vol$K':>6} {'Type':<22}")
-    print(f"{'='*105}")
+    # Compute sizing for each signal
+    for sig in signals:
+        edge = sig.get("claude_edge") or sig["est_edge"]
+        sig["size_usd"] = quarter_kelly_size(
+            edge_decimal=max(0.0, edge),
+            signal_price=sig["signal_price"],
+            bankroll=args.bankroll,
+        ).size_usd
+
+    print(f"\n{'='*112}")
+    print(f"{'#':<3} {'Question':<48} {'Side':>4} {'Price':>6} {'Edge%':>6} {'Size$':>6} {'Hours':>6} {'Vol$K':>6} {'Type':<10}")
+    print(f"{'='*112}")
 
     for i, sig in enumerate(signals[:args.top], 1):
         type_label = "FAV-DISC" if sig["edge_type"] == "favourite_discount" else "LONG-PREM"
+        size_str = f"${sig['size_usd']:.2f}" if sig["size_usd"] > 0 else "  skip"
         print(
-            f"{i:<3} {sig['question'][:50]:<50} "
+            f"{i:<3} {sig['question'][:48]:<48} "
             f"{sig['signal_side']:>4} "
             f"{sig['signal_price']:>6.3f} "
             f"{sig['est_edge']:>+5.2%} "
+            f"{size_str:>6} "
             f"{sig['hours_left']:>6.1f}h "
             f"{sig['volume_usd']/1000:>5.0f}K "
-            f"{type_label:<22}"
+            f"{type_label:<10}"
         )
 
     if signals:
         best = signals[0]
         print(f"\n⭐ TOP: [{best['signal_side']}] {best['question'][:65]}")
-        print(f"   Price: {best['signal_price']:.3f} | Est edge: {best['est_edge']:+.2%} | {best['hours_left']:.1f}h left | Vol: ${best['volume_usd']:,.0f}")
+        print(f"   Price: {best['signal_price']:.3f} | Est edge: {best['est_edge']:+.2%} | Size: ${best['size_usd']:.2f} | {best['hours_left']:.1f}h left | Vol: ${best['volume_usd']:,.0f}")
         print(f"   Type: {best['edge_type']} | Category: {best['category']}")
         if best.get("claude_edge"):
             print(f"   Claude edge: {best['claude_edge']:+.2%} | Confidence: {best.get('claude_confidence', '?')}")

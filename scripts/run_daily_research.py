@@ -25,6 +25,7 @@ if hasattr(sys.stdout, "buffer"):
 from polybot.core.config import get_settings
 from polybot.polymarket.api import PolymarketClient
 from polybot.research.signals.becker_oracle import enrich_with_claude, scan_becker
+from polybot.research.sizing import quarter_kelly_size
 
 SIGNAL_LOG = Path("tmp/signal_log.json")
 
@@ -187,6 +188,7 @@ async def run() -> int:
     parser = argparse.ArgumentParser(description="Daily research pipeline")
     parser.add_argument("--min-volume", type=float, default=20_000)
     parser.add_argument("--top", type=int, default=20)
+    parser.add_argument("--bankroll", type=float, default=20.0, help="Total bankroll in USD for Kelly sizing")
     parser.add_argument("--obsidian", action="store_true")
     parser.add_argument("--json-out", type=Path, default=Path("tmp/daily_research.json"))
     args = parser.parse_args()
@@ -239,24 +241,39 @@ async def run() -> int:
 
     combined.sort(key=lambda x: x["conviction_score"], reverse=True)
 
+    # Compute Kelly sizing for each combined signal
+    for sig in combined:
+        edge = sig.get("claude_edge") or 0
+        price = sig.get("market_price", 0.5)
+        signal_price = price if sig.get("recommended_side") == "YES" else (1.0 - price)
+        sz = quarter_kelly_size(
+            edge_decimal=max(0.0, edge),
+            signal_price=signal_price,
+            bankroll=args.bankroll,
+        )
+        sig["size_usd"] = sz.size_usd
+        sig["kelly_full_pct"] = sz.kelly_full_pct
+
     # ── Output ────────────────────────────────────────────────────────────────
-    print(f"\n{'='*90}")
-    print(f"{'#':<3} {'Question':<48} {'Side':>4} {'ClEdge':>7} {'SM':>3} {'Score':>6}")
-    print(f"{'='*90}")
+    print(f"\n{'='*100}")
+    print(f"{'#':<3} {'Question':<46} {'Side':>4} {'ClEdge':>7} {'SM':>3} {'Score':>6} {'Size$':>6}")
+    print(f"{'='*100}")
     for i, sig in enumerate(combined[:15], 1):
-        sm_marker = "✓" if sig["sm_aligned"] else ("✗" if sig["sm_opposed"] else " ")
+        sm_marker = "+" if sig["sm_aligned"] else ("-" if sig["sm_opposed"] else " ")
+        size_str = f"${sig['size_usd']:.2f}" if sig["size_usd"] > 0 else "  skip"
         print(
-            f"{i:<3} {sig['question'][:48]:<48} "
+            f"{i:<3} {sig['question'][:46]:<46} "
             f"{sig['recommended_side']:>4} "
             f"{sig['claude_edge']:>+7.2%} "
             f"{sm_marker:>3} "
-            f"{sig['conviction_score']:>5.0f}pt"
+            f"{sig['conviction_score']:>5.0f}pt "
+            f"{size_str:>6}"
         )
 
     if combined:
         top = combined[0]
         print(f"\n⭐ TOP SIGNAL: [{top['recommended_side']}] {top['question'][:65]}")
-        print(f"   Oracle edge: {top['claude_edge']:+.2%} | Confidence: {top['claude_confidence']} | Score: {top['conviction_score']:.0f}/100")
+        print(f"   Oracle edge: {top['claude_edge']:+.2%} | Confidence: {top['claude_confidence']} | Score: {top['conviction_score']:.0f}/100 | Size: ${top['size_usd']:.2f}")
         if top["sm_aligned"]:
             print(f"   Smart money ALIGNED: {', '.join(top['sm_wallets'])}")
         elif top["sm_opposed"]:
