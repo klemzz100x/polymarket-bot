@@ -5,8 +5,11 @@ import httpx
 
 from polybot.core.config import Settings
 from polybot.core.logging import get_logger
+from polybot.data.ingestion.retry import NonRetryableError
 
 logger = get_logger(__name__)
+
+LB_API_URL = "https://lb-api.polymarket.com"
 
 
 class PolymarketClientError(RuntimeError):
@@ -128,6 +131,31 @@ class PolymarketClient:
             raise PolymarketClientError("CLOB /prices-history response is not an object")
         return data
 
+    async def get_wallet_positions(self, address: str, *, limit: int = 500) -> list[dict[str, Any]]:
+        """Open positions for a wallet address (Data API /positions)."""
+        data = await self._get(self.settings.polymarket_data_api_url, "/positions", params={"user": address, "limit": limit})
+        return data if isinstance(data, list) else []
+
+    async def get_wallet_activity(self, address: str, *, limit: int = 500) -> list[dict[str, Any]]:
+        """Recent activity for a wallet (trades, redeems, yields)."""
+        data = await self._get(self.settings.polymarket_data_api_url, "/activity", params={"user": address, "limit": limit})
+        return data if isinstance(data, list) else []
+
+    async def get_market_holders(self, condition_id: str, *, limit: int = 50) -> list[dict[str, Any]]:
+        """Top holders of a market (Data API /holders)."""
+        data = await self._get(self.settings.polymarket_data_api_url, "/holders", params={"market": condition_id, "limit": limit})
+        return data if isinstance(data, list) else []
+
+    async def get_market_positions(self, condition_id: str) -> list[dict[str, Any]]:
+        """All trader positions on a market (Data API /v1/market-positions)."""
+        data = await self._get(self.settings.polymarket_data_api_url, "/v1/market-positions", params={"market": condition_id})
+        return data if isinstance(data, list) else []
+
+    async def get_wallet_pnl(self, address: str, *, window: str = "all") -> dict[str, Any]:
+        """Total PnL for a wallet from Leaderboard API."""
+        data = await self._get(LB_API_URL, "/profit", params={"window": window, "address": address})
+        return data if isinstance(data, dict) else {}
+
     async def _get(
         self,
         base_url: str,
@@ -137,8 +165,13 @@ class PolymarketClient:
         url = _join_url(base_url, path)
         try:
             response = await self._client.get(url, params=params)
+            if 400 <= response.status_code < 500:
+                logger.warning("polymarket_client_error", url=url, status=response.status_code)
+                raise NonRetryableError(f"HTTP {response.status_code}: {url}")
             response.raise_for_status()
             return response.json()
+        except NonRetryableError:
+            raise
         except httpx.HTTPError as exc:
             logger.error("polymarket_get_failed", url=url, params=params or {}, error=str(exc))
             raise PolymarketClientError(str(exc)) from exc
@@ -152,8 +185,13 @@ class PolymarketClient:
         url = _join_url(base_url, path)
         try:
             response = await self._client.post(url, json=json)
+            if 400 <= response.status_code < 500:
+                logger.warning("polymarket_client_error", url=url, status=response.status_code)
+                raise NonRetryableError(f"HTTP {response.status_code}: {url}")
             response.raise_for_status()
             return response.json()
+        except NonRetryableError:
+            raise
         except httpx.HTTPError as exc:
             logger.error("polymarket_post_failed", url=url, error=str(exc))
             raise PolymarketClientError(str(exc)) from exc

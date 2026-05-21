@@ -9,6 +9,10 @@ T = TypeVar("T")
 logger = get_logger(__name__)
 
 
+class NonRetryableError(Exception):
+    """Wraps errors that must not trigger a retry (e.g. 4xx client errors)."""
+
+
 @dataclass(frozen=True, slots=True)
 class RetryPolicy:
     attempts: int = 3
@@ -28,6 +32,8 @@ async def run_with_retry(
     for attempt in range(1, policy.attempts + 1):
         try:
             return await operation()
+        except NonRetryableError:
+            raise  # 4xx and other client errors — do not retry
         except Exception as exc:
             last_error = exc
             if attempt >= policy.attempts:
