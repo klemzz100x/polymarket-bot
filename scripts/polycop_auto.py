@@ -488,10 +488,12 @@ async def _follow_wallet_polycop(
                 if not ok:
                     log.warning("Max Per Trade setting failed — continuing to + Create anyway")
 
-            # ── Step 6: Click + Create ─────────────────────────────────────────
+            # ── Step 6: Click ➕ Create ────────────────────────────────────────
+            # Confirmed button label: '➕ Create' (log 2026-05-24 21:22:38)
+            # Do NOT include "✅" — it matches '✅️ Below Min Limit' before ➕ Create
             save_hints = list(filter(None, [
-                POLYCOP_SAVE_BUTTON, "+ create", "create", "✅ create",
-                "save", "confirm", "done", "✅",
+                POLYCOP_SAVE_BUTTON, "➕ create", "➕", "+ create", "create",
+                "save", "confirm", "done",
             ]))
             save_btn = _find_button(config.buttons, *save_hints)
 
