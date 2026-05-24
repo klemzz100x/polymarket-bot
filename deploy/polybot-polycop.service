@@ -1,0 +1,18 @@
+[Unit]
+Description=Polybot PolyCop Auto-Copy
+After=network.target
+
+[Service]
+Type=simple
+User=clem_garnero753
+WorkingDirectory=/home/clem_garnero753/polymarket-bot
+EnvironmentFile=/home/clem_garnero753/polymarket-bot/.env
+Environment=PYTHONPATH=/home/clem_garnero753/polymarket-bot/src
+ExecStart=/home/clem_garnero753/polymarket-bot/.venv/bin/python scripts/polycop_auto.py
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
