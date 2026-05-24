@@ -118,112 +118,201 @@ class TestClassify:
 
 # ── _is_safe_for_autocopy ─────────────────────────────────────────────────────
 
+def _yellow_wallet(**kwargs) -> dict:
+    """YELLOW wallet with relaxed-but-passing defaults."""
+    defaults = dict(
+        conf=60,
+        badge="🟡 YELLOW",
+        n_resolved=20,
+        anti_luck=45,
+        persistence=45,
+        total_pnl_usd=300.0,
+        last_trade_age_days=5.0,
+        insider_flag_count=0,
+    )
+    defaults.update(kwargs)
+    return _wallet(**defaults)
+
+
 class TestIsAutocopySafe:
-    def test_all_pass(self):
+    # ── GREEN tier ─────────────────────────────────────────────────────────────
+
+    def test_green_all_pass(self):
         ok, reason = _is_safe_for_autocopy(_wallet())
         assert ok, reason
 
-    def test_fail_not_green(self):
-        ok, _ = _is_safe_for_autocopy(_wallet(badge="🟡 YELLOW"))
+    def test_green_fail_confidence_below_70(self):
+        ok, reason = _is_safe_for_autocopy(_wallet(conf=69))
         assert not ok
+        assert "conf" in reason
+
+    def test_green_pass_exactly_70(self):
+        ok, _ = _is_safe_for_autocopy(_wallet(conf=70))
+        assert ok
+
+    def test_green_fail_insider_flag(self):
+        ok, reason = _is_safe_for_autocopy(_wallet(insider_flag_count=1))
+        assert not ok
+        assert "insider" in reason
+
+    def test_green_fail_too_few_trades(self):
+        ok, reason = _is_safe_for_autocopy(_wallet(n_resolved=24))
+        assert not ok
+        assert "n_resolved" in reason
+
+    def test_green_pass_exactly_25_trades(self):
+        ok, _ = _is_safe_for_autocopy(_wallet(n_resolved=25))
+        assert ok
+
+    def test_green_fail_dormant(self):
+        ok, reason = _is_safe_for_autocopy(_wallet(last_trade_age_days=15))
+        assert not ok
+        assert "dormant" in reason
+
+    def test_green_pass_exactly_14_days(self):
+        ok, _ = _is_safe_for_autocopy(_wallet(last_trade_age_days=14))
+        assert ok
+
+    def test_green_fail_low_anti_luck(self):
+        ok, reason = _is_safe_for_autocopy(_wallet(anti_luck=49))
+        assert not ok
+        assert "anti_luck" in reason
+
+    def test_green_fail_low_persistence(self):
+        ok, reason = _is_safe_for_autocopy(_wallet(persistence=49))
+        assert not ok
+        assert "persistence" in reason
+
+    def test_green_fail_low_pnl(self):
+        ok, reason = _is_safe_for_autocopy(_wallet(total_pnl_usd=499))
+        assert not ok
+        assert "pnl" in reason.lower()
+
+    def test_green_pass_exactly_500_pnl(self):
+        ok, _ = _is_safe_for_autocopy(_wallet(total_pnl_usd=500))
+        assert ok
+
+    def test_green_custom_min_confidence(self):
+        ok, _ = _is_safe_for_autocopy(_wallet(conf=80), autocopy_min_confidence=80)
+        assert ok
+        ok, _ = _is_safe_for_autocopy(_wallet(conf=79), autocopy_min_confidence=80)
+        assert not ok
+
+    # ── YELLOW tier ────────────────────────────────────────────────────────────
+
+    def test_yellow_all_pass(self):
+        ok, reason = _is_safe_for_autocopy(_yellow_wallet())
+        assert ok, reason
+
+    def test_yellow_fail_conf_below_55(self):
+        ok, reason = _is_safe_for_autocopy(_yellow_wallet(conf=54))
+        assert not ok
+        assert "conf" in reason
+
+    def test_yellow_pass_exactly_55_conf(self):
+        ok, _ = _is_safe_for_autocopy(_yellow_wallet(conf=55))
+        assert ok
+
+    def test_yellow_fail_insider_flag(self):
+        ok, reason = _is_safe_for_autocopy(_yellow_wallet(insider_flag_count=1))
+        assert not ok
+        assert "insider" in reason
+
+    def test_yellow_fail_too_few_trades(self):
+        ok, reason = _is_safe_for_autocopy(_yellow_wallet(n_resolved=14))
+        assert not ok
+        assert "n_resolved" in reason
+
+    def test_yellow_pass_exactly_15_trades(self):
+        ok, _ = _is_safe_for_autocopy(_yellow_wallet(n_resolved=15))
+        assert ok
+
+    def test_yellow_fail_anti_luck_below_40(self):
+        ok, reason = _is_safe_for_autocopy(_yellow_wallet(anti_luck=39))
+        assert not ok
+        assert "anti_luck" in reason
+
+    def test_yellow_pass_anti_luck_40(self):
+        ok, _ = _is_safe_for_autocopy(_yellow_wallet(anti_luck=40))
+        assert ok
+
+    def test_yellow_fail_persistence_below_40(self):
+        ok, reason = _is_safe_for_autocopy(_yellow_wallet(persistence=39))
+        assert not ok
+        assert "persistence" in reason
+
+    def test_yellow_fail_pnl_below_200(self):
+        ok, reason = _is_safe_for_autocopy(_yellow_wallet(total_pnl_usd=199))
+        assert not ok
+        assert "pnl" in reason.lower()
+
+    def test_yellow_pass_exactly_200_pnl(self):
+        ok, _ = _is_safe_for_autocopy(_yellow_wallet(total_pnl_usd=200))
+        assert ok
+
+    # ── Other badges ───────────────────────────────────────────────────────────
 
     def test_fail_red_badge(self):
         ok, _ = _is_safe_for_autocopy(_wallet(badge="🔴 RED"))
         assert not ok
 
-    def test_fail_confidence_below_70(self):
-        ok, reason = _is_safe_for_autocopy(_wallet(conf=69))
-        assert not ok
-        assert "conf" in reason
-
-    def test_fail_confidence_exactly_70_passes(self):
-        ok, _ = _is_safe_for_autocopy(_wallet(conf=70))
-        assert ok
-
-    def test_fail_insider_flag(self):
-        ok, reason = _is_safe_for_autocopy(_wallet(insider_flag_count=1))
-        assert not ok
-        assert "insider" in reason
-
-    def test_fail_too_few_trades(self):
-        ok, reason = _is_safe_for_autocopy(_wallet(n_resolved=24))
-        assert not ok
-        assert "n_resolved" in reason
-
-    def test_pass_exactly_25_trades(self):
-        ok, _ = _is_safe_for_autocopy(_wallet(n_resolved=25))
-        assert ok
-
-    def test_fail_dormant(self):
-        ok, reason = _is_safe_for_autocopy(_wallet(last_trade_age_days=15))
-        assert not ok
-        assert "dormant" in reason
-
-    def test_pass_exactly_14_days(self):
-        ok, _ = _is_safe_for_autocopy(_wallet(last_trade_age_days=14))
-        assert ok
-
-    def test_fail_low_anti_luck(self):
-        ok, reason = _is_safe_for_autocopy(_wallet(anti_luck=49))
-        assert not ok
-        assert "anti_luck" in reason
-
-    def test_fail_low_persistence(self):
-        ok, reason = _is_safe_for_autocopy(_wallet(persistence=49))
-        assert not ok
-        assert "persistence" in reason
-
-    def test_fail_low_pnl(self):
-        ok, reason = _is_safe_for_autocopy(_wallet(total_pnl_usd=499))
-        assert not ok
-        assert "pnl" in reason.lower()
-
-    def test_pass_exactly_500_pnl(self):
-        ok, _ = _is_safe_for_autocopy(_wallet(total_pnl_usd=500))
-        assert ok
-
-    def test_custom_min_confidence(self):
-        ok, _ = _is_safe_for_autocopy(_wallet(conf=80), autocopy_min_confidence=80)
-        assert ok
-        ok, _ = _is_safe_for_autocopy(_wallet(conf=79), autocopy_min_confidence=80)
+    def test_fail_no_badge(self):
+        ok, _ = _is_safe_for_autocopy(_wallet(badge=""))
         assert not ok
 
 
 # ── _compute_copy_size_pct ────────────────────────────────────────────────────
 
 class TestCopySizePct:
-    def test_min_conf_70_no_bonuses(self):
+    # ── GREEN tier ─────────────────────────────────────────────────────────────
+
+    def test_green_min_conf_70_no_bonuses(self):
         pct = _compute_copy_size_pct(_wallet(conf=70, persistence=60, anti_luck=60))
         assert pct == 0.5
 
-    def test_max_conf_100_no_bonuses(self):
+    def test_green_max_conf_100_no_bonuses(self):
         pct = _compute_copy_size_pct(_wallet(conf=100, persistence=60, anti_luck=60))
         assert pct == 2.0
 
-    def test_mid_conf_85_no_bonuses(self):
+    def test_green_mid_conf_85_no_bonuses(self):
         pct = _compute_copy_size_pct(_wallet(conf=85, persistence=60, anti_luck=60))
         assert abs(pct - 1.25) < 0.05
 
-    def test_persistence_bonus(self):
+    def test_green_persistence_bonus(self):
         base = _compute_copy_size_pct(_wallet(conf=70, persistence=60, anti_luck=60))
         with_bonus = _compute_copy_size_pct(_wallet(conf=70, persistence=70, anti_luck=60))
         assert with_bonus == base + 0.25
 
-    def test_anti_luck_bonus(self):
+    def test_green_anti_luck_bonus(self):
         base = _compute_copy_size_pct(_wallet(conf=70, persistence=60, anti_luck=60))
         with_bonus = _compute_copy_size_pct(_wallet(conf=70, persistence=60, anti_luck=70))
         assert with_bonus == base + 0.25
 
-    def test_both_bonuses_capped_at_2(self):
+    def test_green_both_bonuses_capped_at_2(self):
         pct = _compute_copy_size_pct(_wallet(conf=100, persistence=80, anti_luck=80))
         assert pct == 2.0
 
-    def test_result_always_between_05_and_2(self):
+    def test_green_result_always_between_05_and_2(self):
         for conf in range(70, 101, 5):
             for persist in [50, 70, 90]:
                 for luck in [50, 70, 90]:
                     pct = _compute_copy_size_pct(_wallet(conf=conf, persistence=persist, anti_luck=luck))
                     assert 0.5 <= pct <= 2.0, f"out of range: conf={conf} pct={pct}"
+
+    # ── YELLOW tier ────────────────────────────────────────────────────────────
+
+    def test_yellow_flat_1_pct(self):
+        pct = _compute_copy_size_pct(_wallet(conf=60, badge="🟡 YELLOW"))
+        assert pct == 1.0
+
+    def test_yellow_flat_regardless_of_conf(self):
+        for conf in [55, 60, 65, 69]:
+            pct = _compute_copy_size_pct(_wallet(conf=conf, badge="🟡 YELLOW"))
+            assert pct == 1.0, f"expected 1.0 for YELLOW conf={conf}, got {pct}"
+
+    def test_yellow_flat_regardless_of_bonuses(self):
+        pct = _compute_copy_size_pct(_wallet(conf=65, badge="🟡 YELLOW", persistence=90, anti_luck=90))
+        assert pct == 1.0
 
 
 # ── _queue_for_polycop ────────────────────────────────────────────────────────

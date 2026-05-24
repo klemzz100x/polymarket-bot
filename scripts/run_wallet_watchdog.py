@@ -344,51 +344,62 @@ def _is_safe_for_autocopy(ws: dict, autocopy_min_confidence: int = 70) -> tuple[
     """
     Hard filters before queuing a wallet for PolyCop auto-copy.
 
-    Returns (ok, reason). All conditions must pass.
-    These are STRICTER than the notification threshold — auto-copy
-    involves real capital, so every doubt is a disqualification.
+    Returns (ok, reason). Two tiers:
+      GREEN  : conf >= autocopy_min_confidence (default 70), strict filters → 2% sizing
+      YELLOW : conf >= 55, relaxed filters → 1% sizing (learning tier)
+
+    All conditions within a tier must pass.
     """
     badge = ws.get("risk_badge", "")
     conf = ws.get("confidence", 0)
     diag = ws.get("diagnostics", {})
     subs = ws.get("sub_scores", {})
 
-    # 1. Minimum badge: GREEN only
-    if "GREEN" not in badge:
-        return False, f"badge={badge.split()[0] if badge else '?'} (need GREEN)"
+    is_green = "GREEN" in badge
+    is_yellow = "YELLOW" in badge and not is_green
 
-    # 2. Confidence threshold
-    if conf < autocopy_min_confidence:
-        return False, f"conf={conf} < {autocopy_min_confidence}"
+    # 1. Badge check: must be GREEN or YELLOW
+    if not is_green and not is_yellow:
+        return False, f"badge={badge.split()[0] if badge else '?'} (need GREEN or YELLOW)"
 
-    # 3. Insider pattern — absolute veto
+    # 2. Confidence thresholds
+    if is_green and conf < autocopy_min_confidence:
+        return False, f"conf={conf} < {autocopy_min_confidence} (GREEN threshold)"
+    if is_yellow and conf < 55:
+        return False, f"conf={conf} < 55 (YELLOW threshold)"
+
+    # 3. Insider pattern — absolute veto regardless of tier
     if diag.get("insider_flag_count", 0) > 0:
         return False, "insider_flag detected"
 
-    # 4. Sample size — need enough resolved trades
+    # 4. Sample size (GREEN: 25 trades, YELLOW: 15 trades)
     n_res = diag.get("n_resolved", 0)
-    if n_res < 25:
-        return False, f"n_resolved={n_res} < 25 (too few trades)"
+    min_trades = 25 if is_green else 15
+    if n_res < min_trades:
+        return False, f"n_resolved={n_res} < {min_trades} (too few trades)"
 
     # 5. Recently active — dormant wallets are stale signals
     age = diag.get("last_trade_age_days", 999)
     if age > 14:
         return False, f"last_trade_age={age}d > 14d (dormant)"
 
-    # 6. Anti-luck sub-score — rules out jackpot wallets
+    # 6. Anti-luck sub-score (GREEN: 50, YELLOW: 40)
     anti_luck = subs.get("anti_luck", 0)
-    if anti_luck < 50:
-        return False, f"anti_luck={anti_luck:.0f} < 50 (luck pattern)"
+    min_luck = 50 if is_green else 40
+    if anti_luck < min_luck:
+        return False, f"anti_luck={anti_luck:.0f} < {min_luck} (luck pattern)"
 
-    # 7. Persistence — edge must hold across time periods
+    # 7. Persistence — edge must hold across time periods (GREEN: 50, YELLOW: 40)
     persist = subs.get("persistence", 0)
-    if persist < 50:
-        return False, f"persistence={persist:.0f} < 50 (unstable edge)"
+    min_persist = 50 if is_green else 40
+    if persist < min_persist:
+        return False, f"persistence={persist:.0f} < {min_persist} (unstable edge)"
 
-    # 8. Meaningful PnL — filters wallets with large % but tiny bankroll
+    # 8. Meaningful PnL (GREEN: $500, YELLOW: $200)
     pnl = float(diag.get("total_pnl_usd") or 0)
-    if pnl < 500:
-        return False, f"total_pnl=${pnl:.0f} < $500 (insufficient track record)"
+    min_pnl = 500 if is_green else 200
+    if pnl < min_pnl:
+        return False, f"total_pnl=${pnl:.0f} < ${min_pnl} (insufficient track record)"
 
     return True, "all checks passed"
 
@@ -397,9 +408,17 @@ def _compute_copy_size_pct(ws: dict) -> float:
     """
     Compute recommended copy size as % of bankroll.
 
-    Formula: base from confidence + persistence bonus + anti-luck bonus.
-    Range: 0.5% – 2.0%.
+    YELLOW badge → flat 1.0% (learning tier, limited conviction)
+    GREEN badge  → confidence-based formula: 0.5% – 2.0%
     """
+    badge = ws.get("risk_badge", "")
+    is_green = "GREEN" in badge
+
+    if not is_green:
+        # YELLOW (or unknown): flat 1% — participate but limit exposure
+        return 1.0
+
+    # GREEN: confidence-based sizing
     conf = ws.get("confidence", 70)
     subs = ws.get("sub_scores", {})
 
@@ -505,10 +524,13 @@ def run_once(args: argparse.Namespace) -> None:
         if ok:
             _queue_for_polycop(ws)
             size_pct = _compute_copy_size_pct(ws)
+            is_green = "GREEN" in ws.get("risk_badge", "")
+            tier_label = "🟢 GREEN (conf-based)" if is_green else "🟡 YELLOW (flat 1%)"
             _tg_send(
                 f"<b>🤖 Auto-copy queued</b>\n"
                 f"<b>{label}</b> ajouté à la file PolyCop\n"
-                f"Taille recommandée: <b>{size_pct}%</b> du bankroll\n"
+                f"Tier : {tier_label}\n"
+                f"Taille : <b>{size_pct}%</b> du bankroll\n"
                 f"Le bot PolyCop va l'exécuter dans les prochaines secondes."
             )
         else:
