@@ -396,9 +396,16 @@ async def _follow_wallet_polycop(
     Returns (success, message).
     """
     # Compute Max Per Trade in dollars from live bankroll
+    # PolyCop minimum is $1.20 — enforce it regardless of bankroll size
+    POLYCOP_MIN_TRADE = 1.20
     if _BANKROLL_USD > 0:
-        max_per_trade_usd = round(size_pct / 100.0 * _BANKROLL_USD, 2)
-        size_label = f"${max_per_trade_usd} (={size_pct:.1f}% × ${_BANKROLL_USD:.2f})"
+        raw_usd = round(size_pct / 100.0 * _BANKROLL_USD, 2)
+        max_per_trade_usd = max(POLYCOP_MIN_TRADE, raw_usd)
+        size_label = (
+            f"${max_per_trade_usd} (={size_pct:.1f}% × ${_BANKROLL_USD:.2f}"
+            + (f", raised to PolyCop min ${POLYCOP_MIN_TRADE}" if raw_usd < POLYCOP_MIN_TRADE else "")
+            + ")"
+        )
     else:
         max_per_trade_usd = 0
         size_label = f"{size_pct:.1f}% (bankroll unknown — Max Per Trade skipped)"
@@ -464,6 +471,15 @@ async def _follow_wallet_polycop(
                 )
                 if not ok:
                     log.warning("Max Per Trade setting failed — continuing to save anyway")
+                elif not getattr(config, "buttons", None):
+                    # PolyCop returned an error (e.g. value out of range) — no buttons on response.
+                    # Try to get the real config screen that follows the error message.
+                    log.warning("  Max Per Trade response has no buttons — waiting for config refresh…")
+                    try:
+                        config = await asyncio.wait_for(conv.get_response(), timeout=30)
+                        _log_buttons(config, "  config_after_mpt_error")
+                    except asyncio.TimeoutError:
+                        log.warning("  No config refresh — will try save anyway")
 
             # ── Step 6: Save / Create ──────────────────────────────────────────
             # Save button is "+ Create" (confirmed via UI screenshot 2026-05-24)
