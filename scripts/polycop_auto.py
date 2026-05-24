@@ -433,32 +433,29 @@ async def _follow_wallet_polycop(
                 return False, f"'{POLYCOP_CREATE_BUTTON}' not found in Copy Trade section"
 
             await btn.click()
-            config = await conv.get_response()
-            log.info(f"Config screen: {(config.text or '')[:80]}")
-            _log_buttons(config, "  config")
+            # PolyCop sends "loading add page..." as a text prompt for the wallet address
+            loading_prompt = await conv.get_response()
+            log.info(f"  Wallet prompt: {(loading_prompt.text or '')[:80]}")
 
-            # PolyCop sometimes sends a "loading..." message first, then edits it
-            # (or sends a new message) with the real config screen and buttons.
+            # ── Step 4: Send wallet address as text ───────────────────────────
+            # PolyCop asks for the address via text prompt (not a button).
+            # The "loading add page..." message IS the prompt — reply with the address.
+            await conv.send_message(wallet_addr)
+            log.info(f"  Sent wallet address: {wallet_addr}")
+
+            # PolyCop responds with the full config screen (address pre-filled)
+            config = await asyncio.wait_for(conv.get_response(), timeout=CONV_TIMEOUT)
+            log.info(f"  Config after address: {(config.text or '')[:80]}")
+            _log_buttons(config, "  config_after_addr")
+
+            # If still no buttons, PolyCop may edit the message
             if not getattr(config, "buttons", None):
-                log.info("  No buttons yet — waiting for edited/new config screen…")
-                # Try edited message first (PolyCop edits "loading..." in place)
+                log.info("  No buttons yet — waiting for edit…")
                 try:
                     config = await asyncio.wait_for(conv.get_edit(), timeout=CONV_TIMEOUT)
-                    log.info(f"  Config screen (edited): {(config.text or '')[:80]}")
                     _log_buttons(config, "  config_edit")
                 except asyncio.TimeoutError:
-                    # Fallback: maybe it sent a new message after all
-                    try:
-                        config = await asyncio.wait_for(conv.get_response(), timeout=30)
-                        log.info(f"  Config screen (new msg): {(config.text or '')[:80]}")
-                        _log_buttons(config, "  config2")
-                    except asyncio.TimeoutError:
-                        return False, "Config screen never appeared after 'loading' message"
-
-            # ── Step 4: Set Target Wallet ──────────────────────────────────────
-            config, ok = await _click_setting(conv, config, "Target Wallet", wallet_addr)
-            if not ok:
-                return False, "Failed to set Target Wallet"
+                    return False, "Config screen never appeared after sending wallet address"
 
             # ── Step 5: Set Max Per Trade ──────────────────────────────────────
             if max_per_trade_usd > 0:
@@ -469,10 +466,10 @@ async def _follow_wallet_polycop(
                     log.warning("Max Per Trade setting failed — continuing to save anyway")
 
             # ── Step 6: Save / Create ──────────────────────────────────────────
-            # Try configured save button first, then common patterns
+            # Save button is "+ Create" (confirmed via UI screenshot 2026-05-24)
             save_hints = list(filter(None, [
-                POLYCOP_SAVE_BUTTON, "save", "create", "✅ create", "✅ save",
-                "confirm", "done", "submit", "✅",
+                POLYCOP_SAVE_BUTTON, "+ create", "create", "✅ create",
+                "save", "✅ save", "confirm", "done", "submit", "✅",
             ]))
             save_btn = _find_button(config.buttons, *save_hints)
 
