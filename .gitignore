@@ -35,3 +35,9 @@ obsidian-vault/.obsidian/workspaces.json
 # n8n local exports and secrets
 n8n/.cache/
 n8n/.secrets/
+
+# Claude Code local memory (session files, not project code)
+.claude/
+
+# Windows artifacts
+nul

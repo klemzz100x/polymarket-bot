@@ -1,0 +1,2457 @@
+[
+  {
+    "source": "https://x.com/cyrilXBT/status/2054379666316693719?s=20",
+    "author": "cyrilXBT",
+    "status_id": "2054379666316693719",
+    "title": "How to Build an Obsidian Vault That Runs Your Entire Business While You Sleep - (Full Course)",
+    "slug": "cyrilxbt-2054379666316693719-how-to-build-an-obsidian-vault-that-runs-your-entire-business",
+    "text_chars": 16838,
+    "primary_family": "agentic_research_infra",
+    "families": [
+      "agentic_research_infra",
+      "crypto_5m_microstructure",
+      "bot_tooling_stack",
+      "weather_event_discovery"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "The Obsidian vault business operating system solves it at the architectural level.",
+      "This article is the complete guide to building an Obsidian vault that runs your entire business while you sleep.",
+      "The Knowledge Layer is Obsidian itself.",
+      "The Intelligence Layer is Claude Code connected via MCP.",
+      "This is what transforms your vault from a passive repository into an active operating system.",
+      "Claude reads your files, processes information, makes connections, and generates outputs.",
+      "N8N is the clock and the nervous system.",
+      "Building the Foundation: Vault Structure for Business Operations"
+    ],
+    "actionable_takeaways": [
+      "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations.",
+      "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions.",
+      "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+      "For each weather thread claim, replay forecast update times against market mid-price changes and spread."
+    ],
+    "hypotheses": [
+      {
+        "family": "agentic_research_infra",
+        "value_type": "research_infra",
+        "thesis": "Agentic research infrastructure compounds iteration speed by turning raw sources into structured hypotheses.",
+        "required_data": [
+          "source notes",
+          "candidate registry",
+          "run reports",
+          "dashboards",
+          "automation logs"
+        ],
+        "first_test": "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations.",
+        "risk": "Automation can amplify low-quality sources if extraction quality is not tracked.",
+        "priority": "high",
+        "evidence": [
+          "The Obsidian vault business operating system solves it at the architectural level.",
+          "This article is the complete guide to building an Obsidian vault that runs your entire business while you sleep.",
+          "The Knowledge Layer is Obsidian itself."
+        ]
+      },
+      {
+        "family": "crypto_5m_microstructure",
+        "value_type": "pricing_signal",
+        "thesis": "Very short crypto markets may have repeatable early-window patterns if CEX microstructure leads Polymarket.",
+        "required_data": [
+          "Binance second data",
+          "Polymarket 5m orderbooks",
+          "trades",
+          "market start/end times"
+        ],
+        "first_test": "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions.",
+        "risk": "Backtest leakage, survivorship bias, and queue priority can make a paper edge non-executable.",
+        "priority": "high",
+        "evidence": []
+      },
+      {
+        "family": "bot_tooling_stack",
+        "value_type": "ops_infra",
+        "thesis": "Tooling threads can improve the bot's operating model even when they do not contain a trading signal.",
+        "required_data": [
+          "runbooks",
+          "service health",
+          "alerts",
+          "operator actions",
+          "incident logs"
+        ],
+        "first_test": "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+        "risk": "Tool fascination can distract from measurable market edge.",
+        "priority": "medium",
+        "evidence": [
+          "- Competitor activity if monitoring is configured"
+        ]
+      },
+      {
+        "family": "weather_event_discovery",
+        "value_type": "market_selection",
+        "thesis": "Weather markets can be found and repriced faster by mapping forecast updates to active Polymarket markets.",
+        "required_data": [
+          "market metadata",
+          "weather API snapshots",
+          "forecast timestamps",
+          "orderbooks",
+          "trades"
+        ],
+        "first_test": "For each weather thread claim, replay forecast update times against market mid-price changes and spread.",
+        "risk": "Forecast source mismatch or ambiguous market wording can create false positives.",
+        "priority": "high",
+        "evidence": [
+          "The folder structure reflects how a human brain organizes topics."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/korenssss/status/2054213106130145624?s=20",
+    "author": "korenssss",
+    "status_id": "2054213106130145624",
+    "title": "Korens",
+    "slug": "korenssss-2054213106130145624-korens",
+    "text_chars": 5767,
+    "primary_family": "information_theory_pricing",
+    "families": [
+      "information_theory_pricing",
+      "behavioral_bias_fade"
+    ],
+    "relevance": "direct_edge",
+    "priority": "medium",
+    "evidence": [
+      "In 1763, a pastor named Thomas Bayes left behind an unpublished manuscript.",
+      "generic incumbent base rate (2020–2026): ~90%;",
+      "Bayes' theorem gives the exact answer:",
+      "def bayes_update(prior, likelihood_if_true, likelihood_overall):",
+      "p_after = bayes_update(0.40, 0.60, 0.48)",
+      "prior: ~20% (base rate recession any given year)",
+      "The Bayesian traders saw 42% vs 65% and sold.",
+      "An insider moves differently, they know the outcome, open a large position, and entropy collapses sharply - before any public news."
+    ],
+    "actionable_takeaways": [
+      "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+      "Label jump events and test reversion only after spread stabilizes and depth returns."
+    ],
+    "hypotheses": [
+      {
+        "family": "information_theory_pricing",
+        "value_type": "pricing_framework",
+        "thesis": "Pricing decisions should be expressed as probability deltas and information gain, not narrative conviction.",
+        "required_data": [
+          "base rates",
+          "market price history",
+          "event labels",
+          "fees",
+          "position sizing"
+        ],
+        "first_test": "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+        "risk": "Subjective probability updates can hide overfitting if not tied to measurable event data.",
+        "priority": "medium",
+        "evidence": [
+          "In 1763, a pastor named Thomas Bayes left behind an unpublished manuscript.",
+          "generic incumbent base rate (2020–2026): ~90%;",
+          "Bayes' theorem gives the exact answer:"
+        ]
+      },
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": []
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/0xChainMind/status/2051742696193097998?s=20",
+    "author": "0xChainMind",
+    "status_id": "2051742696193097998",
+    "title": "Secret Polymarket private group made me ~$10K last month, without even trading",
+    "slug": "0xchainmind-2051742696193097998-secret-polymarket-private-group-made-me-10k-last-month-wit",
+    "text_chars": 7937,
+    "primary_family": "smart_money_wallet_tracking",
+    "families": [
+      "smart_money_wallet_tracking",
+      "bot_tooling_stack",
+      "simplification_robustness",
+      "agentic_research_infra",
+      "weather_event_discovery"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "They created a bot that sends interesting wallets that are profiting on Polymarket in some strange and maybe even an illegal way and I decided to recreate it.",
+      "That was the core idea of a group, found wallets that are breaking Polymarket system and copying them to profit without doing smth illegal",
+      "A couple of weeks struggling, fixing bugs, sitting in front of my Mac for 15 hours a day and finally bot that sends wallets to the group",
+      "Wallets that filtered by all-time P&L, win rate, ROV, and many others, tried at least 100+ different filter logic",
+      "Again, you can check and see all of them in the group that is already working, sending 6 wallets daily + my calls, tools, community and guides.",
+      "Filtering and finding wallets was the easiest thing, eventually cause democopytrading became a problem",
+      "Building a bot that fetches wallet manually:",
+      "Before writing the code, you need a concept, an exact idea of how it must work, not \"find me a cool wallet\", \"wallets that are profitable\" - actual markets, amounts, %, that make this exact wallet a profitable one for copytrading"
+    ],
+    "actionable_takeaways": [
+      "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+      "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+      "Compare simple baseline strategies against complex variants with identical data and execution assumptions.",
+      "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations."
+    ],
+    "hypotheses": [
+      {
+        "family": "smart_money_wallet_tracking",
+        "value_type": "research_signal",
+        "thesis": "Wallet tracking may identify repeatable market selection patterns, but direct copy trading is dangerous.",
+        "required_data": [
+          "wallet trades",
+          "market metadata",
+          "entry timestamps",
+          "exit timestamps",
+          "PnL attribution"
+        ],
+        "first_test": "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+        "risk": "Copying delayed fills creates adverse selection; public wallet lists decay quickly.",
+        "priority": "medium",
+        "evidence": [
+          "They created a bot that sends interesting wallets that are profiting on Polymarket in some strange and maybe even an illegal way and I decided to recreate it.",
+          "That was the core idea of a group, found wallets that are breaking Polymarket system and copying them to profit without doing smth illegal",
+          "A couple of weeks struggling, fixing bugs, sitting in front of my Mac for 15 hours a day and finally bot that sends wallets to the group"
+        ]
+      },
+      {
+        "family": "bot_tooling_stack",
+        "value_type": "ops_infra",
+        "thesis": "Tooling threads can improve the bot's operating model even when they do not contain a trading signal.",
+        "required_data": [
+          "runbooks",
+          "service health",
+          "alerts",
+          "operator actions",
+          "incident logs"
+        ],
+        "first_test": "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+        "risk": "Tool fascination can distract from measurable market edge.",
+        "priority": "medium",
+        "evidence": [
+          "You're a world-class full-stack engineer and system builder, who ships production-ready code, with the goal of creating fully functional projects.",
+          "Technical stack: language(s), Node.js programming."
+        ]
+      },
+      {
+        "family": "simplification_robustness",
+        "value_type": "engineering_edge",
+        "thesis": "Simpler strategies and smaller execution surfaces may outperform complex bots by reducing failure modes.",
+        "required_data": [
+          "strategy variants",
+          "code complexity metrics",
+          "paper/shadow performance",
+          "error logs"
+        ],
+        "first_test": "Compare simple baseline strategies against complex variants with identical data and execution assumptions.",
+        "risk": "Over-simplifying can remove real risk controls or necessary market filters.",
+        "priority": "medium",
+        "evidence": [
+          "Claude is making dozens of mistakes, doing things that you never asked, reversing errors one after another, so you must control everything"
+        ]
+      },
+      {
+        "family": "agentic_research_infra",
+        "value_type": "research_infra",
+        "thesis": "Agentic research infrastructure compounds iteration speed by turning raw sources into structured hypotheses.",
+        "required_data": [
+          "source notes",
+          "candidate registry",
+          "run reports",
+          "dashboards",
+          "automation logs"
+        ],
+        "first_test": "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations.",
+        "risk": "Automation can amplify low-quality sources if extraction quality is not tracked.",
+        "priority": "high",
+        "evidence": [
+          "Since I am not a dev, I used Claude Code to recreate this bot and all of its features, including:",
+          "Instructions for Claude Code that I used:",
+          "Brief run instructions and Prompt for Claude Code for Implementation"
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally.",
+      "Contains community/group promotion; separate useful mechanics from marketing."
+    ]
+  },
+  {
+    "source": "https://x.com/RohOnChain/status/2054217651015340148?s=20",
+    "author": "RohOnChain",
+    "status_id": "2054217651015340148",
+    "title": "How To Use Markov Chains To Win Every Single Trade (Quant Framework)",
+    "slug": "rohonchain-2054217651015340148-how-to-use-markov-chains-to-win-every-single-trade-quant-fr",
+    "text_chars": 26739,
+    "primary_family": "markov_regime_model",
+    "families": [
+      "markov_regime_model",
+      "behavioral_bias_fade",
+      "simplification_robustness",
+      "smart_money_wallet_tracking",
+      "neural_signal_model",
+      "strategy_validation_pipeline",
+      "weather_event_discovery"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "I am going to break down how hedge funds use Markov Chains to find high probability winning trades consistently & share the exact framework you can start building today.",
+      "The framework is called a Markov Chain.",
+      "By the end of this article you will understand exactly what a Markov Chain is and why it maps market behavior better than any single indicator, how to build a complete state transition model from real market data, how to compute the probability of any future market state using nothing more than matrix multiplication, t",
+      "Part 1: Why Independence Fails and Where Markov Chains Begin",
+      "Before you can build anything with Markov Chains, you need to understand the fundamental problem they were designed to solve.",
+      "This is exactly the problem Markov Chains solve.",
+      "Instead of assuming each step is independent of everything that came before it, a Markov Chain introduces local conditional dependence.",
+      "is a Markov Chain if it satisfies the Markov property:"
+    ],
+    "actionable_takeaways": [
+      "Estimate regimes from historical windows and compare strategy performance by state out of sample.",
+      "Label jump events and test reversion only after spread stabilizes and depth returns.",
+      "Compare simple baseline strategies against complex variants with identical data and execution assumptions.",
+      "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL."
+    ],
+    "hypotheses": [
+      {
+        "family": "markov_regime_model",
+        "value_type": "model_filter",
+        "thesis": "Regime models can gate strategies so the bot trades only when market state supports the edge.",
+        "required_data": [
+          "returns",
+          "spreads",
+          "depth",
+          "volatility",
+          "state labels",
+          "walk-forward splits"
+        ],
+        "first_test": "Estimate regimes from historical windows and compare strategy performance by state out of sample.",
+        "risk": "Transition probabilities are non-stationary and can overfit small samples.",
+        "priority": "medium",
+        "evidence": [
+          "I am going to break down how hedge funds use Markov Chains to find high probability winning trades consistently & share the exact framework you can start building today.",
+          "The framework is called a Markov Chain.",
+          "By the end of this article you will understand exactly what a Markov Chain is and why it maps market behavior better than any single indicator, how to build a complete state transition model from real market data, how to compute the probability of any future market state using nothing more than matrix multiplication, t"
+        ]
+      },
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": [
+          "While most retail traders are drawing support lines and watching RSI, the quantitative research teams at firms like Citadel and Two Sigma are building regime-switching models that understand not just where the market is, but where it is most likely to go next based on where it has been.",
+          "The walk-forward structure ensures the transition matrix is estimated only from data available at each point in time, preventing lookahead bias."
+        ]
+      },
+      {
+        "family": "simplification_robustness",
+        "value_type": "engineering_edge",
+        "thesis": "Simpler strategies and smaller execution surfaces may outperform complex bots by reducing failure modes.",
+        "required_data": [
+          "strategy variants",
+          "code complexity metrics",
+          "paper/shadow performance",
+          "error logs"
+        ],
+        "first_test": "Compare simple baseline strategies against complex variants with identical data and execution assumptions.",
+        "risk": "Over-simplifying can remove real risk controls or necessary market filters.",
+        "priority": "medium",
+        "evidence": [
+          "By the end of this article you will understand exactly what a Markov Chain is and why it maps market behavior better than any single indicator, how to build a complete state transition model from real market data, how to compute the probability of any future market state using nothing more than matrix multiplication, t",
+          "All the mathematical complexity of computing paths through a state space over multiple steps reduces to a single matrix power.",
+          "You can partially address this by expanding your state space to include duration information, though this increases complexity significantly."
+        ]
+      },
+      {
+        "family": "smart_money_wallet_tracking",
+        "value_type": "research_signal",
+        "thesis": "Wallet tracking may identify repeatable market selection patterns, but direct copy trading is dangerous.",
+        "required_data": [
+          "wallet trades",
+          "market metadata",
+          "entry timestamps",
+          "exit timestamps",
+          "PnL attribution"
+        ],
+        "first_test": "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+        "risk": "Copying delayed fills creates adverse selection; public wallet lists decay quickly.",
+        "priority": "medium",
+        "evidence": [
+          "This section assembles everything into a production-ready Markov Chain trading system and addresses the assumptions that will determine whether your model survives contact with live markets.",
+          "You can partially address this by expanding your state space to include duration information, though this increases complexity significantly."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/helicerat0x/status/2054223640573493523?s=20",
+    "author": "helicerat0x",
+    "status_id": "2054223640573493523",
+    "title": "Claude + strategy_validator.md for your Polymarket strategies. Steal My System (Full Setup Inside)",
+    "slug": "helicerat0x-2054223640573493523-claude-strategy-validator-md-for-your-polymarket-strategie",
+    "text_chars": 14569,
+    "primary_family": "strategy_validation_pipeline",
+    "families": [
+      "strategy_validation_pipeline",
+      "behavioral_bias_fade",
+      "agentic_research_infra",
+      "bot_tooling_stack",
+      "smart_money_wallet_tracking",
+      "weather_event_discovery"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "i wrote strategy_validator.md, a markdown skill that runs every hypothesis through 5 checks before backtest.",
+      "market data, backtest engine on nautilus_trader (an open-source backtesting engine), strategy_validator.md, pre-flight observation tool, iterative rework loop.",
+      "adversarial-validator - runs 3 rounds of attacks on every hypothesis that survives the validator.",
+      "it's strategy_validator.md and the discipline it enforces.",
+      "strategy_validator.md is what they wire to.",
+      "strategy_validator.md - 5 universal criteria + 6 Polymarket-specific failure modes.",
+      "testability - does the data in the backtest engine cover it?",
+      "multi-instrument cross-market state - backtest engine is one-strategy-per-instrument by design"
+    ],
+    "actionable_takeaways": [
+      "Require every candidate to pass data availability, execution realism, risk, and falsifiability checks.",
+      "Label jump events and test reversion only after spread stabilizes and depth returns.",
+      "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations.",
+      "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates."
+    ],
+    "hypotheses": [
+      {
+        "family": "strategy_validation_pipeline",
+        "value_type": "research_infra",
+        "thesis": "A strict validation checklist is an edge because it kills weak ideas before they reach paper/live systems.",
+        "required_data": [
+          "strategy specs",
+          "backtest reports",
+          "paper runs",
+          "shadow runs",
+          "failure reasons"
+        ],
+        "first_test": "Require every candidate to pass data availability, execution realism, risk, and falsifiability checks.",
+        "risk": "Checklist theater can replace real tests if it is not tied to metrics.",
+        "priority": "high",
+        "evidence": [
+          "i wrote strategy_validator.md, a markdown skill that runs every hypothesis through 5 checks before backtest.",
+          "market data, backtest engine on nautilus_trader (an open-source backtesting engine), strategy_validator.md, pre-flight observation tool, iterative rework loop.",
+          "adversarial-validator - runs 3 rounds of attacks on every hypothesis that survives the validator."
+        ]
+      },
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": [
+          "retail traders pick winners 51.3% of the time and still lose $79M as a group.",
+          "wallet behavior, news lag, structural mispricings.",
+          "new vs baseline - is this different from a simple mean-revert / momentum / favorite-bias play that's already priced in?"
+        ]
+      },
+      {
+        "family": "agentic_research_infra",
+        "value_type": "research_infra",
+        "thesis": "Agentic research infrastructure compounds iteration speed by turning raw sources into structured hypotheses.",
+        "required_data": [
+          "source notes",
+          "candidate registry",
+          "run reports",
+          "dashboards",
+          "automation logs"
+        ],
+        "first_test": "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations.",
+        "risk": "Automation can amplify low-quality sources if extraction quality is not tracked.",
+        "priority": "high",
+        "evidence": [
+          "i set up 5 MCP servers and a markdown skill, watched Claude work through 3 strategies on real Polymarket data, and the agent didn't trade any of them.",
+          "Why Polymarket breaks AI trading agents",
+          "so any agent that wins by being a better predictor is fighting the wrong battle."
+        ]
+      },
+      {
+        "family": "bot_tooling_stack",
+        "value_type": "ops_infra",
+        "thesis": "Tooling threads can improve the bot's operating model even when they do not contain a trading signal.",
+        "required_data": [
+          "runbooks",
+          "service health",
+          "alerts",
+          "operator actions",
+          "incident logs"
+        ],
+        "first_test": "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+        "risk": "Tool fascination can distract from measurable market edge.",
+        "priority": "medium",
+        "evidence": [
+          "one of the 5 servers being unstable is the reality of running this stack today."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally.",
+      "Contains community/group promotion; separate useful mechanics from marketing."
+    ]
+  },
+  {
+    "source": "https://x.com/Gustafssonkotte/status/2053758338974838857?s=20",
+    "author": "Gustafssonkotte",
+    "status_id": "2053758338974838857",
+    "title": "Deleted half my bot's code and it started winning",
+    "slug": "gustafssonkotte-2053758338974838857-deleted-half-my-bot-s-code-and-it-started-winning",
+    "text_chars": 10083,
+    "primary_family": "simplification_robustness",
+    "families": [
+      "simplification_robustness",
+      "crypto_5m_microstructure",
+      "behavioral_bias_fade",
+      "bot_tooling_stack",
+      "weather_event_discovery"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "I deleted half the codebase: the voter, the tier table, \"fair probability\", \"edge\".",
+      "Order walls across multiple exchanges (Binance, Bybit, OKX, Coinbase)",
+      "On a 5-minute market, the last 90 seconds are statistically more predictable than the first three minutes.",
+      "Daily bias (24h trend blocks the opposite side for the day)"
+    ],
+    "actionable_takeaways": [
+      "Compare simple baseline strategies against complex variants with identical data and execution assumptions.",
+      "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions.",
+      "Label jump events and test reversion only after spread stabilizes and depth returns.",
+      "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates."
+    ],
+    "hypotheses": [
+      {
+        "family": "simplification_robustness",
+        "value_type": "engineering_edge",
+        "thesis": "Simpler strategies and smaller execution surfaces may outperform complex bots by reducing failure modes.",
+        "required_data": [
+          "strategy variants",
+          "code complexity metrics",
+          "paper/shadow performance",
+          "error logs"
+        ],
+        "first_test": "Compare simple baseline strategies against complex variants with identical data and execution assumptions.",
+        "risk": "Over-simplifying can remove real risk controls or necessary market filters.",
+        "priority": "medium",
+        "evidence": [
+          "I deleted half the codebase: the voter, the tier table, \"fair probability\", \"edge\"."
+        ]
+      },
+      {
+        "family": "crypto_5m_microstructure",
+        "value_type": "pricing_signal",
+        "thesis": "Very short crypto markets may have repeatable early-window patterns if CEX microstructure leads Polymarket.",
+        "required_data": [
+          "Binance second data",
+          "Polymarket 5m orderbooks",
+          "trades",
+          "market start/end times"
+        ],
+        "first_test": "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions.",
+        "risk": "Backtest leakage, survivorship bias, and queue priority can make a paper edge non-executable.",
+        "priority": "high",
+        "evidence": [
+          "Order walls across multiple exchanges (Binance, Bybit, OKX, Coinbase)",
+          "On a 5-minute market, the last 90 seconds are statistically more predictable than the first three minutes."
+        ]
+      },
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": [
+          "Daily bias (24h trend blocks the opposite side for the day)"
+        ]
+      },
+      {
+        "family": "bot_tooling_stack",
+        "value_type": "ops_infra",
+        "thesis": "Tooling threads can improve the bot's operating model even when they do not contain a trading signal.",
+        "required_data": [
+          "runbooks",
+          "service health",
+          "alerts",
+          "operator actions",
+          "incident logs"
+        ],
+        "first_test": "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+        "risk": "Tool fascination can distract from measurable market edge.",
+        "priority": "medium",
+        "evidence": []
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/de1lymoon/status/2054115636008071430?s=20",
+    "author": "de1lymoon",
+    "status_id": "2054115636008071430",
+    "title": "COntent : The 3 Math Formulas the Top 1% Use on Polymarket [And Why You've Never Heard of Them]",
+    "slug": "de1lymoon-2054115636008071430-content-the-3-math-formulas-the-top-1-use-on-polymarket-and",
+    "text_chars": 27797,
+    "primary_family": "information_theory_pricing",
+    "families": [
+      "information_theory_pricing",
+      "weather_event_discovery",
+      "behavioral_bias_fade",
+      "smart_money_wallet_tracking",
+      "agentic_research_infra",
+      "crypto_5m_microstructure"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "f_kelly = (b * p_yes - (1 - p_yes)) / b",
+      "f_kelly = (b * (1 - p_yes) - p_yes) / b",
+      "\"quarter_kelly_fraction\": max(0, f_quarter),",
+      "print(f\" Action: {result['direction']} @ {result['quarter_kelly_fraction']:.1%} bankroll\")",
+      "He was the MIT professor who invented information theory the mathematics behind every ZIP file, every JPEG, every modem, every AI language model ever built.",
+      "He was measuring something specific: the information content of each bet, expressed in bits.",
+      "A market at 50¢ has entropy = 1.0 bit.",
+      "A market at 95¢ has entropy = 0.29 bits."
+    ],
+    "actionable_takeaways": [
+      "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+      "For each weather thread claim, replay forecast update times against market mid-price changes and spread.",
+      "Label jump events and test reversion only after spread stabilizes and depth returns.",
+      "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL."
+    ],
+    "hypotheses": [
+      {
+        "family": "information_theory_pricing",
+        "value_type": "pricing_framework",
+        "thesis": "Pricing decisions should be expressed as probability deltas and information gain, not narrative conviction.",
+        "required_data": [
+          "base rates",
+          "market price history",
+          "event labels",
+          "fees",
+          "position sizing"
+        ],
+        "first_test": "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+        "risk": "Subjective probability updates can hide overfitting if not tied to measurable event data.",
+        "priority": "medium",
+        "evidence": [
+          "f_kelly = (b * p_yes - (1 - p_yes)) / b",
+          "f_kelly = (b * (1 - p_yes) - p_yes) / b",
+          "\"quarter_kelly_fraction\": max(0, f_quarter),"
+        ]
+      },
+      {
+        "family": "weather_event_discovery",
+        "value_type": "market_selection",
+        "thesis": "Weather markets can be found and repriced faster by mapping forecast updates to active Polymarket markets.",
+        "required_data": [
+          "market metadata",
+          "weather API snapshots",
+          "forecast timestamps",
+          "orderbooks",
+          "trades"
+        ],
+        "first_test": "For each weather thread claim, replay forecast update times against market mid-price changes and spread.",
+        "risk": "Forecast source mismatch or ambiguous market wording can create false positives.",
+        "priority": "high",
+        "evidence": [
+          "\"Will there be a Category 5 hurricane making US landfall this season?\"",
+          "# Category 5 hurricane: historical rate 0.6 per season",
+          "(\"Cat-5 Hurricane US Landfall\", 0.6, 28, 1),"
+        ]
+      },
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": [
+          "On Polymarket, this mispricing is measurable and exploitable every single day.",
+          "He made money because he understood that the market was systematically mispricing the cost of uncertainty every year, in every calm period and he was willing to pay the premium until reality corrected the error.",
+          "On Polymarket, this mispricing is structural."
+        ]
+      },
+      {
+        "family": "smart_money_wallet_tracking",
+        "value_type": "research_signal",
+        "thesis": "Wallet tracking may identify repeatable market selection patterns, but direct copy trading is dangerous.",
+        "required_data": [
+          "wallet trades",
+          "market metadata",
+          "entry timestamps",
+          "exit timestamps",
+          "PnL attribution"
+        ],
+        "first_test": "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+        "risk": "Copying delayed fills creates adverse selection; public wallet lists decay quickly.",
+        "priority": "medium",
+        "evidence": [
+          "87% of Polymarket wallets lose money.",
+          "The top 200 wallets account for 34% of all volume."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/0xPhilanthrop/status/2052644589366878341?s=20",
+    "author": "0xPhilanthrop",
+    "status_id": "2052644589366878341",
+    "title": "28 tools under the hood of bot that made $1M on Polymarket",
+    "slug": "0xphilanthrop-2052644589366878341-28-tools-under-the-hood-of-bot-that-made-1m-on-polymarke",
+    "text_chars": 9730,
+    "primary_family": "bot_tooling_stack",
+    "families": [
+      "bot_tooling_stack",
+      "agentic_research_infra",
+      "crypto_5m_microstructure",
+      "behavioral_bias_fade",
+      "strategy_validation_pipeline",
+      "weather_event_discovery",
+      "information_theory_pricing",
+      "smart_money_wallet_tracking"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "A bot monitoring Binance's WebSocket feed with under 50ms latency sees this immediately.",
+      ") - Terminal dashboard: whale tracker, arbitrage scanner, insider detection, cross-platform comparison vs Kalshi, market risk grading A–F.- polyterm (github.com/NYTEMODEONLY/polyterm",
+      "The fastest path to a production-grade dashboard for monitoring positions and signals in real time.lightweight-charts (github.com/tradingview/lightweight-charts",
+      "A human monitoring 15-minute BTC contracts through an 8-hour session degrades.",
+      "Built-in Chroma vector database for ingesting news sources.- Polymarket/agents (https://github.com/Polymarket/agents",
+      "The coinman2 bot ran on Anthropic's Claude.",
+      "In March 2026, a controlled experiment ran Claude against the OpenClaw framework - same starting capital ($1,000), same market conditions, 48 hours.",
+      "Claude's generated code included more conservative default parameters, more defensive edge cases, and cleaner error handling."
+    ],
+    "actionable_takeaways": [
+      "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+      "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations.",
+      "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions.",
+      "Label jump events and test reversion only after spread stabilizes and depth returns."
+    ],
+    "hypotheses": [
+      {
+        "family": "bot_tooling_stack",
+        "value_type": "ops_infra",
+        "thesis": "Tooling threads can improve the bot's operating model even when they do not contain a trading signal.",
+        "required_data": [
+          "runbooks",
+          "service health",
+          "alerts",
+          "operator actions",
+          "incident logs"
+        ],
+        "first_test": "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+        "risk": "Tool fascination can distract from measurable market edge.",
+        "priority": "medium",
+        "evidence": [
+          "A bot monitoring Binance's WebSocket feed with under 50ms latency sees this immediately.",
+          ") - Terminal dashboard: whale tracker, arbitrage scanner, insider detection, cross-platform comparison vs Kalshi, market risk grading A–F.- polyterm (github.com/NYTEMODEONLY/polyterm",
+          "The fastest path to a production-grade dashboard for monitoring positions and signals in real time.lightweight-charts (github.com/tradingview/lightweight-charts"
+        ]
+      },
+      {
+        "family": "agentic_research_infra",
+        "value_type": "research_infra",
+        "thesis": "Agentic research infrastructure compounds iteration speed by turning raw sources into structured hypotheses.",
+        "required_data": [
+          "source notes",
+          "candidate registry",
+          "run reports",
+          "dashboards",
+          "automation logs"
+        ],
+        "first_test": "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations.",
+        "risk": "Automation can amplify low-quality sources if extraction quality is not tracked.",
+        "priority": "high",
+        "evidence": [
+          "Built-in Chroma vector database for ingesting news sources.- Polymarket/agents (https://github.com/Polymarket/agents",
+          "The coinman2 bot ran on Anthropic's Claude.",
+          "In March 2026, a controlled experiment ran Claude against the OpenClaw framework - same starting capital ($1,000), same market conditions, 48 hours."
+        ]
+      },
+      {
+        "family": "crypto_5m_microstructure",
+        "value_type": "pricing_signal",
+        "thesis": "Very short crypto markets may have repeatable early-window patterns if CEX microstructure leads Polymarket.",
+        "required_data": [
+          "Binance second data",
+          "Polymarket 5m orderbooks",
+          "trades",
+          "market start/end times"
+        ],
+        "first_test": "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions.",
+        "risk": "Backtest leakage, survivorship bias, and queue priority can make a paper edge non-executable.",
+        "priority": "high",
+        "evidence": [
+          "Users trade on outcomes: will Bitcoin be higher in 15 minutes?",
+          "The key category for automated trading is short-duration crypto contracts - 5-minute and 15-minute BTC and ETH up/down questions.",
+          "Polymarket updates its prices slower than the underlying asset moves on Binance."
+        ]
+      },
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": [
+          ") - Indicator engine that surfaces directional bias on live markets.",
+          "This is the layer most retail bots skip - and the reason most retail bots blow up."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/lorden_eth/status/2049866138171977771?s=20",
+    "author": "lorden_eth",
+    "status_id": "2049866138171977771",
+    "title": "COntent : I Built a Polymarket Bot That Buys at 98 Cents and Almost Never Loses",
+    "slug": "lorden-eth-2049866138171977771-content-i-built-a-polymarket-bot-that-buys-at-98-cents-and",
+    "text_chars": 12011,
+    "primary_family": "bot_tooling_stack",
+    "families": [
+      "bot_tooling_stack",
+      "agentic_research_infra"
+    ],
+    "relevance": "infrastructure_edge",
+    "priority": "medium",
+    "evidence": [
+      "\"I want a Python bot that hits the Polymarket API, pulls all active markets, filters for bond and macro markets where the YES price is at least 97 cents, scores each one on a confidence scale based on price, volume, liquidity, and days until expiry, then sends a formatted Telegram alert for any market scoring above 70/",
+      "I want it to remember which markets it's already alerted so I don't get spammed, and I want a web dashboard to monitor it.\"",
+      "Claude pointed out that if the bot runs every 30 minutes and a market stays at 0.98 for two days before settling, I'd get 96 Telegram alerts about the same market.",
+      "Every alert ever sent is in the database with the confidence score, price, volume, and Telegram message ID all feeding back into the dashboard.",
+      "Claude also built a web dashboard that runs on the same process as the bot, a Flask API behind a vanilla JS frontend.",
+      "After the Python bot was working, I asked Claude: \"Is there a faster way to do the API scanning?\" It explained that even with async HTTP, Python still fetches pages sequentially, one cursor hop at a time.",
+      "The docker-compose.yml handles everything: the Python bot, the dashboard, the SQLite database volume, and a health check that restarts the container if it crashes.",
+      "The dashboard, I definitely would have skipped."
+    ],
+    "actionable_takeaways": [
+      "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+      "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations."
+    ],
+    "hypotheses": [
+      {
+        "family": "bot_tooling_stack",
+        "value_type": "ops_infra",
+        "thesis": "Tooling threads can improve the bot's operating model even when they do not contain a trading signal.",
+        "required_data": [
+          "runbooks",
+          "service health",
+          "alerts",
+          "operator actions",
+          "incident logs"
+        ],
+        "first_test": "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+        "risk": "Tool fascination can distract from measurable market edge.",
+        "priority": "medium",
+        "evidence": [
+          "\"I want a Python bot that hits the Polymarket API, pulls all active markets, filters for bond and macro markets where the YES price is at least 97 cents, scores each one on a confidence scale based on price, volume, liquidity, and days until expiry, then sends a formatted Telegram alert for any market scoring above 70/",
+          "I want it to remember which markets it's already alerted so I don't get spammed, and I want a web dashboard to monitor it.\"",
+          "Claude pointed out that if the bot runs every 30 minutes and a market stays at 0.98 for two days before settling, I'd get 96 Telegram alerts about the same market."
+        ]
+      },
+      {
+        "family": "agentic_research_infra",
+        "value_type": "research_infra",
+        "thesis": "Agentic research infrastructure compounds iteration speed by turning raw sources into structured hypotheses.",
+        "required_data": [
+          "source notes",
+          "candidate registry",
+          "run reports",
+          "dashboards",
+          "automation logs"
+        ],
+        "first_test": "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations.",
+        "risk": "Automation can amplify low-quality sources if extraction quality is not tracked.",
+        "priority": "high",
+        "evidence": [
+          "What I do have is a Claude subscription, a slight obsession with prediction markets, and enough stubbornness to turn a dumb idea into something that actually makes money.",
+          "One thing i learned about working with Claude on a project like this is that it does significantly better when you brief it like a contractor, not a search engine.",
+          "That level of specificity matters, so Claude gave me a working system split across five clean modules, each doing exactly one job."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/0x_Punisher/status/2034569323411296491?s=20",
+    "author": "0x_Punisher",
+    "status_id": "2034569323411296491",
+    "title": "Turned $100 into $14k with MiroFish (full guide + proofs included)",
+    "slug": "0x-punisher-2034569323411296491-turned-100-into-14k-with-mirofish-full-guide-proofs-includ",
+    "text_chars": 6107,
+    "primary_family": "behavioral_bias_fade",
+    "families": [
+      "behavioral_bias_fade",
+      "agentic_research_infra",
+      "news_latency"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "Each agent has its own bias, memory, and decision logic.",
+      "Some behave like retail traders chasing hype.",
+      "People panic, hesitate, or overreact.",
+      "Instead of asking one model for an answer, it simulates thousands of independent agents interacting like a real market.",
+      "Instead of producing one answer, it creates a dynamic environment where thousands of agents can play.",
+      "> Run a simulation with 1,000-5,000 agents",
+      "> narrative clusters (what agents believe and why)",
+      "Agents instantly process the information and adjust their beliefs."
+    ],
+    "actionable_takeaways": [
+      "Label jump events and test reversion only after spread stabilizes and depth returns.",
+      "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations.",
+      "Replay timestamped news events and measure time-to-midpoint-move with simulated execution latency."
+    ],
+    "hypotheses": [
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": [
+          "Each agent has its own bias, memory, and decision logic.",
+          "Some behave like retail traders chasing hype.",
+          "People panic, hesitate, or overreact."
+        ]
+      },
+      {
+        "family": "agentic_research_infra",
+        "value_type": "research_infra",
+        "thesis": "Agentic research infrastructure compounds iteration speed by turning raw sources into structured hypotheses.",
+        "required_data": [
+          "source notes",
+          "candidate registry",
+          "run reports",
+          "dashboards",
+          "automation logs"
+        ],
+        "first_test": "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations.",
+        "risk": "Automation can amplify low-quality sources if extraction quality is not tracked.",
+        "priority": "high",
+        "evidence": [
+          "Instead of asking one model for an answer, it simulates thousands of independent agents interacting like a real market.",
+          "Instead of producing one answer, it creates a dynamic environment where thousands of agents can play.",
+          "Each agent has its own bias, memory, and decision logic."
+        ]
+      },
+      {
+        "family": "news_latency",
+        "value_type": "latency_signal",
+        "thesis": "News-to-price latency can create short windows where Polymarket reprices slower than credible external feeds.",
+        "required_data": [
+          "news timestamps",
+          "feed latency",
+          "orderbooks",
+          "trades",
+          "market mapping"
+        ],
+        "first_test": "Replay timestamped news events and measure time-to-midpoint-move with simulated execution latency.",
+        "risk": "Bad source quality, timestamp drift, or already-priced information can erase the edge.",
+        "priority": "high",
+        "evidence": [
+          "With MiroFish, you can inject breaking news into a running simulation:"
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally.",
+      "Contains community/group promotion; separate useful mechanics from marketing."
+    ]
+  },
+  {
+    "source": "https://x.com/AlterEgo_eth/status/2054170220777132371?s=20",
+    "author": "AlterEgo_eth",
+    "status_id": "2054170220777132371",
+    "title": "How a Weather Trading Bot Automatically Finds Every Relevant Market on Polymarket in Seconds",
+    "slug": "alterego-eth-2054170220777132371-how-a-weather-trading-bot-automatically-finds-every-relev",
+    "text_chars": 1664,
+    "primary_family": "weather_event_discovery",
+    "families": [
+      "weather_event_discovery"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "highest-temperature-in-{city}-on-{month}-{day}-{year}",
+      "Example: highest-temperature-in-seoul-on-may-15-2026",
+      "Inside - all markets for that event: every temperature bin with its own market_id, question text, and price",
+      "> Step 3 - Parse the temperature range from the question text",
+      "\"Will the high temperature in Seoul be between 22-23°C on May 15?\" or \"28°C or higher\" / \"15°C or below\""
+    ],
+    "actionable_takeaways": [
+      "For each weather thread claim, replay forecast update times against market mid-price changes and spread."
+    ],
+    "hypotheses": [
+      {
+        "family": "weather_event_discovery",
+        "value_type": "market_selection",
+        "thesis": "Weather markets can be found and repriced faster by mapping forecast updates to active Polymarket markets.",
+        "required_data": [
+          "market metadata",
+          "weather API snapshots",
+          "forecast timestamps",
+          "orderbooks",
+          "trades"
+        ],
+        "first_test": "For each weather thread claim, replay forecast update times against market mid-price changes and spread.",
+        "risk": "Forecast source mismatch or ambiguous market wording can create false positives.",
+        "priority": "high",
+        "evidence": [
+          "highest-temperature-in-{city}-on-{month}-{day}-{year}",
+          "Example: highest-temperature-in-seoul-on-may-15-2026",
+          "Inside - all markets for that event: every temperature bin with its own market_id, question text, and price"
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/bored2boar/status/2053421582698082377?s=20",
+    "author": "bored2boar",
+    "status_id": "2053421582698082377",
+    "title": "The hidden way to multiply your Polymarket profits (under-the-radar one)",
+    "slug": "bored2boar-2053421582698082377-the-hidden-way-to-multiply-your-polymarket-profits-under-th",
+    "text_chars": 5807,
+    "primary_family": "behavioral_bias_fade",
+    "families": [
+      "behavioral_bias_fade",
+      "bot_tooling_stack",
+      "simplification_robustness"
+    ],
+    "relevance": "direct_edge",
+    "priority": "medium",
+    "evidence": [
+      "Advanced strategy: probability mispricing stacks",
+      "Instead of earning small, linear returns, you can stack probabilities and multiply payouts.",
+      "finding one good trade -> finding multiple small edges and stacking them",
+      "Instead of only stacking safe markets, you can combine:",
+      "Run probability analysis (or simulations) -> identify edges -> stack only those with positive expected value.",
+      "A smaller group will start stacking edges.",
+      "Parlays amplify returns, but they also amplify mistakes."
+    ],
+    "actionable_takeaways": [
+      "Label jump events and test reversion only after spread stabilizes and depth returns.",
+      "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+      "Compare simple baseline strategies against complex variants with identical data and execution assumptions."
+    ],
+    "hypotheses": [
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": [
+          "Advanced strategy: probability mispricing stacks"
+        ]
+      },
+      {
+        "family": "bot_tooling_stack",
+        "value_type": "ops_infra",
+        "thesis": "Tooling threads can improve the bot's operating model even when they do not contain a trading signal.",
+        "required_data": [
+          "runbooks",
+          "service health",
+          "alerts",
+          "operator actions",
+          "incident logs"
+        ],
+        "first_test": "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+        "risk": "Tool fascination can distract from measurable market edge.",
+        "priority": "medium",
+        "evidence": [
+          "Instead of earning small, linear returns, you can stack probabilities and multiply payouts.",
+          "finding one good trade -> finding multiple small edges and stacking them",
+          "Advanced strategy: probability mispricing stacks"
+        ]
+      },
+      {
+        "family": "simplification_robustness",
+        "value_type": "engineering_edge",
+        "thesis": "Simpler strategies and smaller execution surfaces may outperform complex bots by reducing failure modes.",
+        "required_data": [
+          "strategy variants",
+          "code complexity metrics",
+          "paper/shadow performance",
+          "error logs"
+        ],
+        "first_test": "Compare simple baseline strategies against complex variants with identical data and execution assumptions.",
+        "risk": "Over-simplifying can remove real risk controls or necessary market filters.",
+        "priority": "medium",
+        "evidence": [
+          "Parlays amplify returns, but they also amplify mistakes."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally.",
+      "Contains community/group promotion; separate useful mechanics from marketing."
+    ]
+  },
+  {
+    "source": "https://x.com/0x_Discover/status/2045052337996157219?s=20",
+    "author": "0x_Discover",
+    "status_id": "2045052337996157219",
+    "title": "The Exact Math That Pulled $40,000,000 from Polymarket (Full Roadmap)",
+    "slug": "0x-discover-2045052337996157219-the-exact-math-that-pulled-40-000-000-from-polymarket-full",
+    "text_chars": 13054,
+    "primary_family": "behavioral_bias_fade",
+    "families": [
+      "behavioral_bias_fade",
+      "information_theory_pricing",
+      "smart_money_wallet_tracking",
+      "weather_event_discovery"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "The median mispricing was $0.60 meaning markets were regularly wrong by 40%.",
+      "Layer 1: Fast linear programming relaxations for obvious mispricings (milliseconds).",
+      "Modified Kelly criterion accounting for execution risk and order book depth.",
+      "Kelly-based position sizing, live recalculation",
+      "Countryside—Election markets · base rate $2,400,000",
+      "Why copy-trading fast wallets fails",
+      "So the only way copy-trading works is if your execution fires in the same block as the original wallet.",
+      "Providing exit liquidity to fast wallets"
+    ],
+    "actionable_takeaways": [
+      "Label jump events and test reversion only after spread stabilizes and depth returns.",
+      "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+      "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+      "For each weather thread claim, replay forecast update times against market mid-price changes and spread."
+    ],
+    "hypotheses": [
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": [
+          "The median mispricing was $0.60 meaning markets were regularly wrong by 40%.",
+          "Layer 1: Fast linear programming relaxations for obvious mispricings (milliseconds)."
+        ]
+      },
+      {
+        "family": "information_theory_pricing",
+        "value_type": "pricing_framework",
+        "thesis": "Pricing decisions should be expressed as probability deltas and information gain, not narrative conviction.",
+        "required_data": [
+          "base rates",
+          "market price history",
+          "event labels",
+          "fees",
+          "position sizing"
+        ],
+        "first_test": "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+        "risk": "Subjective probability updates can hide overfitting if not tied to measurable event data.",
+        "priority": "medium",
+        "evidence": [
+          "Modified Kelly criterion accounting for execution risk and order book depth.",
+          "Kelly-based position sizing, live recalculation",
+          "Countryside—Election markets · base rate $2,400,000"
+        ]
+      },
+      {
+        "family": "smart_money_wallet_tracking",
+        "value_type": "research_signal",
+        "thesis": "Wallet tracking may identify repeatable market selection patterns, but direct copy trading is dangerous.",
+        "required_data": [
+          "wallet trades",
+          "market metadata",
+          "entry timestamps",
+          "exit timestamps",
+          "PnL attribution"
+        ],
+        "first_test": "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+        "risk": "Copying delayed fills creates adverse selection; public wallet lists decay quickly.",
+        "priority": "medium",
+        "evidence": [
+          "Why copy-trading fast wallets fails",
+          "So the only way copy-trading works is if your execution fires in the same block as the original wallet.",
+          "Providing exit liquidity to fast wallets"
+        ]
+      },
+      {
+        "family": "weather_event_discovery",
+        "value_type": "market_selection",
+        "thesis": "Weather markets can be found and repriced faster by mapping forecast updates to active Polymarket markets.",
+        "required_data": [
+          "market metadata",
+          "weather API snapshots",
+          "forecast timestamps",
+          "orderbooks",
+          "trades"
+        ],
+        "first_test": "For each weather thread claim, replay forecast update times against market mid-price changes and spread.",
+        "risk": "Forecast source mismatch or ambiguous market wording can create false positives.",
+        "priority": "high",
+        "evidence": [
+          "It's about solving constraint satisfaction problems over exponentially large outcome spaces.",
+          "Three linear constraints replace 16,384 brute force checks.",
+          "Fewer variables, tighter constraints, faster solves."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/Dan1ro0/status/2036142569583706567?s=20",
+    "author": "Dan1ro0",
+    "status_id": "2036142569583706567",
+    "title": "From News to Price in 300 ms: How Quant Bots Take Profit Before You Finish Reading",
+    "slug": "dan1ro0-2036142569583706567-from-news-to-price-in-300-ms-how-quant-bots-take-profit-before",
+    "text_chars": 7370,
+    "primary_family": "news_latency",
+    "families": [
+      "news_latency",
+      "information_theory_pricing",
+      "behavioral_bias_fade",
+      "weather_event_discovery"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "While a human is still reading the headline, a good bot has already gone through an entire computational chain:",
+      "headline → signal parsing → probability update → fair value → mispricing detection → execution",
+      "For it, any headline, any spike in volume, any sharp move in BTC, ETH, or SOL is simply a new packet of data that must be converted into a numerical signal immediately.",
+      "While a human is still reading the headline, a good bot has already:",
+      "After the signal comes the probability update through Bayes",
+      "This is where Bayesian updating comes in:",
+      "def bayes_update(prior, like_true, like_false):",
+      "posterior = bayes_update(prior, 0.78, 0.24)"
+    ],
+    "actionable_takeaways": [
+      "Replay timestamped news events and measure time-to-midpoint-move with simulated execution latency.",
+      "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+      "Label jump events and test reversion only after spread stabilizes and depth returns.",
+      "For each weather thread claim, replay forecast update times against market mid-price changes and spread."
+    ],
+    "hypotheses": [
+      {
+        "family": "news_latency",
+        "value_type": "latency_signal",
+        "thesis": "News-to-price latency can create short windows where Polymarket reprices slower than credible external feeds.",
+        "required_data": [
+          "news timestamps",
+          "feed latency",
+          "orderbooks",
+          "trades",
+          "market mapping"
+        ],
+        "first_test": "Replay timestamped news events and measure time-to-midpoint-move with simulated execution latency.",
+        "risk": "Bad source quality, timestamp drift, or already-priced information can erase the edge.",
+        "priority": "high",
+        "evidence": [
+          "While a human is still reading the headline, a good bot has already gone through an entire computational chain:",
+          "headline → signal parsing → probability update → fair value → mispricing detection → execution",
+          "For it, any headline, any spike in volume, any sharp move in BTC, ETH, or SOL is simply a new packet of data that must be converted into a numerical signal immediately."
+        ]
+      },
+      {
+        "family": "information_theory_pricing",
+        "value_type": "pricing_framework",
+        "thesis": "Pricing decisions should be expressed as probability deltas and information gain, not narrative conviction.",
+        "required_data": [
+          "base rates",
+          "market price history",
+          "event labels",
+          "fees",
+          "position sizing"
+        ],
+        "first_test": "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+        "risk": "Subjective probability updates can hide overfitting if not tied to measurable event data.",
+        "priority": "medium",
+        "evidence": [
+          "After the signal comes the probability update through Bayes",
+          "This is where Bayesian updating comes in:",
+          "def bayes_update(prior, like_true, like_false):"
+        ]
+      },
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": [
+          "headline → signal parsing → probability update → fair value → mispricing detection → execution",
+          "That is why a strong arbitrage bot is not just a mispricing detector."
+        ]
+      },
+      {
+        "family": "weather_event_discovery",
+        "value_type": "market_selection",
+        "thesis": "Weather markets can be found and repriced faster by mapping forecast updates to active Polymarket markets.",
+        "required_data": [
+          "market metadata",
+          "weather API snapshots",
+          "forecast timestamps",
+          "orderbooks",
+          "trades"
+        ],
+        "first_test": "For each weather thread claim, replay forecast update times against market mid-price changes and spread.",
+        "risk": "Forecast source mismatch or ambiguous market wording can create false positives.",
+        "priority": "high",
+        "evidence": [
+          "On a five minute window or shorter, execution quality is often more important than forecasting."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/0xChaseTM/status/2053866884647264649?s=20",
+    "author": "0xChaseTM",
+    "status_id": "2053866884647264649",
+    "title": "Iceberg: The Cognitive Biases That Make Polymarket a Quant's ATM",
+    "slug": "0xchasetm-2053866884647264649-iceberg-the-cognitive-biases-that-make-polymarket-a-quant-s",
+    "text_chars": 18223,
+    "primary_family": "behavioral_bias_fade",
+    "families": [
+      "behavioral_bias_fade",
+      "smart_money_wallet_tracking",
+      "information_theory_pricing",
+      "news_latency",
+      "weather_event_discovery"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "They're running the same biases against the rest of the market.",
+      "Favourite-longshot Bias (The Surface)",
+      "Multiply that across thousands of degens chasing 5¢ longshots on every market - and you get a structural mispricing that never closes.",
+      "Overreaction Bias (Below the Surface)",
+      "Retail piles in chasing the move - buying the top, selling the bottom - convinced that this time the news really matters.",
+      "Avatar: Fire and Ash opening weekend - Yes at 25.8¢ when the market panicked on early reviews.",
+      "This is anchoring bias - and it's the slowest, most profitable inefficiency on Polymarket.",
+      "This is end-of-event bias: the systematic mispricing that emerges in the final hours of a market's life."
+    ],
+    "actionable_takeaways": [
+      "Label jump events and test reversion only after spread stabilizes and depth returns.",
+      "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+      "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+      "Replay timestamped news events and measure time-to-midpoint-move with simulated execution latency."
+    ],
+    "hypotheses": [
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": [
+          "They're running the same biases against the rest of the market.",
+          "Favourite-longshot Bias (The Surface)",
+          "Multiply that across thousands of degens chasing 5¢ longshots on every market - and you get a structural mispricing that never closes."
+        ]
+      },
+      {
+        "family": "smart_money_wallet_tracking",
+        "value_type": "research_signal",
+        "thesis": "Wallet tracking may identify repeatable market selection patterns, but direct copy trading is dangerous.",
+        "required_data": [
+          "wallet trades",
+          "market metadata",
+          "entry timestamps",
+          "exit timestamps",
+          "PnL attribution"
+        ],
+        "first_test": "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+        "risk": "Copying delayed fills creates adverse selection; public wallet lists decay quickly.",
+        "priority": "medium",
+        "evidence": [
+          "There's a reason the same wallets sit at the top of the leaderboard month after month.",
+          "Compounded across thousands of trades, it's the difference between a printing wallet and a dead one.",
+          "Address: 0xb40e89677d59665d5188541ad860450a6e2a7cc9"
+        ]
+      },
+      {
+        "family": "information_theory_pricing",
+        "value_type": "pricing_framework",
+        "thesis": "Pricing decisions should be expressed as probability deltas and information gain, not narrative conviction.",
+        "required_data": [
+          "base rates",
+          "market price history",
+          "event labels",
+          "fees",
+          "position sizing"
+        ],
+        "first_test": "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+        "risk": "Subjective probability updates can hide overfitting if not tied to measurable event data.",
+        "priority": "medium",
+        "evidence": [
+          "A single headline gets weighted heavier than weeks of base rate.",
+          "Establish the base rate before the news (where was the market trading for the last 48 hours?)",
+          "Exit on reversion to base rate, not on the next headline"
+        ]
+      },
+      {
+        "family": "news_latency",
+        "value_type": "latency_signal",
+        "thesis": "News-to-price latency can create short windows where Polymarket reprices slower than credible external feeds.",
+        "required_data": [
+          "news timestamps",
+          "feed latency",
+          "orderbooks",
+          "trades",
+          "market mapping"
+        ],
+        "first_test": "Replay timestamped news events and measure time-to-midpoint-move with simulated execution latency.",
+        "risk": "Bad source quality, timestamp drift, or already-priced information can erase the edge.",
+        "priority": "high",
+        "evidence": [
+          "A single headline gets weighted heavier than weeks of base rate.",
+          "Exit on reversion to base rate, not on the next headline"
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/sopersone/status/2053759390016999432?s=20",
+    "author": "sopersone",
+    "status_id": "2053759390016999432",
+    "title": "Building Prediction Market Trading Bot with Python: From Idea to Deployment",
+    "slug": "sopersone-2053759390016999432-building-prediction-market-trading-bot-with-python-from-idea",
+    "text_chars": 24611,
+    "primary_family": "neural_signal_model",
+    "families": [
+      "neural_signal_model",
+      "behavioral_bias_fade",
+      "bot_tooling_stack",
+      "markov_regime_model",
+      "strategy_validation_pipeline",
+      "weather_event_discovery"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "We will take the same features we built today and feed them into a neural network with several layers.",
+      "If the training set contains data from the future relative to the test set, you get look-ahead bias.",
+      "How to fight it: fewer parameters, regularization, cross-validation, walk-forward testing.",
+      "In Article 6 we covered walk-forward analysis for classical strategies.",
+      "Walk-forward for ML: a rolling training window, with predictions made one step at a time.",
+      "Walk-forward validation of an ML classifier.",
+      "print(f\"Walk-forward accuracy: {wf_acc:.1%}\")",
+      "Walk-forward accuracy is typically lower than accuracy on a fixed test set."
+    ],
+    "actionable_takeaways": [
+      "Train a tiny baseline model first, then require neural models to beat it after costs and latency.",
+      "Label jump events and test reversion only after spread stabilizes and depth returns.",
+      "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+      "Estimate regimes from historical windows and compare strategy performance by state out of sample."
+    ],
+    "hypotheses": [
+      {
+        "family": "neural_signal_model",
+        "value_type": "model_filter",
+        "thesis": "Neural models are useful only if they consume clean microstructure features and beat simple baselines.",
+        "required_data": [
+          "features",
+          "labels",
+          "walk-forward splits",
+          "baseline models",
+          "execution simulation"
+        ],
+        "first_test": "Train a tiny baseline model first, then require neural models to beat it after costs and latency.",
+        "risk": "Deep models can memorize noisy patterns and produce non-executable signals.",
+        "priority": "low",
+        "evidence": [
+          "We will take the same features we built today and feed them into a neural network with several layers."
+        ]
+      },
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": [
+          "If the training set contains data from the future relative to the test set, you get look-ahead bias."
+        ]
+      },
+      {
+        "family": "bot_tooling_stack",
+        "value_type": "ops_infra",
+        "thesis": "Tooling threads can improve the bot's operating model even when they do not contain a trading signal.",
+        "required_data": [
+          "runbooks",
+          "service health",
+          "alerts",
+          "operator actions",
+          "incident logs"
+        ],
+        "first_test": "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+        "risk": "Tool fascination can distract from measurable market edge.",
+        "priority": "medium",
+        "evidence": []
+      },
+      {
+        "family": "markov_regime_model",
+        "value_type": "model_filter",
+        "thesis": "Regime models can gate strategies so the bot trades only when market state supports the edge.",
+        "required_data": [
+          "returns",
+          "spreads",
+          "depth",
+          "volatility",
+          "state labels",
+          "walk-forward splits"
+        ],
+        "first_test": "Estimate regimes from historical windows and compare strategy performance by state out of sample.",
+        "risk": "Transition probabilities are non-stationary and can overfit small samples.",
+        "priority": "medium",
+        "evidence": [
+          "How to fight it: fewer parameters, regularization, cross-validation, walk-forward testing.",
+          "In Article 6 we covered walk-forward analysis for classical strategies.",
+          "Walk-forward for ML: a rolling training window, with predictions made one step at a time."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/stacyonchain/status/2053851622120337750?s=20",
+    "author": "stacyonchain",
+    "status_id": "2053851622120337750",
+    "title": "500 Smart Money Addresses on Polymarket for Copy Trading: An Analysis of the Best Traders",
+    "slug": "stacyonchain-2053851622120337750-500-smart-money-addresses-on-polymarket-for-copy-trading",
+    "text_chars": 10967,
+    "primary_family": "smart_money_wallet_tracking",
+    "families": [
+      "smart_money_wallet_tracking",
+      "news_latency",
+      "weather_event_discovery"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "While most participants on Polymarket are trying to predict outcomes based on headlines, emotions, and speculation, a small group of addresses consistently approaches the market with precision and systematically captures the majority of profitable opportunities.",
+      "I collected 500 wallets with the highest PnL, categorized them by trading behavior and market focus, and selected the ones that are genuinely worth tracking for copy trading.",
+      "Below is a curated database of addresses you can use to monitor activity, analyze strategies, and identify patterns used by some of the platform’s most successful traders."
+    ],
+    "actionable_takeaways": [
+      "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+      "Replay timestamped news events and measure time-to-midpoint-move with simulated execution latency.",
+      "For each weather thread claim, replay forecast update times against market mid-price changes and spread."
+    ],
+    "hypotheses": [
+      {
+        "family": "smart_money_wallet_tracking",
+        "value_type": "research_signal",
+        "thesis": "Wallet tracking may identify repeatable market selection patterns, but direct copy trading is dangerous.",
+        "required_data": [
+          "wallet trades",
+          "market metadata",
+          "entry timestamps",
+          "exit timestamps",
+          "PnL attribution"
+        ],
+        "first_test": "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+        "risk": "Copying delayed fills creates adverse selection; public wallet lists decay quickly.",
+        "priority": "medium",
+        "evidence": [
+          "While most participants on Polymarket are trying to predict outcomes based on headlines, emotions, and speculation, a small group of addresses consistently approaches the market with precision and systematically captures the majority of profitable opportunities.",
+          "I collected 500 wallets with the highest PnL, categorized them by trading behavior and market focus, and selected the ones that are genuinely worth tracking for copy trading.",
+          "Below is a curated database of addresses you can use to monitor activity, analyze strategies, and identify patterns used by some of the platform’s most successful traders."
+        ]
+      },
+      {
+        "family": "news_latency",
+        "value_type": "latency_signal",
+        "thesis": "News-to-price latency can create short windows where Polymarket reprices slower than credible external feeds.",
+        "required_data": [
+          "news timestamps",
+          "feed latency",
+          "orderbooks",
+          "trades",
+          "market mapping"
+        ],
+        "first_test": "Replay timestamped news events and measure time-to-midpoint-move with simulated execution latency.",
+        "risk": "Bad source quality, timestamp drift, or already-priced information can erase the edge.",
+        "priority": "high",
+        "evidence": [
+          "While most participants on Polymarket are trying to predict outcomes based on headlines, emotions, and speculation, a small group of addresses consistently approaches the market with precision and systematically captures the majority of profitable opportunities."
+        ]
+      },
+      {
+        "family": "weather_event_discovery",
+        "value_type": "market_selection",
+        "thesis": "Weather markets can be found and repriced faster by mapping forecast updates to active Polymarket markets.",
+        "required_data": [
+          "market metadata",
+          "weather API snapshots",
+          "forecast timestamps",
+          "orderbooks",
+          "trades"
+        ],
+        "first_test": "For each weather thread claim, replay forecast update times against market mid-price changes and spread.",
+        "risk": "Forecast source mismatch or ambiguous market wording can create false positives.",
+        "priority": "high",
+        "evidence": []
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/martynov014/status/2053554401563050114?s=20",
+    "author": "martynov014",
+    "status_id": "2053554401563050114",
+    "title": "How to make money on the weather using Polymarket",
+    "slug": "martynov014-2053554401563050114-how-to-make-money-on-the-weather-using-polymarket",
+    "text_chars": 5447,
+    "primary_family": "weather_event_discovery",
+    "families": [
+      "weather_event_discovery",
+      "behavioral_bias_fade",
+      "bot_tooling_stack",
+      "information_theory_pricing"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "I've been noticing more and more traders quietly printing on Polymarket's weather markets lately - and the category is exploding for a reason.",
+      "Weather has always been super predictable for meteorologists (and us normals) right up to the day of.",
+      "You can earn easy, near-certain yield just knowing it'll rain in London tomorrow.",
+      "(http://polymarket.com/@gopfan2?r=deposited) - The absolute leader in weather.",
+      "Earned over $2M in net profit by focusing on temperature and precipitation.",
+      "It dominates the NYC and London markets where the weather is predictable",
+      "(http://polymarket.com/@enzocostapt81?r=deposited) is a weather-exclusive trader whose profile shows a complete wipeout in resolved positions-no active/open trades, current positions value $0.00, and all listed markets (resolved) at -100% P/L.",
+      "The trader focused solely on daily/precise temperature predictions in major cities like New York City and London."
+    ],
+    "actionable_takeaways": [
+      "For each weather thread claim, replay forecast update times against market mid-price changes and spread.",
+      "Label jump events and test reversion only after spread stabilizes and depth returns.",
+      "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+      "Build a fair-value notebook that converts evidence updates into probability and expected log-growth."
+    ],
+    "hypotheses": [
+      {
+        "family": "weather_event_discovery",
+        "value_type": "market_selection",
+        "thesis": "Weather markets can be found and repriced faster by mapping forecast updates to active Polymarket markets.",
+        "required_data": [
+          "market metadata",
+          "weather API snapshots",
+          "forecast timestamps",
+          "orderbooks",
+          "trades"
+        ],
+        "first_test": "For each weather thread claim, replay forecast update times against market mid-price changes and spread.",
+        "risk": "Forecast source mismatch or ambiguous market wording can create false positives.",
+        "priority": "high",
+        "evidence": [
+          "I've been noticing more and more traders quietly printing on Polymarket's weather markets lately - and the category is exploding for a reason.",
+          "Weather has always been super predictable for meteorologists (and us normals) right up to the day of.",
+          "You can earn easy, near-certain yield just knowing it'll rain in London tomorrow."
+        ]
+      },
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": [
+          "Includes educational guides on seasonal biases and forecasting challenges—highly recommended for NYC/London/Atlanta markets."
+        ]
+      },
+      {
+        "family": "bot_tooling_stack",
+        "value_type": "ops_infra",
+        "thesis": "Tooling threads can improve the bot's operating model even when they do not contain a trading signal.",
+        "required_data": [
+          "runbooks",
+          "service health",
+          "alerts",
+          "operator actions",
+          "incident logs"
+        ],
+        "first_test": "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+        "risk": "Tool fascination can distract from measurable market edge.",
+        "priority": "medium",
+        "evidence": [
+          "Offers real-time multi-model forecasts (GFS, ECMWF, etc.), temperature range dashboards, climate pattern guides per city/station, and settlement station details."
+        ]
+      },
+      {
+        "family": "information_theory_pricing",
+        "value_type": "pricing_framework",
+        "thesis": "Pricing decisions should be expressed as probability deltas and information gain, not narrative conviction.",
+        "required_data": [
+          "base rates",
+          "market price history",
+          "event labels",
+          "fees",
+          "position sizing"
+        ],
+        "first_test": "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+        "risk": "Subjective probability updates can hide overfitting if not tied to measurable event data.",
+        "priority": "medium",
+        "evidence": [
+          "> http://tropicaltidbits.com - US GFS and ECMWF Europe models for temperature, precipitation, hurricane forecasts."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/me_cool_off/status/2047322366921855025?s=20",
+    "author": "me_cool_off",
+    "status_id": "2047322366921855025",
+    "title": "Different markets. Same edge. Why weather and 5-minute markets are the same game",
+    "slug": "me-cool-off-2047322366921855025-different-markets-same-edge-why-weather-and-5-minute-marke",
+    "text_chars": 12795,
+    "primary_family": "information_theory_pricing",
+    "families": [
+      "information_theory_pricing",
+      "weather_event_discovery",
+      "markov_regime_model",
+      "crypto_5m_microstructure",
+      "behavioral_bias_fade",
+      "smart_money_wallet_tracking"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "Same market price, but less confidence — Kelly automatically scales position size down to 8%.",
+      "Full Kelly maximises long-run growth in theory, but in practice:",
+      "Model error compounds aggressively at full Kelly",
+      "Drawdowns at full Kelly are psychologically brutal even when EV is positive",
+      "Most systematic traders use ¼ to ½ Kelly.",
+      "At the 0.60/0.40 example above, ½ Kelly gives f* ≈ 16.7% — still meaningful exposure, but far more robust to estimation error.",
+      "Bayesian updating: probability in motion",
+      "Bayes' theorem describes how to update correctly:"
+    ],
+    "actionable_takeaways": [
+      "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+      "For each weather thread claim, replay forecast update times against market mid-price changes and spread.",
+      "Estimate regimes from historical windows and compare strategy performance by state out of sample.",
+      "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions."
+    ],
+    "hypotheses": [
+      {
+        "family": "information_theory_pricing",
+        "value_type": "pricing_framework",
+        "thesis": "Pricing decisions should be expressed as probability deltas and information gain, not narrative conviction.",
+        "required_data": [
+          "base rates",
+          "market price history",
+          "event labels",
+          "fees",
+          "position sizing"
+        ],
+        "first_test": "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+        "risk": "Subjective probability updates can hide overfitting if not tied to measurable event data.",
+        "priority": "medium",
+        "evidence": [
+          "Same market price, but less confidence — Kelly automatically scales position size down to 8%.",
+          "Full Kelly maximises long-run growth in theory, but in practice:",
+          "Model error compounds aggressively at full Kelly"
+        ]
+      },
+      {
+        "family": "weather_event_discovery",
+        "value_type": "market_selection",
+        "thesis": "Weather markets can be found and repriced faster by mapping forecast updates to active Polymarket markets.",
+        "required_data": [
+          "market metadata",
+          "weather API snapshots",
+          "forecast timestamps",
+          "orderbooks",
+          "trades"
+        ],
+        "first_test": "For each weather thread claim, replay forecast update times against market mid-price changes and spread.",
+        "risk": "Forecast source mismatch or ambiguous market wording can create false positives.",
+        "priority": "high",
+        "evidence": [
+          "Two market types that look completely different on the surface — weather outcomes and 5-minute BTC windows — are actually the same game under the hood.",
+          "A weather station in Phoenix shows the temperature crossing 104°F at 11:47 AM.",
+          "Market: \"Chicago max temperature above 90°F today\" — p = 0.40."
+        ]
+      },
+      {
+        "family": "markov_regime_model",
+        "value_type": "model_filter",
+        "thesis": "Regime models can gate strategies so the bot trades only when market state supports the edge.",
+        "required_data": [
+          "returns",
+          "spreads",
+          "depth",
+          "volatility",
+          "state labels",
+          "walk-forward splits"
+        ],
+        "first_test": "Estimate regimes from historical windows and compare strategy performance by state out of sample.",
+        "risk": "Transition probabilities are non-stationary and can overfit small samples.",
+        "priority": "medium",
+        "evidence": [
+          "Markov Chains: modeling state transitions",
+          "For markets with sequential structure — like rolling 5-minute windows — Markov chains model how the current state predicts the next one:",
+          "Markov models are not central to most Polymarket bots today, but become useful once you accumulate enough historical data on a specific market's transition behavior."
+        ]
+      },
+      {
+        "family": "crypto_5m_microstructure",
+        "value_type": "pricing_signal",
+        "thesis": "Very short crypto markets may have repeatable early-window patterns if CEX microstructure leads Polymarket.",
+        "required_data": [
+          "Binance second data",
+          "Polymarket 5m orderbooks",
+          "trades",
+          "market start/end times"
+        ],
+        "first_test": "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions.",
+        "risk": "Backtest leakage, survivorship bias, and queue priority can make a paper edge non-executable.",
+        "priority": "high",
+        "evidence": [
+          "Two market types that look completely different on the surface — weather outcomes and 5-minute BTC windows — are actually the same game under the hood.",
+          "For markets with sequential structure — like rolling 5-minute windows — Markov chains model how the current state predicts the next one:",
+          "How this works on 5-minute BTC markets"
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally.",
+      "Contains community/group promotion; separate useful mechanics from marketing."
+    ]
+  },
+  {
+    "source": "https://x.com/0xMovez/status/2049891014249431141?s=20",
+    "author": "0xMovez",
+    "status_id": "2049891014249431141",
+    "title": "Hermes + Polymarket - how i built a self-learning BTC up/down trading agent 100$ → 5000$ ( guide )",
+    "slug": "0xmovez-2049891014249431141-hermes-polymarket-how-i-built-a-self-learning-btc-up-down-trad",
+    "text_chars": 11344,
+    "primary_family": "crypto_5m_microstructure",
+    "families": [
+      "crypto_5m_microstructure",
+      "agentic_research_infra",
+      "weather_event_discovery",
+      "smart_money_wallet_tracking",
+      "bot_tooling_stack",
+      "information_theory_pricing"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "Momentum / Latency Bot - monitors BTC spot price on Binance/Coinbase and enters Polymarket during the repricing delay",
+      "Market Maker - places two-sided orders on the 5-minute BTC market, capturing the spread",
+      "Here we go - we have entered the Atomic dashboard where we can communicate with our Hermes agent and build an up/down trading setup.",
+      "aulekator/Polymarket-BTC-15-Minute-Trading-Bot — Production-grade, 7-phase architecture.",
+      "Build a Polymarket BTC 5-minute up/down trading agent from this repo: https://github.com/JLowo/gengar_polymarket_bot",
+      "Trading bots/agents on Polymarket generated over $60M in profit in 2025-2026.",
+      "The market keeps evolving: to stay profitable, you need to either continuously hunt for new inefficiencies or build self-learning agents that do it automatically.",
+      "That's why Hermes is the ideal foundation for our agent - an open-source, self-learning agent that gained over 100,000 GitHub stars in under 2 months."
+    ],
+    "actionable_takeaways": [
+      "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions.",
+      "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations.",
+      "For each weather thread claim, replay forecast update times against market mid-price changes and spread.",
+      "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL."
+    ],
+    "hypotheses": [
+      {
+        "family": "crypto_5m_microstructure",
+        "value_type": "pricing_signal",
+        "thesis": "Very short crypto markets may have repeatable early-window patterns if CEX microstructure leads Polymarket.",
+        "required_data": [
+          "Binance second data",
+          "Polymarket 5m orderbooks",
+          "trades",
+          "market start/end times"
+        ],
+        "first_test": "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions.",
+        "risk": "Backtest leakage, survivorship bias, and queue priority can make a paper edge non-executable.",
+        "priority": "high",
+        "evidence": [
+          "Momentum / Latency Bot - monitors BTC spot price on Binance/Coinbase and enters Polymarket during the repricing delay",
+          "Market Maker - places two-sided orders on the 5-minute BTC market, capturing the spread",
+          "Here we go - we have entered the Atomic dashboard where we can communicate with our Hermes agent and build an up/down trading setup."
+        ]
+      },
+      {
+        "family": "agentic_research_infra",
+        "value_type": "research_infra",
+        "thesis": "Agentic research infrastructure compounds iteration speed by turning raw sources into structured hypotheses.",
+        "required_data": [
+          "source notes",
+          "candidate registry",
+          "run reports",
+          "dashboards",
+          "automation logs"
+        ],
+        "first_test": "Measure time from raw thread to testable strategy spec and reduce manual steps with safe automations.",
+        "risk": "Automation can amplify low-quality sources if extraction quality is not tracked.",
+        "priority": "high",
+        "evidence": [
+          "Trading bots/agents on Polymarket generated over $60M in profit in 2025-2026.",
+          "The market keeps evolving: to stay profitable, you need to either continuously hunt for new inefficiencies or build self-learning agents that do it automatically.",
+          "That's why Hermes is the ideal foundation for our agent - an open-source, self-learning agent that gained over 100,000 GitHub stars in under 2 months."
+        ]
+      },
+      {
+        "family": "weather_event_discovery",
+        "value_type": "market_selection",
+        "thesis": "Weather markets can be found and repriced faster by mapping forecast updates to active Polymarket markets.",
+        "required_data": [
+          "market metadata",
+          "weather API snapshots",
+          "forecast timestamps",
+          "orderbooks",
+          "trades"
+        ],
+        "first_test": "For each weather thread claim, replay forecast update times against market mid-price changes and spread.",
+        "risk": "Forecast source mismatch or ambiguous market wording can create false positives.",
+        "priority": "high",
+        "evidence": [
+          "AI/ML Bot (Synth SDK) - uses Bittensor AI to forecast probabilities 20 minutes before market close with an edge of 10%+",
+          "All these factors together make Hermes the brain (not just the hands) of your trading setup - letting it adapt to market conditions rather than blindly following instructions you set once.",
+          "In my previous article on the Hermes weather trading bot, many readers ran into issues installing Hermes via CLI - so I found a more convenient framework for managing your agents."
+        ]
+      },
+      {
+        "family": "smart_money_wallet_tracking",
+        "value_type": "research_signal",
+        "thesis": "Wallet tracking may identify repeatable market selection patterns, but direct copy trading is dangerous.",
+        "required_data": [
+          "wallet trades",
+          "market metadata",
+          "entry timestamps",
+          "exit timestamps",
+          "PnL attribution"
+        ],
+        "first_test": "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+        "risk": "Copying delayed fills creates adverse selection; public wallet lists decay quickly.",
+        "priority": "medium",
+        "evidence": [
+          "- Support SAFE_ADDRESS for Polymarket Safe/proxy wallets.",
+          "Step 2: setting up wallet for trading",
+          "Hermes has built-in safety skills, so after sending the command below, confirm that you understand all the risks and ask him to create wallet he will manage."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/Dipper_pol/status/2051269768619971071?s=20",
+    "author": "Dipper_pol",
+    "status_id": "2051269768619971071",
+    "title": "Information Theory on Polymarket: How 77-year old formula prints million for quants",
+    "slug": "dipper-pol-2051269768619971071-information-theory-on-polymarket-how-77-year-old-formula-pr",
+    "text_chars": 12402,
+    "primary_family": "information_theory_pricing",
+    "families": [
+      "information_theory_pricing",
+      "crypto_5m_microstructure",
+      "simplification_robustness",
+      "smart_money_wallet_tracking",
+      "agentic_research_infra",
+      "strategy_validation_pipeline",
+      "weather_event_discovery"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "He was the MIT professor who invented information theory - the math behind every JPEG, every modem, every compression algorithm on Earth.",
+      "Shannon's approach was methodical, derived directly from his own information theory papers.",
+      "He was measuring the information content of every bet he took - in bits - and sizing positions accordingly.",
+      "Shannon listened, then handed him a Bell Labs paper by John Kelly titled A New Interpretation of Information Rate.",
+      "The paper used Shannon's entropy to derive the mathematically optimal bet size for any game with positive edge.",
+      "Shannon and Thorp measured edge in bits of information - and built portfolios that compounded for decades while everyone else blew up on a single bad call.",
+      "\"Bits of information\" isn't a metaphor.",
+      "A Polymarket position has a measurable information-theoretic edge before you place it - expressed as a real number, in bits."
+    ],
+    "actionable_takeaways": [
+      "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+      "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions.",
+      "Compare simple baseline strategies against complex variants with identical data and execution assumptions.",
+      "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL."
+    ],
+    "hypotheses": [
+      {
+        "family": "information_theory_pricing",
+        "value_type": "pricing_framework",
+        "thesis": "Pricing decisions should be expressed as probability deltas and information gain, not narrative conviction.",
+        "required_data": [
+          "base rates",
+          "market price history",
+          "event labels",
+          "fees",
+          "position sizing"
+        ],
+        "first_test": "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+        "risk": "Subjective probability updates can hide overfitting if not tied to measurable event data.",
+        "priority": "medium",
+        "evidence": [
+          "He was the MIT professor who invented information theory - the math behind every JPEG, every modem, every compression algorithm on Earth.",
+          "Shannon's approach was methodical, derived directly from his own information theory papers.",
+          "He was measuring the information content of every bet he took - in bits - and sizing positions accordingly."
+        ]
+      },
+      {
+        "family": "crypto_5m_microstructure",
+        "value_type": "pricing_signal",
+        "thesis": "Very short crypto markets may have repeatable early-window patterns if CEX microstructure leads Polymarket.",
+        "required_data": [
+          "Binance second data",
+          "Polymarket 5m orderbooks",
+          "trades",
+          "market start/end times"
+        ],
+        "first_test": "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions.",
+        "risk": "Backtest leakage, survivorship bias, and queue priority can make a paper edge non-executable.",
+        "priority": "high",
+        "evidence": [
+          "Compute market entropy H(t) every 5 minutes using current price.",
+          "Entropy drops from 0.998 to 0.905 bits in 15 minutes - a 7-sigma event."
+        ]
+      },
+      {
+        "family": "simplification_robustness",
+        "value_type": "engineering_edge",
+        "thesis": "Simpler strategies and smaller execution surfaces may outperform complex bots by reducing failure modes.",
+        "required_data": [
+          "strategy variants",
+          "code complexity metrics",
+          "paper/shadow performance",
+          "error logs"
+        ],
+        "first_test": "Compare simple baseline strategies against complex variants with identical data and execution assumptions.",
+        "risk": "Over-simplifying can remove real risk controls or necessary market filters.",
+        "priority": "medium",
+        "evidence": []
+      },
+      {
+        "family": "smart_money_wallet_tracking",
+        "value_type": "research_signal",
+        "thesis": "Wallet tracking may identify repeatable market selection patterns, but direct copy trading is dangerous.",
+        "required_data": [
+          "wallet trades",
+          "market metadata",
+          "entry timestamps",
+          "exit timestamps",
+          "PnL attribution"
+        ],
+        "first_test": "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+        "risk": "Copying delayed fills creates adverse selection; public wallet lists decay quickly.",
+        "priority": "medium",
+        "evidence": [
+          "Between 14:00 and 14:15 EST, price moves from 0.52 to 0.68 on large orders from a single wallet.",
+          "Wallet nets ~$340k during that hour."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally."
+    ]
+  },
+  {
+    "source": "https://x.com/waveking1314/status/2034574192105173032?s=20",
+    "author": "waveking1314",
+    "status_id": "2034574192105173032",
+    "title": "COntent : 实操指南：如何构建属于你自己的自动化交易脚本（预期周入 1,000 美金跑通逻辑）",
+    "slug": "waveking1314-2034574192105173032-content-1-000",
+    "text_chars": 1507,
+    "primary_family": "unclassified",
+    "families": [],
+    "relevance": "source_material",
+    "priority": "low",
+    "evidence": [],
+    "actionable_takeaways": [
+      "Keep as source material; no directly testable trading or infrastructure edge was detected yet."
+    ],
+    "hypotheses": [],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally.",
+      "Contains community/group promotion; separate useful mechanics from marketing.",
+      "No matching edge family; review manually before promoting."
+    ]
+  },
+  {
+    "source": "https://x.com/crptAtlas/status/2052469824836493680?s=20",
+    "author": "crptAtlas",
+    "status_id": "2052469824836493680",
+    "title": "Quant Mentality: How to Use Neural Networks to Outplay Hedge Funds",
+    "slug": "crptatlas-2052469824836493680-quant-mentality-how-to-use-neural-networks-to-outplay-hedge",
+    "text_chars": 15708,
+    "primary_family": "neural_signal_model",
+    "families": [
+      "neural_signal_model",
+      "behavioral_bias_fade",
+      "bot_tooling_stack",
+      "information_theory_pricing",
+      "simplification_robustness",
+      "crypto_5m_microstructure",
+      "strategy_validation_pipeline",
+      "weather_event_discovery"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "In this article I'm going to break down exactly how neural networks extract edge before the trade even happens",
+      "PART 1 - WHAT A NEURAL NETWORK ACTUALLY COMPUTES",
+      "Most people think a neural network predicts the future.",
+      "A neural network learns the expectation function hidden inside historical data.",
+      "Here's the insight that changes how you interpret everything a neural network produces:",
+      "When you present it with today's feature vector, it has no knowledge of what the last 50 days looked like.",
+      "Rather than a single hidden state, the LSTM maintains both a hidden state h_t (working memory) and a cell state c_t (long-term memory).",
+      "This is the core of LSTM's long-term memory - the cell state can carry information across hundreds of time steps without it being lost to the vanishing gradient problem that breaks basic RNNs."
+    ],
+    "actionable_takeaways": [
+      "Train a tiny baseline model first, then require neural models to beat it after costs and latency.",
+      "Label jump events and test reversion only after spread stabilizes and depth returns.",
+      "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+      "Build a fair-value notebook that converts evidence updates into probability and expected log-growth."
+    ],
+    "hypotheses": [
+      {
+        "family": "neural_signal_model",
+        "value_type": "model_filter",
+        "thesis": "Neural models are useful only if they consume clean microstructure features and beat simple baselines.",
+        "required_data": [
+          "features",
+          "labels",
+          "walk-forward splits",
+          "baseline models",
+          "execution simulation"
+        ],
+        "first_test": "Train a tiny baseline model first, then require neural models to beat it after costs and latency.",
+        "risk": "Deep models can memorize noisy patterns and produce non-executable signals.",
+        "priority": "low",
+        "evidence": [
+          "In this article I'm going to break down exactly how neural networks extract edge before the trade even happens",
+          "PART 1 - WHAT A NEURAL NETWORK ACTUALLY COMPUTES",
+          "Most people think a neural network predicts the future."
+        ]
+      },
+      {
+        "family": "behavioral_bias_fade",
+        "value_type": "pricing_signal",
+        "thesis": "Behavioral narratives can become fade candidates when price jumps are unsupported by durable depth.",
+        "required_data": [
+          "price jumps",
+          "volume spikes",
+          "orderbook imbalance",
+          "news labels",
+          "reversion windows"
+        ],
+        "first_test": "Label jump events and test reversion only after spread stabilizes and depth returns.",
+        "risk": "What looks like bias may be correct information arrival.",
+        "priority": "medium",
+        "evidence": [
+          "θ represents every learnable parameter in the network - all the weights and biases across all layers.",
+          "Randomizing the split would allow future information to contaminate training - a form of lookahead bias that guarantees your backtest looks better than live performance."
+        ]
+      },
+      {
+        "family": "bot_tooling_stack",
+        "value_type": "ops_infra",
+        "thesis": "Tooling threads can improve the bot's operating model even when they do not contain a trading signal.",
+        "required_data": [
+          "runbooks",
+          "service health",
+          "alerts",
+          "operator actions",
+          "incident logs"
+        ],
+        "first_test": "Convert useful tooling claims into runbook/dashboard/alert requirements, not strategy candidates.",
+        "risk": "Tool fascination can distract from measurable market edge.",
+        "priority": "medium",
+        "evidence": [
+          "Without non-linearity, stacking layers does nothing."
+        ]
+      },
+      {
+        "family": "information_theory_pricing",
+        "value_type": "pricing_framework",
+        "thesis": "Pricing decisions should be expressed as probability deltas and information gain, not narrative conviction.",
+        "required_data": [
+          "base rates",
+          "market price history",
+          "event labels",
+          "fees",
+          "position sizing"
+        ],
+        "first_test": "Build a fair-value notebook that converts evidence updates into probability and expected log-growth.",
+        "risk": "Subjective probability updates can hide overfitting if not tied to measurable event data.",
+        "priority": "medium",
+        "evidence": [
+          "A 54% directional signal with Sharpe ratio above 1.0, applied consistently across hundreds of trades with Kelly-derived position sizing, compounds into returns that outperform most discretionary traders over a multi-year horizon.",
+          "The Kelly criterion gives you the mathematically optimal fraction of capital to bet on any given trade for maximum long-run growth:",
+          "Standard Kelly treats it as ground truth and systematically overbets."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally.",
+      "Contains community/group promotion; separate useful mechanics from marketing."
+    ]
+  },
+  {
+    "source": "https://x.com/0x_Punisher/status/2053055492868514213?s=20",
+    "author": "0x_Punisher",
+    "status_id": "2053055492868514213",
+    "title": "My public bot hit $100k PnL today (how I built it + my mistakes + what is needed)",
+    "slug": "0x-punisher-2053055492868514213-my-public-bot-hit-100k-pnl-today-how-i-built-it-my-mistake",
+    "text_chars": 9231,
+    "primary_family": "simplification_robustness",
+    "families": [
+      "simplification_robustness",
+      "smart_money_wallet_tracking",
+      "crypto_5m_microstructure",
+      "strategy_validation_pipeline"
+    ],
+    "relevance": "direct_edge",
+    "priority": "high",
+    "evidence": [
+      "Follow it exactly and you’ll avoid the mistakes that kill 99 out of 100 ideas.",
+      "> Polymarket API access and a real wallet",
+      "Make sure to get API keys plus a live wallet for placing orders.",
+      "Just go to Polymarket’s developer portal + create your own wallet.",
+      "Real-wallet dry runs surface hidden errors (like NSF rejections) that become valuable signals in your backtests.",
+      "Dry-run live with real wallet (zero balance).",
+      "Run with real wallet and zero balance until backtest and live match perfectly.",
+      "Polymarket CLOB and Gamma websockets + external sources (Binance, Coinbase, etc.)."
+    ],
+    "actionable_takeaways": [
+      "Compare simple baseline strategies against complex variants with identical data and execution assumptions.",
+      "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+      "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions.",
+      "Require every candidate to pass data availability, execution realism, risk, and falsifiability checks."
+    ],
+    "hypotheses": [
+      {
+        "family": "simplification_robustness",
+        "value_type": "engineering_edge",
+        "thesis": "Simpler strategies and smaller execution surfaces may outperform complex bots by reducing failure modes.",
+        "required_data": [
+          "strategy variants",
+          "code complexity metrics",
+          "paper/shadow performance",
+          "error logs"
+        ],
+        "first_test": "Compare simple baseline strategies against complex variants with identical data and execution assumptions.",
+        "risk": "Over-simplifying can remove real risk controls or necessary market filters.",
+        "priority": "medium",
+        "evidence": [
+          "Follow it exactly and you’ll avoid the mistakes that kill 99 out of 100 ideas."
+        ]
+      },
+      {
+        "family": "smart_money_wallet_tracking",
+        "value_type": "research_signal",
+        "thesis": "Wallet tracking may identify repeatable market selection patterns, but direct copy trading is dangerous.",
+        "required_data": [
+          "wallet trades",
+          "market metadata",
+          "entry timestamps",
+          "exit timestamps",
+          "PnL attribution"
+        ],
+        "first_test": "Rank wallets by out-of-sample hit rate, market category, entry timing, and drawdown, not headline PnL.",
+        "risk": "Copying delayed fills creates adverse selection; public wallet lists decay quickly.",
+        "priority": "medium",
+        "evidence": [
+          "> Polymarket API access and a real wallet",
+          "Make sure to get API keys plus a live wallet for placing orders.",
+          "Just go to Polymarket’s developer portal + create your own wallet."
+        ]
+      },
+      {
+        "family": "crypto_5m_microstructure",
+        "value_type": "pricing_signal",
+        "thesis": "Very short crypto markets may have repeatable early-window patterns if CEX microstructure leads Polymarket.",
+        "required_data": [
+          "Binance second data",
+          "Polymarket 5m orderbooks",
+          "trades",
+          "market start/end times"
+        ],
+        "first_test": "Rebuild 5m windows and test minute-1 direction, reversal, momentum, spread, and fill assumptions.",
+        "risk": "Backtest leakage, survivorship bias, and queue priority can make a paper edge non-executable.",
+        "priority": "high",
+        "evidence": [
+          "Polymarket CLOB and Gamma websockets + external sources (Binance, Coinbase, etc.).",
+          "Implement every layer (it works on Polymarket CLOB, Gamma, Binance, or any other feed).",
+          "Bet at window open based on external signals (Binance direction, mean reversion, candles)."
+        ]
+      },
+      {
+        "family": "strategy_validation_pipeline",
+        "value_type": "research_infra",
+        "thesis": "A strict validation checklist is an edge because it kills weak ideas before they reach paper/live systems.",
+        "required_data": [
+          "strategy specs",
+          "backtest reports",
+          "paper runs",
+          "shadow runs",
+          "failure reasons"
+        ],
+        "first_test": "Require every candidate to pass data availability, execution realism, risk, and falsifiability checks.",
+        "risk": "Checklist theater can replace real tests if it is not tied to metrics.",
+        "priority": "high",
+        "evidence": [
+          "Most bots fail because of poor data quality, inaccurate backtesting, or weak execution.",
+          "Slow or messy code can’t keep up with hundreds of parallel connections or accurate backtests.",
+          "Real-wallet dry runs surface hidden errors (like NSF rejections) that become valuable signals in your backtests."
+        ]
+      }
+    ],
+    "caveats": [
+      "Do not treat posted PnL, win rate, or screenshots as evidence until reproduced locally.",
+      "Contains community/group promotion; separate useful mechanics from marketing."
+    ]
+  }
+]

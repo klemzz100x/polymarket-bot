@@ -136,9 +136,23 @@ class PolymarketClient:
         data = await self._get(self.settings.polymarket_data_api_url, "/positions", params={"user": address, "limit": limit})
         return data if isinstance(data, list) else []
 
-    async def get_wallet_activity(self, address: str, *, limit: int = 500) -> list[dict[str, Any]]:
-        """Recent activity for a wallet (trades, redeems, yields)."""
-        data = await self._get(self.settings.polymarket_data_api_url, "/activity", params={"user": address, "limit": limit})
+    async def get_wallet_activity(
+        self,
+        address: str,
+        *,
+        limit: int = 500,
+        activity_type: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """Recent activity for a wallet (trades, redeems, yields).
+
+        Args:
+            activity_type: Optional filter ("TRADE", "REDEEM", "YIELD", "REFERRAL_REWARD").
+                Without filter, recent rewards dominate for active wallets.
+        """
+        params: dict[str, Any] = {"user": address, "limit": limit}
+        if activity_type:
+            params["type"] = activity_type
+        data = await self._get(self.settings.polymarket_data_api_url, "/activity", params=params)
         return data if isinstance(data, list) else []
 
     async def get_market_holders(self, condition_id: str, *, limit: int = 50) -> list[dict[str, Any]]:

@@ -48,6 +48,10 @@ dashboard = [
   "streamlit>=1.40",
   "pandas>=2.2",
 ]
+automation = [
+  "telethon>=1.36",
+  "python-dotenv>=1.0",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/polybot"]

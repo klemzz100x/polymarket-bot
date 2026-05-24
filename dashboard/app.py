@@ -39,6 +39,11 @@ AUTO_REFRESH_OPTIONS = {
 }
 TWITTER_URL_RE = re.compile(r"https?://(?:x\.com|twitter\.com)/[^\s<>()]+", re.IGNORECASE)
 
+POLYCOP_WALLET = os.getenv("POLYCOP_WALLET_ADDRESS", "")
+WALLET_CONF_JSON = Path(os.getenv("WALLET_CONF_JSON", "tmp/wallet_confidence.json"))
+WALLET_CHANGELOG_MD = Path("obsidian-vault/scans/sc-016-wallet-changelog.md")
+POLYMARKET_DATA_API = "https://data-api.polymarket.com"
+
 
 def main() -> None:
     st.title("Polybot Trading Validation Dashboard")
@@ -48,13 +53,18 @@ def main() -> None:
     page = st.sidebar.radio(
         "Page",
         [
+            "PolyCop Wallet Intel",
             "Terminal Cockpit",
+            "Capital Allocation",
+            "Smart Follower",
             "Oracle Scan",
             "Daily Research",
             "Weather Markets",
             "End-of-Event",
             "Behavioral Bias",
             "Reflexivity",
+            "Latency Arb",
+            "YES/NO Arb",
             "Overview",
             "Data Coverage",
             "Equity Curve",
@@ -72,8 +82,18 @@ def main() -> None:
             "Twitter Research",
         ],
     )
-    if page == "Terminal Cockpit":
+    if page == "PolyCop Wallet Intel":
+        polycop_intel_page()
+    elif page == "Terminal Cockpit":
         terminal_cockpit_page()
+    elif page == "Capital Allocation":
+        capital_allocation_page()
+    elif page == "Smart Follower":
+        smart_follower_page()
+    elif page == "Latency Arb":
+        latency_arb_page()
+    elif page == "YES/NO Arb":
+        yes_no_arb_page()
     elif page == "Oracle Scan":
         oracle_scan_page()
     elif page == "Daily Research":
@@ -692,6 +712,377 @@ def reflexivity_page() -> None:
     st.markdown("**Source :** @0xChaseTM 'Iceberg' thread — Réflexivité (Soros style)")
 
 
+def capital_allocation_page() -> None:
+    inject_terminal_css()
+    st.subheader("Capital Allocation — 40/30/20/10")
+    st.caption("Répartition du bankroll par stratégie. Modifiable via les variables d'environnement.")
+
+    bankroll = float(os.getenv("POLYBOT_BANKROLL_USD", "20.0"))
+
+    BUCKETS = [
+        {"name": "Research Strategies", "pct": 0.40, "color": "green",
+         "strategies": ["Oracle (Becker+Claude)", "Behavioral Bias (SC-011)", "Reflexivity (SC-012)", "Daily Research"],
+         "cmd": "python scripts/run_daily_research.py --bankroll {:.2f}",
+         "note": "Information edge — own probability model"},
+        {"name": "Smart Follower", "pct": 0.30, "color": "blue",
+         "strategies": ["aenews2 T1 (overreaction)", "YatSen T1 (anchoring)", "ImJustKen T1 (reflexivity)", "Poligarch T1 (longshot)"],
+         "cmd": "python scripts/scan_smart_follower.py --bankroll {:.2f} --copy-allocation 0.30",
+         "note": "Anti-exit-liquidity — Tier 1 wallets only, max 10-min delay"},
+        {"name": "Opportunistic", "pct": 0.20, "color": "amber",
+         "strategies": ["YES/NO Arb (SC-014)", "Latency Arb (SC-013)", "Weather Markets (SC-010)", "End-of-Event (SC-009)"],
+         "cmd": "python scripts/scan_yes_no_arb.py --bankroll {:.2f}",
+         "note": "Mechanical edge — runs when signal available"},
+        {"name": "Reserve", "pct": 0.10, "color": "red",
+         "strategies": ["Fees buffer", "Slippage coverage", "Kill-switch margin"],
+         "cmd": None,
+         "note": "Never traded — emergency & friction costs"},
+    ]
+
+    total_check = sum(b["pct"] for b in BUCKETS)
+    cols = st.columns(4)
+    for i, bucket in enumerate(BUCKETS):
+        amount = bankroll * bucket["pct"]
+        cols[i].metric(
+            bucket["name"],
+            f"${amount:.2f}",
+            delta=f"{bucket['pct']:.0%} of ${bankroll:.2f}",
+        )
+
+    st.markdown("---")
+
+    for bucket in BUCKETS:
+        amount = bankroll * bucket["pct"]
+        with st.expander(f"**{bucket['name']}** — ${amount:.2f} ({bucket['pct']:.0%})", expanded=True):
+            st.caption(bucket["note"])
+            c1, c2 = st.columns([2, 1])
+            with c1:
+                st.markdown("**Stratégies dans ce bucket :**")
+                for s in bucket["strategies"]:
+                    st.markdown(f"- {s}")
+            with c2:
+                st.metric("Alloué", f"${amount:.2f}")
+                st.metric("Par trade (floor $0.50)", f"${max(0.5, amount * 0.05):.2f}")
+            if bucket["cmd"]:
+                st.code("PYTHONPATH=src " + bucket["cmd"].format(amount))
+
+    st.markdown("---")
+    st.markdown("### Règles de sizing applicables")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("""
+**Quarter-Kelly (toutes stratégies)**
+- `f_full = edge / (1 - signal_price)`
+- `f_quarter = f_full × 0.25`
+- Cap 1: 2% du bucket par trade
+- Cap 2: 50% de la profondeur book
+- Floor: $0.50 minimum par trade
+- Abs max: $10 par trade
+        """)
+    with col2:
+        st.markdown("""
+**Smart Follower spécifique**
+- Edge conservateur assumé: 4% (vs whale)
+- Délai max Tier 1: 5-10 min (slow strategies)
+- Anti-trap: skip si prix dérivé >8% depuis entrée whale
+- Skip si taille whale <$25 (signal/test)
+- Skip si prix marché >92% (near resolution)
+        """)
+
+    st.markdown("### Bankroll config")
+    st.info("Pour changer le bankroll : modifier `POLYBOT_BANKROLL_USD` dans `.env`")
+    st.code(f"POLYBOT_BANKROLL_USD={bankroll:.2f}")
+
+
+def smart_follower_page() -> None:
+    inject_terminal_css()
+    st.subheader("Smart Follower — SC-015")
+    st.caption(
+        "Surveillance des wallets profitable. Détecte les NOUVELLES positions des Tier 1 "
+        "avec filtres anti-exit-liquidity. Run `scan_smart_follower.py --discover` ou `--duration 300` pour live."
+    )
+
+    SF_JSON = Path(os.getenv("SMART_FOLLOWER_JSON", "tmp/smart_follower_signals.json"))
+
+    WATCHLIST_DISPLAY = [
+        {"label": "aenews2", "tier": "T1-SLOW", "strategy": "Overreaction fader", "pnl": "$1.94M", "copyable": True, "delay": "300s", "addr": "0x44c1dfe4..."},
+        {"label": "YatSen", "tier": "T1-SLOW", "strategy": "Anchoring bias", "pnl": "$2.3M", "copyable": True, "delay": "600s", "addr": "0x5bffcf56..."},
+        {"label": "ImJustKen", "tier": "T1-SLOW", "strategy": "Reflexivity", "pnl": "$3.03M", "copyable": True, "delay": "120s", "addr": "0x9d84ce03..."},
+        {"label": "Poligarch", "tier": "T1-SLOW", "strategy": "Longshot fader", "pnl": "$133k", "copyable": True, "delay": "600s", "addr": "0xb40e8967..."},
+        {"label": "0xheavy888", "tier": "T2-MED", "strategy": "End-of-event", "pnl": "$772k", "copyable": True, "delay": "180s", "addr": "0xec981ed7..."},
+        {"label": "HFT-crypto-728k", "tier": "T3-BOT", "strategy": "HFT crypto", "pnl": "$728k", "copyable": False, "delay": "0s", "addr": "0xe1d6b515..."},
+        {"label": "btc-bot-A", "tier": "T3-BOT", "strategy": "BTC directional", "pnl": "—", "copyable": False, "delay": "0s", "addr": "0xf705fa04..."},
+        {"label": "btc-bot-B", "tier": "T3-BOT", "strategy": "BTC directional", "pnl": "—", "copyable": False, "delay": "0s", "addr": "0x1979ae6b..."},
+    ]
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Wallets suivis", len(WATCHLIST_DISPLAY))
+    col2.metric("Copyables (Tier 1-2)", sum(1 for w in WATCHLIST_DISPLAY if w["copyable"]))
+    col3.metric("Signal-only (Tier 3)", sum(1 for w in WATCHLIST_DISPLAY if not w["copyable"]))
+
+    st.markdown("### Watchlist")
+    data_table(WATCHLIST_DISPLAY, height=220)
+
+    st.markdown("### Filtres anti-exit-liquidity actifs")
+    filters = [
+        {"Filtre": "Prix dérivé >8% depuis entrée whale", "Action": "SKIP — tu es exit liquidity"},
+        {"Filtre": "Taille position whale <$25", "Action": "SKIP — bruit ou test"},
+        {"Filtre": "Prix marché >92%", "Action": "SKIP — near resolution, whale collecte"},
+        {"Filtre": "Tier 3 (HFT bots)", "Action": "SIGNAL ONLY — direction uniquement, pas de copy"},
+        {"Filtre": "Délai >max_delay_s depuis détection", "Action": "SKIP — fenêtre fermée"},
+    ]
+    data_table(filters, height=180)
+
+    st.markdown("### Derniers signaux")
+    if not SF_JSON.exists():
+        st.warning(f"Pas de scan récent à `{SF_JSON}`.")
+        st.code("PYTHONPATH=src python scripts/scan_smart_follower.py --discover")
+        st.code("PYTHONPATH=src python scripts/scan_smart_follower.py --duration 300 --bankroll 20")
+        return
+
+    try:
+        data = json.loads(SF_JSON.read_text(encoding="utf-8"))
+    except Exception as exc:
+        st.error(f"Erreur lecture: {exc}")
+        return
+
+    from datetime import datetime as _dt
+    last_run = _dt.fromtimestamp(SF_JSON.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+    signals = data.get("signals", [])
+    copy_signals = [s for s in signals if s.get("copyable")]
+    watch_signals = [s for s in signals if not s.get("copyable")]
+
+    st.caption(
+        f"Last scan: {last_run} | "
+        f"Total: {data.get('total_signals', 0)} | "
+        f"Copy: {data.get('copy_signals', 0)} | "
+        f"Copy bankroll: ${data.get('copy_bankroll_usd', 0):.2f}"
+    )
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Signaux COPY", len(copy_signals))
+    col2.metric("Signaux WATCH", len(watch_signals))
+    col3.metric("Copy bankroll", f"${data.get('copy_bankroll_usd', 0):.2f}")
+
+    if copy_signals:
+        st.markdown("#### Signaux à copier (Tier 1-2, anti-trap validé)")
+        rows = []
+        for s in copy_signals:
+            rows.append({
+                "Wallet": s.get("wallet", ""),
+                "Tier": s.get("tier", ""),
+                "Strategy": s.get("strategy", ""),
+                "Question": s.get("question", "")[:50],
+                "Side": s.get("outcome", ""),
+                "Whale $": f"${s.get('whale_size_usd', 0):,.0f}",
+                "Entry": f"{s.get('whale_avg_price', 0):.3f}",
+                "Now": f"{s.get('current_price', 0):.3f}",
+                "Size $": f"${s.get('size_usd', 0):.2f}",
+                "Direction": s.get("direction_reason", "")[:40],
+            })
+        data_table(rows, height=250)
+    else:
+        st.info("Aucun signal à copier dans ce scan. Relancer avec `--duration 300` pour le mode live.")
+
+    if watch_signals:
+        st.markdown("#### Signaux WATCH (Tier 3 — direction uniquement)")
+        rows = []
+        for s in watch_signals:
+            rows.append({
+                "Wallet": s.get("wallet", ""),
+                "Question": s.get("question", "")[:55],
+                "Side": s.get("outcome", ""),
+                "Whale $": f"${s.get('whale_size_usd', 0):,.0f}",
+                "Note": s.get("note", "")[:50],
+            })
+        data_table(rows, height=200)
+
+    st.markdown("---")
+    st.markdown("""
+**Positions live découvertes (dernier snapshot) :**
+- **aenews2** : 73 positions — `[NO]` US-Iran invasion $194k @ 0.699 | `[YES]` Peace deal $172k @ 0.211
+- **YatSen** : 68 positions — `[NO]` China-Taiwan $1.2M @ 0.799 (biggest conviction)
+- **ImJustKen** : 200 positions — longshots Fed Chair nominees à 1.7-2.4¢ ($1.4-1.9M chacun)
+- **btc-bot-B** : marchés BTC Up/Down 5-min confirmés (résolution rapide)
+    """)
+    st.caption("Run `scan_smart_follower.py --discover` pour rafraîchir le snapshot.")
+
+
+def latency_arb_page() -> None:
+    inject_terminal_css()
+    st.subheader("Latency Arb — SC-013")
+    st.caption(
+        "Détecte le lag Binance→Polymarket (2.7s moyen). "
+        "Quand BTC bouge sur Binance, les marchés Polymarket crypto mettent 2-3s à s'ajuster. "
+        "Run `scan_latency_arb.py --duration 120` pour mesurer."
+    )
+
+    LAG_JSON = Path(os.getenv("LATENCY_ARB_JSON", "tmp/latency_arb_events.json"))
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Lag moyen documenté", "2.7s", delta="Q1 2026 (threads)")
+    col2.metric("Lag 2024", "12s", delta="compressé par bots")
+    col3.metric("Edge par trade", "$496", delta="top wallet 4,049 trades")
+
+    st.markdown("### Infrastructure requise")
+    infra = [
+        {"Composant": "Binance WebSocket", "Status": "REST polling 500ms (suffisant pour 2.7s)", "Amélioration": "→ WS <50ms pour prod"},
+        {"Composant": "Polymarket CLOB WS", "Status": "REST polling 500ms", "Amélioration": "→ WS <50ms pour prod"},
+        {"Composant": "Marchés BTC détectés", "Status": "3 marchés actifs", "Amélioration": "BTC Up/Down 5-min (btc-bot-B)"},
+        {"Composant": "Exécution ordre", "Status": "LiveSigner V2 prêt", "Amélioration": "Même bloc Polygon (2s)"},
+    ]
+    data_table(infra, height=160)
+
+    st.markdown("### Marchés BTC/ETH détectés")
+    st.write("Dernière découverte : 3 marchés BTC actifs (volumes $180k–$4.27M)")
+    markets_snapshot = [
+        {"Question": "Will bitcoin hit $1m before GTA VI?", "Prix": "0.490", "Vol": "$4.27M", "Type": "Long-term event"},
+        {"Question": "MicroStrategy sells any Bitcoin by June 30, 2026?", "Prix": "0.468", "Vol": "$3.38M", "Type": "Event"},
+        {"Question": "Will Bitcoin replace SHA-256 before 2027?", "Prix": "0.053", "Vol": "$0.18M", "Type": "Long-term"},
+    ]
+    data_table(markets_snapshot, height=140)
+    st.warning("Ces marchés sont des événements long-terme, pas des marchés prix/5-min. Le latency arb pure fonctionne sur les marchés `BTC Up/Down` (résolution 5-15min) que btc-bot-B utilise.")
+
+    if not LAG_JSON.exists():
+        st.info(f"Pas de résultats à `{LAG_JSON}`. Lancer le scanner :")
+        st.code("PYTHONPATH=src python scripts/scan_latency_arb.py --duration 120 --min-move 0.002")
+        return
+
+    try:
+        data = json.loads(LAG_JSON.read_text(encoding="utf-8"))
+    except Exception as exc:
+        st.error(f"Erreur: {exc}")
+        return
+
+    from datetime import datetime as _dt
+    last_run = _dt.fromtimestamp(LAG_JSON.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+    events = data.get("events", [])
+    st.caption(f"Last scan: {last_run} | {data.get('markets_tracked', 0)} marchés | {data.get('lag_events', 0)} lag events")
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Marchés trackés", data.get("markets_tracked", 0))
+    col2.metric("Lag events", data.get("lag_events", 0))
+    col3.metric("Durée scan", f"{data.get('duration_s', 0)}s")
+
+    if events:
+        st.markdown("### Lag events détectés")
+        rows = []
+        for e in events:
+            rows.append({
+                "T (s)": f"{e.get('ts', 0):.1f}",
+                "BTC $": f"{e.get('binance_price', 0):,.2f}",
+                "Δ Binance": f"{e.get('binance_move_pct', 0):+.3f}%",
+                "Poly price": f"{e.get('poly_price', 0):.4f}",
+                "Δ Poly": f"{e.get('poly_move', 0):+.4f}",
+                "Market": e.get("market", "")[:45],
+                "Trade": e.get("expected_side", ""),
+            })
+        data_table(rows, height=280)
+    else:
+        st.info("Aucun lag event dans ce scan. BTC n'a peut-être pas bougé suffisamment pendant la période.")
+
+
+def yes_no_arb_page() -> None:
+    inject_terminal_css()
+    st.subheader("YES/NO Arbitrage — SC-014")
+    st.caption(
+        "Acheter YES + NO sur le même marché coûte moins de $1 → profit garanti à la résolution. "
+        "Win rate documenté 95-98%. Run `scan_yes_no_arb.py` pour rafraîchir."
+    )
+
+    ARB_JSON = Path(os.getenv("YES_NO_ARB_JSON", "tmp/yes_no_arb_signals.json"))
+
+    st.markdown("### Statut du marché")
+    st.info(
+        "**Résultat du dernier scan** : 0 opportunité trouvée sur 150 marchés (top volume). "
+        "Les marchés sont bien arbitrés. "
+        "Les asks réels sont à 0.95-0.99 (spread très large sur marchés illiquides). "
+        "L'arb existe uniquement lors d'erreurs de pricing momentanées — capturées en millisecondes par les bots co-localisés."
+    )
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Marchés scannés", "150")
+    col2.metric("Opportunités", "0", delta="marchés efficients")
+    col3.metric("Gap net moyen", "<0%", delta="après fees 2%")
+
+    st.markdown("### Quand l'arb existe-t-il ?")
+    conditions = [
+        {"Condition": "Erreur de pricing momentanée", "Durée": "<500ms", "Capturable": "Bots co-localisés uniquement"},
+        {"Condition": "Un côté update avant l'autre (news)", "Durée": "2-3s", "Capturable": "Bot <50ms latency"},
+        {"Condition": "Marché très illiquide (ask mal placé)", "Durée": "Minutes", "Capturable": "Scanner toutes les 30s"},
+        {"Condition": "Marché proche résolution (<1h)", "Durée": "Variable", "Capturable": "Mais fees > profit potentiel"},
+    ]
+    data_table(conditions, height=160)
+
+    if not ARB_JSON.exists():
+        st.info(f"Pas de scan à `{ARB_JSON}`.")
+        st.code("PYTHONPATH=src python scripts/scan_yes_no_arb.py --min-volume 1000 --min-gap 0.001 --fee-estimate 0.00")
+        return
+
+    try:
+        data = json.loads(ARB_JSON.read_text(encoding="utf-8"))
+    except Exception as exc:
+        st.error(f"Erreur: {exc}")
+        return
+
+    from datetime import datetime as _dt
+    last_run = _dt.fromtimestamp(ARB_JSON.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+    signals = data.get("signals", [])
+
+    st.caption(
+        f"Last scan: {last_run} | "
+        f"{data.get('markets_scanned', 0)} marchés | "
+        f"{data.get('signals_found', 0)} signaux | "
+        f"fee={data.get('fee_estimate', 0):.0%} min_gap={data.get('min_gap', 0):.2%}"
+    )
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Marchés scannés", data.get("markets_scanned", 0))
+    col2.metric("Signaux", data.get("signals_found", 0))
+    col3.metric("Fee estimée", f"{data.get('fee_estimate', 0):.0%}")
+    col4.metric("Min gap requis", f"{data.get('min_gap', 0):.2%}")
+
+    if signals:
+        st.markdown("### Opportunités trouvées")
+        rows = []
+        for s in signals:
+            rows.append({
+                "Question": s.get("question", "")[:52],
+                "AskYES": f"{s.get('ask_yes', 0):.3f}",
+                "AskNO": f"{s.get('ask_no', 0):.3f}",
+                "Coût total": f"{s.get('total_cost', 0):.3f}",
+                "Gap brut": f"{s.get('gross_gap', 0):+.3f}",
+                "Gap net": f"{s.get('net_gap', 0):+.3f}",
+                "Liq YES": f"{s.get('liq_yes', 0):.0f}",
+                "Liq NO": f"{s.get('liq_no', 0):.0f}",
+                "Max $": f"${s.get('max_profit_usd', 0):.4f}",
+                "Size $": f"${s.get('size_usd', 0):.2f}",
+                "Vol $M": f"{s.get('volume', 0)/1e6:.2f}M",
+            })
+        data_table(rows, height=300)
+
+        best = signals[0]
+        with st.expander(f"⭐ MEILLEUR ARB: {best.get('question', '')[:65]}"):
+            col1, col2, col3 = st.columns(3)
+            col1.metric("AskYES + AskNO", f"{best.get('total_cost', 0):.3f}")
+            col2.metric("Gap net", f"{best.get('net_gap', 0):+.3f}")
+            col3.metric("Profit max", f"${best.get('max_profit_usd', 0):.4f}")
+            st.write(f"**Exécution :** BUY YES @ {best.get('ask_yes', 0):.3f} + BUY NO @ {best.get('ask_no', 0):.3f}")
+            st.write(f"**Liquidité :** {best.get('liq_yes', 0):.0f} YES / {best.get('liq_no', 0):.0f} NO shares")
+            st.code(best.get("condition_id", ""))
+    else:
+        st.info("Aucun arb actuellement. Le marché est efficacement arbitré sur les marchés liquides.")
+        st.markdown("""
+**Prochaine action :** Configurer un scanner automatique toutes les 60s sur les marchés <$10k volume.
+```bash
+# Cron-style : scan toutes les 60 secondes
+while true; do
+    PYTHONPATH=src python scripts/scan_yes_no_arb.py --min-volume 500 --min-gap 0.001 --fee-estimate 0.00
+    sleep 60
+done
+```
+        """)
+
+
 def edge_research_page() -> None:
     inject_terminal_css()
     st.subheader("Edge Research")
@@ -763,6 +1154,473 @@ def edge_research_page() -> None:
 
     st.markdown("**Recent source notes**")
     data_table(source_notes[:50], height=300)
+
+
+def inject_teal_css() -> None:
+    st.markdown(
+        """
+        <style>
+        :root {
+            --teal-bg: #030c10;
+            --teal-line: rgba(0, 200, 240, 0.16);
+            --teal-primary: #00d4ff;
+            --teal-green: #00ff88;
+            --teal-red: #ff3366;
+            --teal-amber: #ffbb00;
+            --teal-muted: rgba(100, 200, 220, 0.55);
+        }
+        .stApp {
+            background:
+                linear-gradient(rgba(0,180,255,0.018) 1px, transparent 1px),
+                radial-gradient(circle at 30% 0%, rgba(0,160,255,0.07), transparent 40%),
+                radial-gradient(circle at 70% 100%, rgba(0,255,140,0.04), transparent 40%),
+                var(--teal-bg);
+            background-size: 100% 20px, auto, auto, auto;
+            color: #9ad8e8;
+        }
+        .block-container { padding-top: 0.7rem; padding-bottom: 1rem; max-width: 100%; }
+        h1, h2, h3, .stMarkdown, .stCaption, label, p, div {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+        }
+        header[data-testid="stHeader"] { background: transparent; }
+        section[data-testid="stSidebar"] { background: #020a0d; border-right: 1px solid var(--teal-line); }
+        div[data-testid="stMetric"] {
+            border: 1px solid var(--teal-line);
+            border-radius: 3px;
+            padding: 0.52rem 0.6rem;
+            background: linear-gradient(180deg, rgba(0,30,40,0.9), rgba(0,10,15,0.96));
+            min-height: 76px;
+        }
+        div[data-testid="stMetricLabel"] p { color: var(--teal-muted); font-size: 0.68rem; text-transform: uppercase; }
+        div[data-testid="stMetricValue"] { color: var(--teal-primary); font-size: 1.28rem; text-shadow: 0 0 10px rgba(0,200,255,0.3); }
+        div[data-testid="stMetricDelta"] { color: var(--teal-green); font-size: 0.72rem; }
+        div[data-testid="stDataFrame"] { border: 1px solid rgba(0,180,240,0.14); }
+        div[data-testid="stVerticalBlockBorderWrapper"] {
+            border-color: var(--teal-line);
+            border-radius: 3px;
+            background: rgba(0,12,18,0.78);
+        }
+        .teal-header {
+            border: 1px solid var(--teal-line);
+            border-radius: 3px;
+            background: linear-gradient(180deg, rgba(0,25,35,0.97), rgba(0,8,12,0.99));
+            padding: 0.55rem 0.75rem;
+            margin-bottom: 0.65rem;
+            box-shadow: 0 0 30px rgba(0,180,255,0.07);
+        }
+        .teal-topline {
+            display: grid; grid-template-columns: 1fr auto; gap: 1rem;
+            align-items: center; border-bottom: 1px solid rgba(0,180,240,0.16); padding-bottom: 0.35rem;
+        }
+        .teal-brand { color: var(--teal-primary); font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+        .teal-live { color: var(--teal-green); font-size: 0.72rem; text-transform: uppercase; }
+        .teal-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.6rem; padding-top: 0.5rem; }
+        .teal-cell { border-left: 2px solid rgba(0,200,240,0.2); padding-left: 0.55rem; }
+        .teal-label { color: var(--teal-muted); font-size: 0.62rem; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .teal-value { color: var(--teal-primary); font-size: 1.05rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .teal-value.green { color: var(--teal-green); text-shadow: 0 0 8px rgba(0,255,140,0.35); }
+        .teal-value.red { color: var(--teal-red); }
+        .teal-big-pnl {
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            font-size: 2.4rem; font-weight: 700; text-align: center; padding: 0.5rem 0; letter-spacing: -0.02em;
+        }
+        .teal-big-pnl.green { color: #00ff88; text-shadow: 0 0 20px rgba(0,255,136,0.45); }
+        .teal-big-pnl.red { color: #ff3366; text-shadow: 0 0 20px rgba(255,51,102,0.4); }
+        .terminal-line {
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            font-size: 0.73rem; border-bottom: 1px solid rgba(0,180,240,0.07);
+            padding: 0.22rem 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .terminal-good, .teal-good { color: var(--teal-green); }
+        .terminal-warn, .teal-warn { color: var(--teal-amber); }
+        .terminal-bad, .teal-bad { color: var(--teal-red); }
+        .terminal-muted, .teal-muted-text { color: var(--teal-muted); }
+        @media (max-width: 900px) { .teal-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def polycop_intel_page() -> None:
+    inject_teal_css()
+
+    refresh_label = st.sidebar.selectbox(
+        "Auto-refresh", list(AUTO_REFRESH_OPTIONS), index=2, key="polycop_refresh"
+    )
+    maybe_auto_refresh(AUTO_REFRESH_OPTIONS[refresh_label])
+
+    wallet_data = _load_wallet_conf()
+    scores = wallet_data.get("scores", []) if wallet_data else []
+    scan_ts = wallet_data.get("scan_ts", "") if wallet_data else ""
+    pnl_data = _fetch_polycop_pnl(POLYCOP_WALLET) if POLYCOP_WALLET else {}
+
+    qualified = [
+        s for s in scores
+        if s.get("confidence", 0) >= 55 and "BLACK" not in s.get("risk_badge", "")
+    ]
+    green_w = [s for s in qualified if "GREEN" in s.get("risk_badge", "")]
+    yellow_w = [s for s in qualified if "YELLOW" in s.get("risk_badge", "")]
+
+    _render_polycop_header(scores, scan_ts, pnl_data)
+
+    kpi = st.columns(6)
+    kpi[0].metric("Wallets scanned", len(scores) or "—")
+    kpi[1].metric("Qualified ≥55", len(qualified), delta=f"{len(green_w)} 🟢  {len(yellow_w)} 🟡")
+    total_pnl = pnl_data.get("total_pnl") if pnl_data else None
+    kpi[2].metric("Copy PnL", _fmt_pnl(total_pnl) if total_pnl is not None else "—")
+    kpi[3].metric("Positions", str(pnl_data.get("n_positions", "—")) if pnl_data else "—")
+    kpi[4].metric("Last scan", _scan_age(scan_ts))
+    wallet_short = (POLYCOP_WALLET[:6] + "…" + POLYCOP_WALLET[-4:]) if POLYCOP_WALLET else "⚠ NOT SET"
+    kpi[5].metric("PolyCop wallet", wallet_short)
+
+    st.divider()
+
+    col_wallets, col_pnl, col_log = st.columns([1.5, 1.2, 1.0])
+    with col_wallets:
+        _render_wallet_ranking(qualified)
+    with col_pnl:
+        _render_live_pnl(pnl_data)
+    with col_log:
+        _render_wallet_changelog()
+
+    _render_risk_rules(qualified)
+
+    with st.expander("Sub-scores breakdown (SC-016)", expanded=False):
+        _render_sub_scores(qualified)
+
+    if not wallet_data:
+        st.info(
+            "No wallet scan data found. Run the scanner:\n\n"
+            "`PYTHONPATH=src python scripts/scan_wallet_confidence.py "
+            "--include-leaderboard --top 15 --discover-holders --discover-markets 20 "
+            "--activity-limit 300 --min-confidence 55`"
+        )
+
+
+def _render_polycop_header(scores: list[dict], scan_ts: str, pnl_data: dict) -> None:
+    now = datetime.now(UTC).strftime("%H:%M:%S UTC")
+    total_pnl = pnl_data.get("total_pnl") if pnl_data else None
+    pnl_str = _fmt_pnl(total_pnl) if total_pnl is not None else "—"
+    pnl_class = "green" if (total_pnl or 0) >= 0 else "red"
+    n_qualified = sum(1 for s in scores if s.get("confidence", 0) >= 55)
+    wallet_short = (POLYCOP_WALLET[:6] + "…" + POLYCOP_WALLET[-4:]) if POLYCOP_WALLET else "NOT SET"
+
+    cells = [
+        ("WALLETS", str(len(scores)), ""),
+        ("QUALIFIED", str(n_qualified), "green"),
+        ("COPY PNL", pnl_str, pnl_class),
+        ("POSITIONS", str(pnl_data.get("n_positions", "—")) if pnl_data else "—", ""),
+        ("LAST SCAN", _scan_age(scan_ts), ""),
+        ("POLYCOP", wallet_short, "green" if POLYCOP_WALLET else "red"),
+    ]
+    cell_html = "".join(
+        f"<div class='teal-cell'><div class='teal-label'>{escape(label)}</div>"
+        f"<div class='teal-value {css}'>{escape(str(value))}</div></div>"
+        for label, value, css in cells
+    )
+    st.markdown(
+        f"""<div class="teal-header">
+            <div class="teal-topline">
+                <div class="teal-brand">POLYBOT // WALLET INTELLIGENCE &amp; POLYCOP OPS</div>
+                <div class="teal-live">&#9679; LIVE // AUTO {escape(now)}</div>
+            </div>
+            <div class="teal-grid">{cell_html}</div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+
+
+def _render_wallet_ranking(scores: list[dict]) -> None:
+    with st.container(border=True):
+        st.markdown("**WALLET RANKING**")
+        if not scores:
+            st.caption("No qualified wallets yet. Run scanner first.")
+            return
+        rows = []
+        for s in scores[:25]:
+            diag = s.get("diagnostics", {})
+            label = (s.get("label") or s.get("address", "")[:12])[:22]
+            edge = s.get("edge_type", "").replace("category_specialist:", "cat:")
+            pnl_val = float(diag.get("total_pnl_usd") or 0)
+            rows.append({
+                "Badge": s.get("risk_badge", "").split()[0],
+                "Label": label,
+                "Conf": s.get("confidence", 0),
+                "Edge": edge[:20],
+                "n_res": diag.get("n_resolved", 0),
+                "PnL$": f"${pnl_val:+,.0f}" if pnl_val else "—",
+                "Age(d)": diag.get("last_trade_age_days", 0),
+            })
+        data_table(rows, height=340)
+
+
+def _render_live_pnl(pnl_data: dict) -> None:
+    with st.container(border=True):
+        st.markdown("**POLYCOP LIVE PNL**")
+        if not POLYCOP_WALLET:
+            st.warning("Configure your wallet to track live PnL:")
+            st.code("POLYCOP_WALLET_ADDRESS=0xYourWalletAddress  # in .env")
+            st.caption(
+                "PolyCop is non-custodial — all trades land on-chain under your wallet. "
+                "The Polymarket `/positions` API is public; the dashboard polls it to compute "
+                "`sum(realizedPnl + cashPnl)` across all your positions."
+            )
+            return
+
+        if not pnl_data:
+            st.caption("Loading…")
+            return
+
+        if pnl_data.get("error"):
+            st.error(f"API error: {pnl_data['error']}")
+            return
+
+        total = pnl_data.get("total_pnl", 0)
+        realized = pnl_data.get("realized_pnl", 0)
+        open_pnl = pnl_data.get("open_pnl", 0)
+        pnl_class = "green" if total >= 0 else "red"
+        st.markdown(
+            f"<div class='teal-big-pnl {pnl_class}'>{_fmt_pnl(total)}</div>",
+            unsafe_allow_html=True,
+        )
+
+        c1, c2 = st.columns(2)
+        c1.metric("Realized", f"${realized:+,.2f}")
+        c2.metric("Open (MTM)", f"${open_pnl:+,.2f}")
+
+        hist_key = "polycop_pnl_hist"
+        if hist_key not in st.session_state:
+            st.session_state[hist_key] = []
+        hist: list[dict] = st.session_state[hist_key]
+        hist.append({"t": datetime.now(UTC).strftime("%H:%M"), "pnl": round(total, 2)})
+        if len(hist) > 120:
+            hist.pop(0)
+
+        if len(hist) >= 2 and pd is not None:
+            df = pd.DataFrame(hist).set_index("t")
+            st.line_chart(df["pnl"], height=130)
+
+        positions = pnl_data.get("positions", [])
+        if positions:
+            best = sorted(
+                positions,
+                key=lambda p: float(p.get("realizedPnl") or 0) + float(p.get("cashPnl") or 0),
+                reverse=True,
+            )[:6]
+            rows = []
+            for p in best:
+                p_total = float(p.get("realizedPnl") or 0) + float(p.get("cashPnl") or 0)
+                rows.append({
+                    "Title": (p.get("title") or "—")[:30],
+                    "Side": p.get("outcome", ""),
+                    "PnL$": f"${p_total:+,.2f}",
+                })
+            data_table(rows, height=200)
+
+
+def _render_wallet_changelog() -> None:
+    with st.container(border=True):
+        st.markdown("**SCAN CHANGELOG**")
+        if not WALLET_CHANGELOG_MD.exists():
+            st.caption("No changelog yet. Run the scanner at least twice.")
+            return
+        try:
+            text = WALLET_CHANGELOG_MD.read_text(encoding="utf-8")
+        except Exception:
+            st.caption("Could not read changelog.")
+            return
+        events = _parse_changelog_events(text)
+        if not events:
+            st.caption("No changes since last scan.")
+            return
+        css_map = {
+            "new": "teal-good",
+            "promoted": "teal-good",
+            "rising": "teal-good",
+            "decaying": "teal-warn",
+            "demoted": "teal-bad",
+            "inactive": "teal-muted-text",
+        }
+        for ev in events[:20]:
+            css = css_map.get(ev["type"], "teal-muted-text")
+            st.markdown(
+                f"<div class='terminal-line {css}'>{escape(ev['text'])}</div>",
+                unsafe_allow_html=True,
+            )
+
+
+def _render_risk_rules(scores: list[dict]) -> None:
+    with st.container(border=True):
+        st.markdown("**RISK MANAGEMENT RULES (per wallet)**")
+        rows = []
+        for s in scores:
+            rules = _generate_risk_rules(s)
+            if rules.get("skip"):
+                continue
+            label = (s.get("label") or s.get("address", "")[:12])[:22]
+            rows.append({
+                "Wallet": label,
+                "Badge": s.get("risk_badge", "").split()[0],
+                "Conf": s.get("confidence", 0),
+                "Max % BK": f"{rules['max_pct']:.1f}%",
+                "Min hold": rules["min_hold"],
+                "Stop signal": rules["stop_signal"][:50],
+                "Edge": s.get("edge_type", "").replace("category_specialist:", "cat:")[:18],
+                "Copy?": rules["copy_ok"],
+            })
+        if rows:
+            data_table(rows, height=min(60 + 36 * len(rows), 300))
+        else:
+            st.caption("No copyable wallets. Run the scanner to populate wallet data.")
+
+
+def _render_sub_scores(scores: list[dict]) -> None:
+    rows = []
+    for s in scores[:20]:
+        subs = s.get("sub_scores", {})
+        label = (s.get("label") or s.get("address", "")[:12])[:18]
+        rows.append({
+            "Wallet": label,
+            "Conf": s.get("confidence", 0),
+            "EdgePrf": round(subs.get("edge_proof", 0)),
+            "Sample": round(subs.get("sample_sufficiency", 0)),
+            "Persist": round(subs.get("persistence", 0)),
+            "AntiLck": round(subs.get("anti_luck", 0)),
+            "Risk": round(subs.get("risk_taken", 0)),
+            "CopyAb": round(subs.get("copyability", 0)),
+            "Indep": round(subs.get("independence", 0)),
+        })
+    if rows:
+        data_table(rows)
+    else:
+        st.caption("No data.")
+
+
+def _generate_risk_rules(ws: dict) -> dict:
+    badge = ws.get("risk_badge", "🔴 RED")
+    conf = ws.get("confidence", 0)
+    subs = ws.get("sub_scores", {})
+    diag = ws.get("diagnostics", {})
+
+    if "BLACK" in badge or diag.get("insider_flag_count", 0) > 0:
+        return {
+            "max_pct": 0, "min_hold": "—",
+            "stop_signal": "INSIDER PATTERN — DO NOT COPY",
+            "copy_ok": "❌", "skip": False,
+        }
+
+    if conf < 55:
+        return {"skip": True}
+
+    persist = subs.get("persistence", 50)
+    copyability = subs.get("copyability", 50)
+
+    if "GREEN" in badge:
+        max_pct = 2.0
+    elif conf >= 60:
+        max_pct = 1.0
+    else:
+        max_pct = 0.5
+
+    if copyability >= 70:
+        min_hold = "5min"
+    elif copyability >= 55:
+        min_hold = "10min"
+    else:
+        min_hold = "20min"
+
+    stop = f"conf<{max(40, conf - 15):.0f} | persist<{max(30, persist - 20):.0f} | inactive>14d | price>0.92"
+    copy_ok = "✅" if conf >= 60 else "⚠"
+
+    return {
+        "max_pct": max_pct, "min_hold": min_hold,
+        "stop_signal": stop, "copy_ok": copy_ok, "skip": False,
+    }
+
+
+def _load_wallet_conf() -> dict | None:
+    if not WALLET_CONF_JSON.exists():
+        return None
+    try:
+        return json.loads(WALLET_CONF_JSON.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _fetch_polycop_pnl(wallet: str) -> dict:
+    if not wallet:
+        return {}
+    try:
+        url = f"{POLYMARKET_DATA_API}/positions?user={wallet}&limit=500"
+        with urlopen(url, timeout=6) as resp:
+            positions = json.loads(resp.read().decode())
+        if not isinstance(positions, list):
+            return {"error": "unexpected API response format"}
+        realized = sum(float(p.get("realizedPnl") or 0) for p in positions)
+        cash = sum(float(p.get("cashPnl") or 0) for p in positions)
+        return {
+            "total_pnl": realized + cash,
+            "realized_pnl": realized,
+            "open_pnl": cash,
+            "n_positions": len(positions),
+            "n_open": sum(1 for p in positions if float(p.get("size") or 0) > 0),
+            "positions": positions,
+        }
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+def _parse_changelog_events(text: str) -> list[dict]:
+    section_map = {
+        "🆕": "new", "⭐": "promoted", "📉": "decaying",
+        "🆙": "rising", "📊": "demoted", "💤": "inactive",
+    }
+    prefix_map = {
+        "new": "NEW", "promoted": "UP", "decaying": "DECAY",
+        "rising": "RISE", "demoted": "DOWN", "inactive": "IDLE",
+    }
+    events: list[dict] = []
+    current_type = "info"
+    for line in text.split("\n"):
+        stripped = line.strip()
+        if stripped.startswith("## "):
+            for emoji, etype in section_map.items():
+                if emoji in stripped:
+                    current_type = etype
+                    break
+        elif stripped.startswith("- ") and len(stripped) > 4:
+            clean = re.sub(r"[*`#\[\]]", "", stripped[2:]).strip()
+            if clean and "none" not in clean.lower():
+                prefix = prefix_map.get(current_type, "INFO")
+                events.append({"type": current_type, "text": f"[{prefix}] {clean[:72]}"})
+    return events
+
+
+def _scan_age(scan_ts: str) -> str:
+    if not scan_ts:
+        return "n/a"
+    try:
+        ts_str = scan_ts.replace("Z", "+00:00")
+        from datetime import datetime as _dt
+        ts = _dt.fromisoformat(ts_str)
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=UTC)
+        age_s = int((datetime.now(UTC) - ts.astimezone(UTC)).total_seconds())
+        if age_s < 3600:
+            return f"{age_s // 60}m ago"
+        if age_s < 86400:
+            return f"{age_s // 3600}h ago"
+        return f"{age_s // 86400}d ago"
+    except Exception:
+        return "n/a"
+
+
+def _fmt_pnl(value: Any) -> str:
+    if value is None:
+        return "—"
+    v = float(value)
+    return f"+${v:,.2f}" if v >= 0 else f"-${abs(v):,.2f}"
 
 
 def inject_terminal_css() -> None:

@@ -1,0 +1,163 @@
+{
+  "generated_at": "2026-05-13T10:17:33.612757+00:00",
+  "mode": "research_readiness_only",
+  "live_trading": "disabled",
+  "results": [
+    {
+      "family": "weather_event_discovery",
+      "status": "needs_data",
+      "hypothesis": "Forecast updates can identify weather markets that reprice slower than external weather feeds.",
+      "candidate_markets": 0,
+      "covered_markets": 0,
+      "snapshots": 0,
+      "verdict": "weather_event_discovery is a valid hypothesis from the thread corpus, but local data is not dense enough yet (0/100 snapshots). Treat this as collection guidance, not a PnL signal.",
+      "next_action": "Collect weather-specific markets plus timestamped forecast snapshots before replay testing.",
+      "blockers": [
+        "No matching markets found in app.markets for this edge family.",
+        "No matching markets currently have stored orderbook snapshots.",
+        "Only 0 snapshots available; minimum for a first replay is 100."
+      ],
+      "sample_markets": []
+    },
+    {
+      "family": "crypto_5m_microstructure",
+      "status": "needs_data",
+      "hypothesis": "CEX BTC/ETH microstructure can lead Polymarket short-window crypto markets after latency and spread.",
+      "candidate_markets": 1,
+      "covered_markets": 0,
+      "snapshots": 0,
+      "verdict": "crypto_5m_microstructure is a valid hypothesis from the thread corpus, but local data is not dense enough yet (0/300 snapshots). Treat this as collection guidance, not a PnL signal.",
+      "next_action": "Collect short-window crypto markets with second-level CEX reference prices and dense orderbooks.",
+      "blockers": [
+        "No matching markets currently have stored orderbook snapshots.",
+        "Only 0 snapshots available; minimum for a first replay is 300."
+      ],
+      "sample_markets": [
+        {
+          "condition_id": "0xbb57ccf5853a85487bc3d83d04d669310d28c6c810758953b9d9b91d1aee89d2",
+          "question": "Will bitcoin hit $1m before GTA VI?",
+          "category": null,
+          "active": true,
+          "closed": false,
+          "volume": "4109064.850091536000000000",
+          "liquidity": "97225.756770000000000000",
+          "end_date": "2026-07-31T12:00:00+00:00",
+          "snapshots": 0,
+          "avg_spread": null
+        }
+      ]
+    },
+    {
+      "family": "news_latency",
+      "status": "needs_data",
+      "hypothesis": "Credible news events can move real-world probabilities before Polymarket fully reprices.",
+      "candidate_markets": 24,
+      "covered_markets": 0,
+      "snapshots": 0,
+      "verdict": "news_latency is a valid hypothesis from the thread corpus, but local data is not dense enough yet (0/100 snapshots). Treat this as collection guidance, not a PnL signal.",
+      "next_action": "Build an external event timestamp feed and map events to market condition_ids before replay.",
+      "blockers": [
+        "No matching markets currently have stored orderbook snapshots.",
+        "Only 0 snapshots available; minimum for a first replay is 100."
+      ],
+      "sample_markets": [
+        {
+          "condition_id": "0x3265b10daeb30dbcc3214bd02e488551d0a5d3028392f4152e4750b943fbfc91",
+          "question": "Will Tim Walz win the 2028 Democratic presidential nomination?",
+          "category": null,
+          "active": true,
+          "closed": false,
+          "volume": "40104407.081254330000000000",
+          "liquidity": "2025784.971450000000000000",
+          "end_date": "2028-11-07T00:00:00+00:00",
+          "snapshots": 0,
+          "avg_spread": null
+        },
+        {
+          "condition_id": "0x3535fb2f4aef6619dde8b367cb5e5d209526bb496d5d9778428c58a0252435e3",
+          "question": "Will Zohran Mamdani win the 2028 Democratic presidential nomination?",
+          "category": null,
+          "active": true,
+          "closed": false,
+          "volume": "35729750.762008890000000000",
+          "liquidity": "2374966.715330000000000000",
+          "end_date": "2028-11-07T00:00:00+00:00",
+          "snapshots": 0,
+          "avg_spread": null
+        },
+        {
+          "condition_id": "0xcb239105ed21a2420ba4d85090b9bc32755c56601ffdc528afd17fd6282fe930",
+          "question": "Will Gina Raimondo win the 2028 Democratic presidential nomination?",
+          "category": null,
+          "active": true,
+          "closed": false,
+          "volume": "31313208.499586955000000000",
+          "liquidity": "2316932.945600000000000000",
+          "end_date": "2028-11-07T00:00:00+00:00",
+          "snapshots": 0,
+          "avg_spread": null
+        },
+        {
+          "condition_id": "0x939eeb2dea216749bd409bedde483c3f2bfb0e24d4f2d34461c0b21c6e91f010",
+          "question": "Will Roy Cooper win the 2028 Democratic presidential nomination?",
+          "category": null,
+          "active": true,
+          "closed": false,
+          "volume": "29090008.146018434000000000",
+          "liquidity": "1465920.976380000000000000",
+          "end_date": "2028-11-07T00:00:00+00:00",
+          "snapshots": 0,
+          "avg_spread": null
+        },
+        {
+          "condition_id": "0xdce84960dce38aa4a5800a5eba7c9ac34d2ce49ba9d44c42572c472d468af264",
+          "question": "Will Raphael Warnock win the 2028 Democratic presidential nomination?",
+          "category": null,
+          "active": true,
+          "closed": false,
+          "volume": "28560041.025408395000000000",
+          "liquidity": "1884503.824030000000000000",
+          "end_date": "2028-11-07T00:00:00+00:00",
+          "snapshots": 0,
+          "avg_spread": null
+        },
+        {
+          "condition_id": "0x0f49db97f71c68b1e42a6d16e3de93d85dbf7d4148e3f018eb79e88554be9f75",
+          "question": "Will Gavin Newsom win the 2028 Democratic presidential nomination?",
+          "category": null,
+          "active": true,
+          "closed": false,
+          "volume": "25084929.472638573000000000",
+          "liquidity": "349670.999470000000000000",
+          "end_date": "2028-11-07T00:00:00+00:00",
+          "snapshots": 0,
+          "avg_spread": null
+        },
+        {
+          "condition_id": "0x8fbcb151e2c988df5a43abb02298014b7daf34c008f3eed9188dd16a2a19bec1",
+          "question": "Will Jared Polis win the 2028 Democratic presidential nomination?",
+          "category": null,
+          "active": true,
+          "closed": false,
+          "volume": "25070576.398006070000000000",
+          "liquidity": "722466.784540000000000000",
+          "end_date": "2028-11-07T00:00:00+00:00",
+          "snapshots": 0,
+          "avg_spread": null
+        },
+        {
+          "condition_id": "0x3e218c99a1335641b3a5ee6c887521d19b0c28fddd6b99c254a07968e35c0b1b",
+          "question": "Will Michelle Obama win the 2028 Democratic presidential nomination?",
+          "category": null,
+          "active": true,
+          "closed": false,
+          "volume": "24774037.746150292000000000",
+          "liquidity": "1758394.109470000000000000",
+          "end_date": "2028-11-07T00:00:00+00:00",
+          "snapshots": 0,
+          "avg_spread": null
+        }
+      ]
+    }
+  ]
+}

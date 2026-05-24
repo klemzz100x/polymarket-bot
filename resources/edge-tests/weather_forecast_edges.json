@@ -1,0 +1,299 @@
+{
+  "generated_at": "2026-05-13T14:19:35.401972+00:00",
+  "mode": "research_read_only",
+  "live_trading": "disabled",
+  "source": "open-meteo-proxy",
+  "warning": "Forecast proxy only; verify Polymarket resolution source before trading.",
+  "edges": [
+    {
+      "scan_id": "weather-20260513-141933-ef623dfe",
+      "observed_at": "2026-05-13 14:19:34.206402+00:00",
+      "radar_tick_id": 436,
+      "condition_id": "0x85c66a65b83814792cb9cf35bc9d3db67bd53d232addf51742947ae4c90acf04",
+      "question": "Will the highest temperature in Austin be 78°F or higher on May 13?",
+      "location_hint": "Austin",
+      "target_date": "2026-05-13",
+      "threshold_hint": "78°F or higher",
+      "forecast_max_c": "31.2",
+      "model_sigma_c": "1.20",
+      "fair_yes": "1.000000",
+      "market_mid": "0.997500000000000000",
+      "best_yes_bid": "0.996000000000000000",
+      "best_yes_ask": "0.999000000000000000",
+      "best_no_ask": "0.004000000000000000",
+      "spread": "0.003000000000000000",
+      "edge_yes": "0.001000000000000000",
+      "edge_no": "-0.004000000000000000",
+      "action_bias": "NONE",
+      "model_state": "FAIR_ALIGNED",
+      "reason": "proxy fair value close to market",
+      "source_url": "https://www.wunderground.com/history/daily/us/tx/austin/KAUS",
+      "source_adapter": "open-meteo-resolution-station-proxy:KAUS",
+      "raw": {
+        "geocode": {
+          "name": "Austin-Bergstrom International Airport Station",
+          "latitude": 30.1975,
+          "longitude": -97.6664,
+          "timezone": "America/Chicago"
+        },
+        "forecast": {
+          "forecast_max_c": 31.2,
+          "payload": {
+            "latitude": 30.189205,
+            "longitude": -97.66044,
+            "generationtime_ms": 0.02276897430419922,
+            "utc_offset_seconds": -18000,
+            "timezone": "America/Chicago",
+            "timezone_abbreviation": "GMT-5",
+            "elevation": 150.0,
+            "daily_units": {
+              "time": "iso8601",
+              "temperature_2m_max": "°C"
+            },
+            "daily": {
+              "time": [
+                "2026-05-13"
+              ],
+              "temperature_2m_max": [
+                31.2
+              ]
+            }
+          }
+        },
+        "threshold": [
+          "or_higher",
+          "25.27777777777777777777777778",
+          "999"
+        ],
+        "resolution_source": {
+          "kind": "wunderground",
+          "url": "https://www.wunderground.com/history/daily/us/tx/austin/KAUS"
+        },
+        "station": "KAUS",
+        "blockers": []
+      }
+    },
+    {
+      "scan_id": "weather-20260513-141933-ef623dfe",
+      "observed_at": "2026-05-13 14:19:34.206402+00:00",
+      "radar_tick_id": 437,
+      "condition_id": "0x3d601e08daa5078a2b24f922c5e80a35f6b2e297cf92c71c661c4c4e7e282212",
+      "question": "Will the highest temperature in Seattle be 72°F or higher on May 13?",
+      "location_hint": "Seattle",
+      "target_date": "2026-05-13",
+      "threshold_hint": "72°F or higher",
+      "forecast_max_c": null,
+      "model_sigma_c": "1.20",
+      "fair_yes": null,
+      "market_mid": "0.003500000000000000",
+      "best_yes_bid": "0.001000000000000000",
+      "best_yes_ask": "0.006000000000000000",
+      "best_no_ask": "0.999000000000000000",
+      "spread": "0.005000000000000000",
+      "edge_yes": null,
+      "edge_no": null,
+      "action_bias": "NONE",
+      "model_state": "MODEL_BLOCKED",
+      "reason": "geocode missing; forecast missing",
+      "source_url": "https://open-meteo.com/",
+      "source_adapter": "open-meteo-city-proxy",
+      "raw": {
+        "geocode": null,
+        "forecast": null,
+        "threshold": [
+          "or_higher",
+          "21.94444444444444444444444444",
+          "999"
+        ],
+        "resolution_source": {
+          "kind": "wunderground",
+          "url": "https://www.wunderground.com/history/daily/us/wa/seatac/KSEA"
+        },
+        "station": "KSEA",
+        "blockers": [
+          "geocode missing",
+          "forecast missing"
+        ]
+      }
+    },
+    {
+      "scan_id": "weather-20260513-141933-ef623dfe",
+      "observed_at": "2026-05-13 14:19:34.206402+00:00",
+      "radar_tick_id": 438,
+      "condition_id": "0x84016c37da0116d66c3d9a4a0a951563af11cc500c029b00e60856d0f24a7c5f",
+      "question": "Will the highest temperature in Paris be 14°C on May 13?",
+      "location_hint": "Paris",
+      "target_date": "2026-05-13",
+      "threshold_hint": "14°C",
+      "forecast_max_c": null,
+      "model_sigma_c": "1.20",
+      "fair_yes": null,
+      "market_mid": "0.955500000000000000",
+      "best_yes_bid": "0.952000000000000000",
+      "best_yes_ask": "0.959000000000000000",
+      "best_no_ask": "0.048000000000000000",
+      "spread": "0.007000000000000000",
+      "edge_yes": null,
+      "edge_no": null,
+      "action_bias": "NONE",
+      "model_state": "MODEL_BLOCKED",
+      "reason": "geocode missing; forecast missing",
+      "source_url": "https://open-meteo.com/",
+      "source_adapter": "open-meteo-city-proxy",
+      "raw": {
+        "geocode": null,
+        "forecast": null,
+        "threshold": [
+          "exact",
+          "13.5",
+          "14.5"
+        ],
+        "resolution_source": {
+          "kind": "wunderground",
+          "url": "https://www.wunderground.com/history/daily/fr/bonneuil-en-france/LFPB"
+        },
+        "station": "LFPB",
+        "blockers": [
+          "geocode missing",
+          "forecast missing"
+        ]
+      }
+    },
+    {
+      "scan_id": "weather-20260513-141933-ef623dfe",
+      "observed_at": "2026-05-13 14:19:34.206402+00:00",
+      "radar_tick_id": 439,
+      "condition_id": "0x8017ad83520b14ebef83b61061f2a2c4c804020b293fa05527afbf3c2e99a263",
+      "question": "Will the highest temperature in London be 15°C on May 13?",
+      "location_hint": "London",
+      "target_date": "2026-05-13",
+      "threshold_hint": "15°C",
+      "forecast_max_c": "12.5",
+      "model_sigma_c": "1.20",
+      "fair_yes": "0.041581",
+      "market_mid": "0.007000000000000000",
+      "best_yes_bid": "0.003000000000000000",
+      "best_yes_ask": "0.011000000000000000",
+      "best_no_ask": "0.997000000000000000",
+      "spread": "0.008000000000000000",
+      "edge_yes": "0.030581000000000000",
+      "edge_no": "-0.038581000000000000",
+      "action_bias": "NONE",
+      "model_state": "MODEL_WATCH",
+      "reason": "proxy divergence below promotion threshold",
+      "source_url": "https://www.wunderground.com/history/daily/gb/london/EGLC",
+      "source_adapter": "open-meteo-resolution-station-proxy:EGLC",
+      "raw": {
+        "geocode": {
+          "name": "London City Airport Station",
+          "latitude": 51.5053,
+          "longitude": 0.0553,
+          "timezone": "Europe/London"
+        },
+        "forecast": {
+          "forecast_max_c": 12.5,
+          "payload": {
+            "latitude": 51.507725,
+            "longitude": 0.042434692,
+            "generationtime_ms": 0.05245208740234375,
+            "utc_offset_seconds": 3600,
+            "timezone": "Europe/London",
+            "timezone_abbreviation": "GMT+1",
+            "elevation": 4.0,
+            "daily_units": {
+              "time": "iso8601",
+              "temperature_2m_max": "°C"
+            },
+            "daily": {
+              "time": [
+                "2026-05-13"
+              ],
+              "temperature_2m_max": [
+                12.5
+              ]
+            }
+          }
+        },
+        "threshold": [
+          "exact",
+          "14.5",
+          "15.5"
+        ],
+        "resolution_source": {
+          "kind": "wunderground",
+          "url": "https://www.wunderground.com/history/daily/gb/london/EGLC"
+        },
+        "station": "EGLC",
+        "blockers": []
+      }
+    },
+    {
+      "scan_id": "weather-20260513-141933-ef623dfe",
+      "observed_at": "2026-05-13 14:19:34.206402+00:00",
+      "radar_tick_id": 444,
+      "condition_id": "0x898810054f4bb639832020ae968780faa84a851d7945d9cd16ac05ca2072a55d",
+      "question": "Will the highest temperature in London be 13°C on May 13?",
+      "location_hint": "London",
+      "target_date": "2026-05-13",
+      "threshold_hint": "13°C",
+      "forecast_max_c": "12.5",
+      "model_sigma_c": "1.20",
+      "fair_yes": "0.297672",
+      "market_mid": "0.930000000000000000",
+      "best_yes_bid": "0.920000000000000000",
+      "best_yes_ask": "0.940000000000000000",
+      "best_no_ask": "0.080000000000000000",
+      "spread": "0.020000000000000000",
+      "edge_yes": "-0.642328000000000000",
+      "edge_no": "0.622328000000000000",
+      "action_bias": "NO",
+      "model_state": "EDGE_CANDIDATE",
+      "reason": "NO proxy edge 0.6223 >= 0.0800",
+      "source_url": "https://www.wunderground.com/history/daily/gb/london/EGLC",
+      "source_adapter": "open-meteo-resolution-station-proxy:EGLC",
+      "raw": {
+        "geocode": {
+          "name": "London City Airport Station",
+          "latitude": 51.5053,
+          "longitude": 0.0553,
+          "timezone": "Europe/London"
+        },
+        "forecast": {
+          "forecast_max_c": 12.5,
+          "payload": {
+            "latitude": 51.507725,
+            "longitude": 0.042434692,
+            "generationtime_ms": 0.04887580871582031,
+            "utc_offset_seconds": 3600,
+            "timezone": "Europe/London",
+            "timezone_abbreviation": "GMT+1",
+            "elevation": 4.0,
+            "daily_units": {
+              "time": "iso8601",
+              "temperature_2m_max": "°C"
+            },
+            "daily": {
+              "time": [
+                "2026-05-13"
+              ],
+              "temperature_2m_max": [
+                12.5
+              ]
+            }
+          }
+        },
+        "threshold": [
+          "exact",
+          "12.5",
+          "13.5"
+        ],
+        "resolution_source": {
+          "kind": "wunderground",
+          "url": "https://www.wunderground.com/history/daily/gb/london/EGLC"
+        },
+        "station": "EGLC",
+        "blockers": []
+      }
+    }
+  ]
+}

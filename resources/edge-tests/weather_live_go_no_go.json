@@ -1,0 +1,81 @@
+{
+  "report_id": "7e988350-2d93-4d19-9714-3e1f7b43fbf7",
+  "generated_at": "2026-05-13T14:21:54.633670+00:00",
+  "status": "NO_GO",
+  "score": "0.8889",
+  "checks": [
+    {
+      "name": "live_trading_still_disabled",
+      "status": "PASS",
+      "value": "false",
+      "required": "false during readiness",
+      "blocker": true
+    },
+    {
+      "name": "live_execution_mode_disabled",
+      "status": "PASS",
+      "value": "DISABLED",
+      "required": "DISABLED during readiness",
+      "blocker": true
+    },
+    {
+      "name": "no_private_key_loaded_in_readiness",
+      "status": "PASS",
+      "value": "empty",
+      "required": "empty until explicit live cutover",
+      "blocker": true
+    },
+    {
+      "name": "weather_scan_sample_size_24h",
+      "status": "PASS",
+      "value": "12",
+      "required": ">= 12",
+      "blocker": true
+    },
+    {
+      "name": "edge_stability_window",
+      "status": "FAIL",
+      "value": "0.80h",
+      "required": ">= 6h",
+      "blocker": true
+    },
+    {
+      "name": "exact_station_proxy_edge_candidates",
+      "status": "PASS",
+      "value": "7",
+      "required": ">= 1",
+      "blocker": true
+    },
+    {
+      "name": "hko_source_adapter",
+      "status": "PASS",
+      "value": "0",
+      "required": "0 unresolved HKO candidates",
+      "blocker": false
+    },
+    {
+      "name": "fresh_station_observations",
+      "status": "PASS",
+      "value": "3",
+      "required": ">= 1 station with temp in last 2h",
+      "blocker": true
+    },
+    {
+      "name": "generic_live_readiness_report",
+      "status": "PASS",
+      "value": "ready 100.000000000000000000",
+      "required": "ready/pass and score >= 0.80",
+      "blocker": true
+    }
+  ],
+  "blockers": [
+    "edge_stability_window: value 0.80h, required >= 6h"
+  ],
+  "recommendations": [
+    "Keep LIVE_TRADING_ENABLED=false and LIVE_EXECUTION_MODE=DISABLED.",
+    "Do not paste or store seed phrases in chat, repo, dashboard, or .env.",
+    "Use a fresh dedicated Polymarket wallet with tiny capital only.",
+    "Keep first live cutover at micro-size and maker/limit-only until fill behavior is observed.",
+    "Before changing env flags, run this gate again and archive the report."
+  ]
+}
