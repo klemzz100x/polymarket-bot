@@ -437,15 +437,23 @@ async def _follow_wallet_polycop(
             log.info(f"Config screen: {(config.text or '')[:80]}")
             _log_buttons(config, "  config")
 
-            # PolyCop sometimes sends a "loading..." message first, then the real config
+            # PolyCop sometimes sends a "loading..." message first, then edits it
+            # (or sends a new message) with the real config screen and buttons.
             if not getattr(config, "buttons", None):
-                log.info("  No buttons yet — waiting for real config screen…")
+                log.info("  No buttons yet — waiting for edited/new config screen…")
+                # Try edited message first (PolyCop edits "loading..." in place)
                 try:
-                    config = await asyncio.wait_for(conv.get_response(), timeout=CONV_TIMEOUT)
-                    log.info(f"  Config screen (2nd msg): {(config.text or '')[:80]}")
-                    _log_buttons(config, "  config2")
+                    config = await asyncio.wait_for(conv.get_edit(), timeout=CONV_TIMEOUT)
+                    log.info(f"  Config screen (edited): {(config.text or '')[:80]}")
+                    _log_buttons(config, "  config_edit")
                 except asyncio.TimeoutError:
-                    return False, "Config screen never appeared after 'loading' message"
+                    # Fallback: maybe it sent a new message after all
+                    try:
+                        config = await asyncio.wait_for(conv.get_response(), timeout=30)
+                        log.info(f"  Config screen (new msg): {(config.text or '')[:80]}")
+                        _log_buttons(config, "  config2")
+                    except asyncio.TimeoutError:
+                        return False, "Config screen never appeared after 'loading' message"
 
             # ── Step 4: Set Target Wallet ──────────────────────────────────────
             config, ok = await _click_setting(conv, config, "Target Wallet", wallet_addr)
