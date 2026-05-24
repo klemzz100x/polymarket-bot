@@ -457,49 +457,30 @@ async def _follow_wallet_polycop(
             _log_buttons(section, "  section")
 
             # ── Step 3: ➕️ Create Copy Trade ───────────────────────────────────
-            btn = _find_button(section.buttons, POLYCOP_CREATE_BUTTON, "create copy", "target wallet")
+            btn = _find_button(section.buttons, POLYCOP_CREATE_BUTTON, "create copy")
             if not btn:
                 _log_buttons(section, "  available:")
                 return False, f"'{POLYCOP_CREATE_BUTTON}' not found in Copy Trade section"
             await btn.click()
 
-            # PolyCop sends a text prompt ("loading add page..." or similar) — no buttons
-            prompt = await conv.get_response()
-            log.info(f"  Prompt after Create: {(prompt.text or '')[:80]}")
+            # PolyCop sends "loading add page..." (no buttons), then EDITS that
+            # message to reveal the config screen with Target Wallet / Max Per Trade buttons.
+            loading = await conv.get_response()
+            log.info(f"  Loading: {(loading.text or '')[:80]}")
 
-            # ── Step 4: Send wallet address ────────────────────────────────────
-            await conv.send_message(wallet_addr)
-            log.info(f"  Sent: {wallet_addr}")
+            # Wait for the edit that transforms the loading msg into the config screen
+            try:
+                config = await asyncio.wait_for(conv.get_edit(), timeout=CONV_TIMEOUT)
+            except asyncio.TimeoutError:
+                return False, "Config screen never appeared (get_edit timeout after loading)"
+            _log_buttons(config, "  config")
 
-            # ── Step 5: Reach config screen ────────────────────────────────────
-            # Two possible paths:
-            #   A) Direct config screen (new wallet) — has Max Per Trade + + Create buttons
-            #   B) Profile screen (wallet known to PolyCop) — has single 🚀 Copy Trade button
-            #      → need to click it to reach config
-            msg = await _await_with_edit_fallback(conv, CONV_TIMEOUT, "post-address")
-            if msg is None:
-                return False, "No response after sending wallet address"
-            _log_buttons(msg, "  post-address")
+            # ── Step 4: Click Target Wallet → send address ─────────────────────
+            config, ok = await _click_setting(conv, config, "Target Wallet", wallet_addr)
+            if not ok:
+                return False, "Failed to set Target Wallet"
 
-            if _is_config_screen(msg):
-                config = msg
-                log.info("  → Direct config screen")
-            else:
-                # Profile screen — click 🚀 Copy Trade to proceed
-                copy_btn = _find_button(msg.buttons, "copy trade", "🚀")
-                if copy_btn:
-                    log.info(f"  → Profile screen, clicking '{getattr(copy_btn, 'text', '?')}'")
-                    await copy_btn.click()
-                    config = await _await_with_edit_fallback(conv, CONV_TIMEOUT, "config")
-                    if config is None:
-                        return False, "Config screen never appeared after profile screen"
-                    _log_buttons(config, "  config")
-                else:
-                    log.warning("  Unknown screen — treating as config anyway")
-                    _log_buttons(msg, "  unknown")
-                    config = msg
-
-            # ── Step 6: Set Max Per Trade ──────────────────────────────────────
+            # ── Step 5: Click Max Per Trade → send amount ──────────────────────
             if max_per_trade_usd > 0:
                 config, ok = await _click_setting(
                     conv, config, "Max Per Trade", str(max_per_trade_usd)
@@ -507,8 +488,7 @@ async def _follow_wallet_polycop(
                 if not ok:
                     log.warning("Max Per Trade setting failed — continuing to + Create anyway")
 
-            # ── Step 7: Click + Create ─────────────────────────────────────────
-            # Confirmed button label: "+ Create" (UI screenshot 2026-05-24)
+            # ── Step 6: Click + Create ─────────────────────────────────────────
             save_hints = list(filter(None, [
                 POLYCOP_SAVE_BUTTON, "+ create", "create", "✅ create",
                 "save", "confirm", "done", "✅",
