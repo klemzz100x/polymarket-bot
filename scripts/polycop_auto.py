@@ -445,24 +445,46 @@ async def _follow_wallet_polycop(
             log.info(f"  Wallet prompt: {(loading_prompt.text or '')[:80]}")
 
             # ── Step 4: Send wallet address as text ───────────────────────────
-            # PolyCop asks for the address via text prompt (not a button).
-            # The "loading add page..." message IS the prompt — reply with the address.
+            # PolyCop asks for the address via text prompt. Reply with the address.
             await conv.send_message(wallet_addr)
             log.info(f"  Sent wallet address: {wallet_addr}")
 
-            # PolyCop responds with the full config screen (address pre-filled)
-            config = await asyncio.wait_for(conv.get_response(), timeout=CONV_TIMEOUT)
-            log.info(f"  Config after address: {(config.text or '')[:80]}")
-            _log_buttons(config, "  config_after_addr")
+            # PolyCop responds with a profile screen: "The address you entered: ..."
+            # with a single '🚀 Copy Trade' button. We need to click it.
+            profile = await asyncio.wait_for(conv.get_response(), timeout=CONV_TIMEOUT)
+            log.info(f"  Profile screen: {(profile.text or '')[:80]}")
+            _log_buttons(profile, "  profile")
 
-            # If still no buttons, PolyCop may edit the message
+            # Handle case where profile arrives as an edit (no buttons on first message)
+            if not getattr(profile, "buttons", None):
+                log.info("  No buttons on profile — waiting for edit…")
+                try:
+                    profile = await asyncio.wait_for(conv.get_edit(), timeout=CONV_TIMEOUT)
+                    _log_buttons(profile, "  profile_edit")
+                except asyncio.TimeoutError:
+                    return False, "Profile screen never appeared after sending wallet address"
+
+            # ── Step 5: Click '🚀 Copy Trade' on the profile screen ───────────
+            copy_btn = _find_button(profile.buttons, "copy trade", "🚀")
+            if not copy_btn:
+                _log_buttons(profile, "  [COPY TRADE BTN NEEDED]")
+                return False, "Could not find '🚀 Copy Trade' button on profile screen"
+
+            log.info(f"  Clicking '{getattr(copy_btn, 'text', '?')}' on profile screen")
+            await copy_btn.click()
+
+            # PolyCop now shows the full config screen with all settings
+            config = await asyncio.wait_for(conv.get_response(), timeout=CONV_TIMEOUT)
+            log.info(f"  Config screen: {(config.text or '')[:80]}")
+            _log_buttons(config, "  config")
+
             if not getattr(config, "buttons", None):
-                log.info("  No buttons yet — waiting for edit…")
+                log.info("  No buttons on config — waiting for edit…")
                 try:
                     config = await asyncio.wait_for(conv.get_edit(), timeout=CONV_TIMEOUT)
                     _log_buttons(config, "  config_edit")
                 except asyncio.TimeoutError:
-                    return False, "Config screen never appeared after sending wallet address"
+                    return False, "Config screen never appeared after clicking Copy Trade"
 
             # ── Step 5: Set Max Per Trade ──────────────────────────────────────
             if max_per_trade_usd > 0:
