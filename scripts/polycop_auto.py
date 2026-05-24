@@ -381,34 +381,60 @@ async def _click_setting(conv, config_msg, btn_hint: str, value: str) -> tuple[o
 
 # ── Core PolyCop flow ──────────────────────────────────────────────────────────
 
+async def _await_with_edit_fallback(conv, timeout: int, label: str):
+    """Get next bot message, falling back to get_edit() if no new message arrives."""
+    try:
+        msg = await asyncio.wait_for(conv.get_response(), timeout=timeout)
+        return msg
+    except asyncio.TimeoutError:
+        pass
+    try:
+        msg = await asyncio.wait_for(conv.get_edit(), timeout=15)
+        log.info(f"  {label}: arrived as edit")
+        return msg
+    except asyncio.TimeoutError:
+        return None
+
+
+def _is_config_screen(msg) -> bool:
+    """True if the message looks like the full config screen (has Max Per Trade or + Create)."""
+    if not getattr(msg, "buttons", None):
+        return False
+    for row in msg.buttons:
+        for btn in row:
+            t = (getattr(btn, "text", "") or "").lower()
+            if "max per trade" in t or "create" in t:
+                return True
+    return False
+
+
 async def _follow_wallet_polycop(
     client, wallet_addr: str, label: str, size_pct: float
 ) -> tuple[bool, str]:
     """
     Navigate PolyCop's Telegram UI to create a copy trade for wallet_addr.
 
-    Flow:
-      /start → 🚀 Copy Trade → ➕️ Create Copy Trade → config screen
-        → Target Wallet (set address)
-        → Max Per Trade (set $ amount from size_pct × bankroll)
-        → Save/Create
+    Confirmed flow (2026-05-24):
+      /start → 🚀 Copy Trade → ➕️ Create Copy Trade
+        → text prompt → send wallet address
+        → config screen (may be preceded by a profile screen with 🚀 Copy Trade)
+        → click Max Per Trade → send dollar amount
+        → click + Create
 
     Returns (success, message).
     """
-    # Compute Max Per Trade in dollars from live bankroll
-    # PolyCop minimum is $1.20 — enforce it regardless of bankroll size
     POLYCOP_MIN_TRADE = 1.20
     if _BANKROLL_USD > 0:
         raw_usd = round(size_pct / 100.0 * _BANKROLL_USD, 2)
         max_per_trade_usd = max(POLYCOP_MIN_TRADE, raw_usd)
         size_label = (
             f"${max_per_trade_usd} (={size_pct:.1f}% × ${_BANKROLL_USD:.2f}"
-            + (f", raised to PolyCop min ${POLYCOP_MIN_TRADE}" if raw_usd < POLYCOP_MIN_TRADE else "")
+            + (f", raised to min ${POLYCOP_MIN_TRADE}" if raw_usd < POLYCOP_MIN_TRADE else "")
             + ")"
         )
     else:
         max_per_trade_usd = 0
-        size_label = f"{size_pct:.1f}% (bankroll unknown — Max Per Trade skipped)"
+        size_label = f"{size_pct:.1f}% (bankroll unknown)"
         log.warning("Bankroll is 0 — Max Per Trade will not be configured")
 
     log.info(f"Starting PolyCop flow for {label} ({wallet_addr[:16]}…)  size={size_label}")
@@ -416,98 +442,76 @@ async def _follow_wallet_polycop(
     try:
         async with client.conversation(POLYCOP_BOT, timeout=CONV_TIMEOUT) as conv:
 
-            # ── Step 1: main menu ──────────────────────────────────────────────
+            # ── Step 1: /start ─────────────────────────────────────────────────
             await conv.send_message("/start")
             main_menu = await conv.get_response()
-            log.info(f"Main menu: {(main_menu.text or '')[:80]}")
             _log_buttons(main_menu, "  main_menu")
 
-            # ── Step 2: Copy Trade section ─────────────────────────────────────
+            # ── Step 2: 🚀 Copy Trade ──────────────────────────────────────────
             btn = _find_button(main_menu.buttons, POLYCOP_MENU_BUTTON)
             if not btn:
                 _log_buttons(main_menu, "  available:")
                 return False, f"'{POLYCOP_MENU_BUTTON}' not found in main menu"
-
             await btn.click()
             section = await conv.get_response()
-            log.info(f"Section: {(section.text or '')[:80]}")
             _log_buttons(section, "  section")
 
-            # ── Step 3: Create Copy Trade ──────────────────────────────────────
-            btn = _find_button(section.buttons, POLYCOP_CREATE_BUTTON, "create copy")
+            # ── Step 3: ➕️ Create Copy Trade ───────────────────────────────────
+            btn = _find_button(section.buttons, POLYCOP_CREATE_BUTTON, "create copy", "target wallet")
             if not btn:
                 _log_buttons(section, "  available:")
                 return False, f"'{POLYCOP_CREATE_BUTTON}' not found in Copy Trade section"
-
             await btn.click()
-            # PolyCop sends "loading add page..." as a text prompt for the wallet address
-            loading_prompt = await conv.get_response()
-            log.info(f"  Wallet prompt: {(loading_prompt.text or '')[:80]}")
 
-            # ── Step 4: Send wallet address as text ───────────────────────────
-            # PolyCop asks for the address via text prompt. Reply with the address.
+            # PolyCop sends a text prompt ("loading add page..." or similar) — no buttons
+            prompt = await conv.get_response()
+            log.info(f"  Prompt after Create: {(prompt.text or '')[:80]}")
+
+            # ── Step 4: Send wallet address ────────────────────────────────────
             await conv.send_message(wallet_addr)
-            log.info(f"  Sent wallet address: {wallet_addr}")
+            log.info(f"  Sent: {wallet_addr}")
 
-            # PolyCop responds with a profile screen: "The address you entered: ..."
-            # with a single '🚀 Copy Trade' button. We need to click it.
-            profile = await asyncio.wait_for(conv.get_response(), timeout=CONV_TIMEOUT)
-            log.info(f"  Profile screen: {(profile.text or '')[:80]}")
-            _log_buttons(profile, "  profile")
+            # ── Step 5: Reach config screen ────────────────────────────────────
+            # Two possible paths:
+            #   A) Direct config screen (new wallet) — has Max Per Trade + + Create buttons
+            #   B) Profile screen (wallet known to PolyCop) — has single 🚀 Copy Trade button
+            #      → need to click it to reach config
+            msg = await _await_with_edit_fallback(conv, CONV_TIMEOUT, "post-address")
+            if msg is None:
+                return False, "No response after sending wallet address"
+            _log_buttons(msg, "  post-address")
 
-            # Handle case where profile arrives as an edit (no buttons on first message)
-            if not getattr(profile, "buttons", None):
-                log.info("  No buttons on profile — waiting for edit…")
-                try:
-                    profile = await asyncio.wait_for(conv.get_edit(), timeout=CONV_TIMEOUT)
-                    _log_buttons(profile, "  profile_edit")
-                except asyncio.TimeoutError:
-                    return False, "Profile screen never appeared after sending wallet address"
+            if _is_config_screen(msg):
+                config = msg
+                log.info("  → Direct config screen")
+            else:
+                # Profile screen — click 🚀 Copy Trade to proceed
+                copy_btn = _find_button(msg.buttons, "copy trade", "🚀")
+                if copy_btn:
+                    log.info(f"  → Profile screen, clicking '{getattr(copy_btn, 'text', '?')}'")
+                    await copy_btn.click()
+                    config = await _await_with_edit_fallback(conv, CONV_TIMEOUT, "config")
+                    if config is None:
+                        return False, "Config screen never appeared after profile screen"
+                    _log_buttons(config, "  config")
+                else:
+                    log.warning("  Unknown screen — treating as config anyway")
+                    _log_buttons(msg, "  unknown")
+                    config = msg
 
-            # ── Step 5: Click '🚀 Copy Trade' on the profile screen ───────────
-            copy_btn = _find_button(profile.buttons, "copy trade", "🚀")
-            if not copy_btn:
-                _log_buttons(profile, "  [COPY TRADE BTN NEEDED]")
-                return False, "Could not find '🚀 Copy Trade' button on profile screen"
-
-            log.info(f"  Clicking '{getattr(copy_btn, 'text', '?')}' on profile screen")
-            await copy_btn.click()
-
-            # PolyCop now shows the full config screen with all settings
-            config = await asyncio.wait_for(conv.get_response(), timeout=CONV_TIMEOUT)
-            log.info(f"  Config screen: {(config.text or '')[:80]}")
-            _log_buttons(config, "  config")
-
-            if not getattr(config, "buttons", None):
-                log.info("  No buttons on config — waiting for edit…")
-                try:
-                    config = await asyncio.wait_for(conv.get_edit(), timeout=CONV_TIMEOUT)
-                    _log_buttons(config, "  config_edit")
-                except asyncio.TimeoutError:
-                    return False, "Config screen never appeared after clicking Copy Trade"
-
-            # ── Step 5: Set Max Per Trade ──────────────────────────────────────
+            # ── Step 6: Set Max Per Trade ──────────────────────────────────────
             if max_per_trade_usd > 0:
                 config, ok = await _click_setting(
                     conv, config, "Max Per Trade", str(max_per_trade_usd)
                 )
                 if not ok:
-                    log.warning("Max Per Trade setting failed — continuing to save anyway")
-                elif not getattr(config, "buttons", None):
-                    # PolyCop returned an error (e.g. value out of range) — no buttons on response.
-                    # Try to get the real config screen that follows the error message.
-                    log.warning("  Max Per Trade response has no buttons — waiting for config refresh…")
-                    try:
-                        config = await asyncio.wait_for(conv.get_response(), timeout=30)
-                        _log_buttons(config, "  config_after_mpt_error")
-                    except asyncio.TimeoutError:
-                        log.warning("  No config refresh — will try save anyway")
+                    log.warning("Max Per Trade setting failed — continuing to + Create anyway")
 
-            # ── Step 6: Save / Create ──────────────────────────────────────────
-            # Save button is "+ Create" (confirmed via UI screenshot 2026-05-24)
+            # ── Step 7: Click + Create ─────────────────────────────────────────
+            # Confirmed button label: "+ Create" (UI screenshot 2026-05-24)
             save_hints = list(filter(None, [
                 POLYCOP_SAVE_BUTTON, "+ create", "create", "✅ create",
-                "save", "✅ save", "confirm", "done", "submit", "✅",
+                "save", "confirm", "done", "✅",
             ]))
             save_btn = _find_button(config.buttons, *save_hints)
 
