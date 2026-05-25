@@ -74,18 +74,29 @@ else
   ok "Queue vide (aucun wallet qualifié pour auto-copy encore)"
 fi
 
-# ── 6. Dernière erreur polycop ─────────────────────────────
+# ── 6. Dernière erreur polycop (session courante uniquement) ──
 echo ""
-echo "[ DERNIÈRES ERREURS POLYCOP ]"
+echo "[ ERREURS POLYCOP — SESSION COURANTE ]"
 
 PC_LOG="$ROOT/tmp/polycop_auto.log"
 if [ -f "$PC_LOG" ]; then
-  errors=$(grep -i "error\|failed\|timeout" "$PC_LOG" | tail -5)
+  # Trouver la ligne du dernier démarrage du bot pour ne montrer que les erreurs après
+  start_marker=$(grep -n "PolyCop Auto-Copy Bot starting" "$PC_LOG" | tail -1 | cut -d: -f1)
+  if [ -n "$start_marker" ]; then
+    session_log=$(tail -n +"$start_marker" "$PC_LOG")
+    start_time=$(echo "$session_log" | head -1 | awk '{print $1, $2}')
+    errors=$(echo "$session_log" | grep -i "error\|failed\|timeout")
+  else
+    session_log=$(cat "$PC_LOG")
+    errors=$(grep -i "error\|failed\|timeout" "$PC_LOG" | tail -5)
+    start_time="inconnu"
+  fi
+  echo "   Session depuis : $start_time"
   if [ -n "$errors" ]; then
-    warn "Dernières erreurs :"
+    warn "Erreurs depuis le dernier démarrage :"
     echo "$errors" | while read -r line; do echo "   $line"; done
   else
-    ok "Aucune erreur récente"
+    ok "Aucune erreur depuis le dernier démarrage"
   fi
 else
   warn "Log polycop absent"
