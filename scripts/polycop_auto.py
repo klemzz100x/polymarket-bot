@@ -272,6 +272,9 @@ async def _refresh_bankroll(client) -> float:
     """
     global _BANKROLL_USD
     try:
+        if not client.is_connected():
+            log.info("Reconnecting Telethon client before bankroll refresh…")
+            await client.connect()
         async with client.conversation(POLYCOP_BOT, timeout=30) as conv:
             await conv.send_message("/start")
             msg = await asyncio.wait_for(conv.get_response(), timeout=30)
@@ -441,6 +444,9 @@ async def _follow_wallet_polycop(
     log.info(f"Starting PolyCop flow for {label} ({wallet_addr[:16]}…)  size={size_label}")
 
     try:
+        if not client.is_connected():
+            log.info("Reconnecting Telethon client before PolyCop flow…")
+            await client.connect()
         async with client.conversation(POLYCOP_BOT, timeout=CONV_TIMEOUT) as conv:
 
             # ── Step 1: /start ─────────────────────────────────────────────────
