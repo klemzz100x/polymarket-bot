@@ -86,6 +86,7 @@ GOOGLE CLOUD DEPLOYMENT (e2-micro free tier, ~$0/mois)
 from __future__ import annotations
 
 import argparse
+import html as _html
 import json
 import logging
 import os
@@ -193,7 +194,7 @@ def _alert_qualified(ws: dict) -> None:
         f"📋 <b>Adresse (tap pour copier) :</b>\n"
         f"<code>{addr}</code>\n\n"
         f"<b>Règles PolyCop :</b>\n"
-        f"• Taille max : {max_pct:.0f}% du bankroll\n"
+        f"• Taille max : {max_pct:.1f}% du bankroll\n"
         f"• Attends &gt;{min_hold} après l'entrée whale\n"
         f"• Skip si prix &gt;92% (near resolution)\n"
         f"• Stop-follow : conf&lt;{stop_conf} | inactive&gt;14j\n\n"
@@ -537,8 +538,8 @@ def run_once(args: argparse.Namespace) -> None:
             log.info(f"  → skipped auto-copy: {reason}")
             _tg_send(
                 f"<b>⚠️ Notification uniquement</b>\n"
-                f"<b>{label}</b> qualifié mais pas auto-copié\n"
-                f"Raison: {reason}"
+                f"<b>{_html.escape(label)}</b> qualifié mais pas auto-copié\n"
+                f"Raison: {_html.escape(reason)}"
             )
 
     for ws in promoted:

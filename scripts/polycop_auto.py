@@ -83,6 +83,7 @@ import argparse
 import asyncio
 import json
 import logging
+import html as _html
 import os
 import sys
 import urllib.parse
@@ -665,8 +666,8 @@ async def _process_queue_once(client) -> int:
             log.warning(f"  ❌ {label}: {result_msg}")
             _notify(
                 f"<b>❌ PolyCop auto-copy échoué</b>\n\n"
-                f"<b>{label}</b>\n"
-                f"Erreur : {result_msg}\n\n"
+                f"<b>{_html.escape(label)}</b>\n"
+                f"Erreur : {_html.escape(result_msg)}\n\n"
                 f"<code>{addr}</code>\n\n"
                 f"Vérifie les logs : <code>tail -f tmp/polycop_auto.log</code>"
             )
