@@ -131,6 +131,12 @@ _BANKROLL_USD: float = float(
     or "0"
 )
 
+# Hard cap: no single copy trade can ever exceed this amount, regardless of bankroll
+# or size_pct. Protects against misconfigured bankroll or PolyCop parsing errors.
+MAX_PER_TRADE_HARD_CAP_USD: float = float(
+    os.environ.get("POLYCOP_MAX_PER_TRADE_CAP_USD") or "3.0"
+)
+
 POLL_INTERVAL = 30   # seconds between queue checks
 CONV_TIMEOUT = 90    # seconds to wait for each PolyCop response
 BANKROLL_REFRESH_INTERVAL = 3600  # re-fetch balance from PolyCop every 1h
@@ -428,18 +434,26 @@ async def _follow_wallet_polycop(
     Returns (success, message).
     """
     POLYCOP_MIN_TRADE = 1.20
-    if _BANKROLL_USD > 0:
-        raw_usd = round(size_pct / 100.0 * _BANKROLL_USD, 2)
-        max_per_trade_usd = max(POLYCOP_MIN_TRADE, raw_usd)
-        size_label = (
-            f"${max_per_trade_usd} (={size_pct:.1f}% × ${_BANKROLL_USD:.2f}"
-            + (f", raised to min ${POLYCOP_MIN_TRADE}" if raw_usd < POLYCOP_MIN_TRADE else "")
-            + ")"
+
+    # Fix A: bankroll must be known before we can size a trade safely.
+    # If it's still 0 (no env var + refresh failed), refuse the trade rather
+    # than letting PolyCop use whatever default it has stored.
+    if _BANKROLL_USD <= 0:
+        return (
+            False,
+            "Bankroll inconnue (POLYCOP_BANKROLL_USD non défini et refresh PolyCop échoué). "
+            "Ajoute POLYCOP_BANKROLL_USD dans .env ou vérifie la session Telethon.",
         )
-    else:
-        max_per_trade_usd = 0
-        size_label = f"{size_pct:.1f}% (bankroll unknown)"
-        log.warning("Bankroll is 0 — Max Per Trade will not be configured")
+
+    raw_usd = round(size_pct / 100.0 * _BANKROLL_USD, 2)
+    capped_usd = min(raw_usd, MAX_PER_TRADE_HARD_CAP_USD)   # Fix B: hard cap
+    max_per_trade_usd = max(POLYCOP_MIN_TRADE, capped_usd)
+    cap_note = f", capped at ${MAX_PER_TRADE_HARD_CAP_USD}" if capped_usd < raw_usd else ""
+    min_note = f", raised to min ${POLYCOP_MIN_TRADE}" if raw_usd < POLYCOP_MIN_TRADE else ""
+    size_label = (
+        f"${max_per_trade_usd} (={size_pct:.1f}% × ${_BANKROLL_USD:.2f}"
+        + cap_note + min_note + ")"
+    )
 
     log.info(f"Starting PolyCop flow for {label} ({wallet_addr[:16]}…)  size={size_label}")
 
@@ -641,6 +655,20 @@ async def _process_queue_once(client) -> int:
     if not pending:
         return 0
 
+    # Fix A: never process the queue if bankroll is unknown — all trades would
+    # be misconfigured (PolyCop would use its own default, possibly very large).
+    if _BANKROLL_USD <= 0:
+        log.warning(
+            "Bankroll inconnue (_BANKROLL_USD=0) — queue en attente. "
+            "Ajoute POLYCOP_BANKROLL_USD dans .env ou vérifie que le refresh PolyCop fonctionne."
+        )
+        _notify(
+            "<b>⚠️ PolyCop bot bloqué</b>\n\n"
+            "Bankroll inconnue : impossible de dimensionner les trades.\n"
+            "Ajoute <code>POLYCOP_BANKROLL_USD=XX</code> dans <code>.env</code>."
+        )
+        return 0
+
     log.info(f"Processing {len(pending)} pending item(s) from queue")
     processed = 0
 
@@ -651,20 +679,22 @@ async def _process_queue_once(client) -> int:
         size_pct = item.get("size_pct", 1.0)
         badge = item.get("risk_badge", "")
         edge = item.get("edge_type", "").replace("category_specialist:", "")
-        max_per_trade = round(size_pct / 100.0 * _BANKROLL_USD, 2) if _BANKROLL_USD > 0 else 0
+        raw_usd = round(size_pct / 100.0 * _BANKROLL_USD, 2)
+        max_per_trade = min(raw_usd, MAX_PER_TRADE_HARD_CAP_USD)  # Fix B: mirror cap for log
 
-        log.info(f"Processing: {label} ({addr[:16]}…) conf={conf} size={size_pct}% max_trade=${max_per_trade}")
+        log.info(f"Processing: {label} ({addr[:16]}…) conf={conf} size={size_pct}% max_trade=${max_per_trade} (cap=${MAX_PER_TRADE_HARD_CAP_USD})")
 
         ok, result_msg = await _follow_wallet_polycop(client, addr, label, size_pct)
 
         if ok:
             log.info(f"  ✅ {label}: {result_msg[:80]}")
+            cap_note = f" ⚠️ capé à ${MAX_PER_TRADE_HARD_CAP_USD}" if raw_usd > MAX_PER_TRADE_HARD_CAP_USD else ""
             _notify(
                 f"<b>✅ PolyCop copy trade créé</b>\n\n"
                 f"<b>{label}</b>  {badge}\n"
                 f"Confiance : {conf} | Edge : {edge}\n"
                 f"Taille : <b>${max_per_trade}</b> max/trade "
-                f"(<b>{size_pct}%</b> × ${_BANKROLL_USD:.0f})\n\n"
+                f"(<b>{size_pct}%</b> × ${_BANKROLL_USD:.0f}{cap_note})\n\n"
                 f"<code>{addr}</code>\n\n"
                 f"PolyCop va maintenant copier ce wallet automatiquement."
             )

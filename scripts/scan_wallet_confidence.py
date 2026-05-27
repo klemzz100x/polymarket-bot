@@ -14,8 +14,9 @@ Usage:
     PYTHONPATH=src python scripts/scan_wallet_confidence.py
     PYTHONPATH=src python scripts/scan_wallet_confidence.py --seed 0xABCD... --label new_whale
     PYTHONPATH=src python scripts/scan_wallet_confidence.py --seeds-file resources/wallet_seeds.txt
-    PYTHONPATH=src python scripts/scan_wallet_confidence.py --include-leaderboard --top 20
-    PYTHONPATH=src python scripts/scan_wallet_confidence.py --min-confidence 60 --json-out tmp/wallet_scores.json
+    PYTHONPATH=src python scripts/scan_wallet_confidence.py
+    PYTHONPATH=src python scripts/scan_wallet_confidence.py --no-leaderboard --seed 0xABCD... --label new_whale
+    PYTHONPATH=src python scripts/scan_wallet_confidence.py --top 100 --min-confidence 60 --json-out tmp/wallet_scores.json
 """
 from __future__ import annotations
 
@@ -89,19 +90,23 @@ async def fetch_wallet_data(client: PolymarketClient, address: str, *, activity_
     return activity, positions
 
 
-async def fetch_leaderboard_seeds(client: PolymarketClient, top_n: int = 20) -> list[dict]:
+async def fetch_leaderboard_seeds(client: PolymarketClient, top_n: int = 50) -> list[dict]:
     """Pull top wallets from Polymarket leaderboard as fresh seeds.
 
-    Multi-window blend (1d, 7d, 30d) on profit + 7d on volume. Returns recently
-    active wallets, which is exactly what we want for fast new-edge detection.
+    Queries 7 windows: profit 1d/7d/30d/all + volume 1d/7d/30d.
+    A wallet appearing in multiple windows is a stability signal — tracked via
+    _source_count after deduplication in dedupe_seeds().
     """
     seeds: list[dict] = []
     url = "https://lb-api.polymarket.com"
     queries = [
-        ("/profit", {"window": "1d", "limit": top_n}, "lb-profit-1d"),
-        ("/profit", {"window": "7d", "limit": top_n}, "lb-profit-7d"),
+        ("/profit", {"window": "1d",  "limit": top_n}, "lb-profit-1d"),
+        ("/profit", {"window": "7d",  "limit": top_n}, "lb-profit-7d"),
         ("/profit", {"window": "30d", "limit": top_n}, "lb-profit-30d"),
-        ("/volume", {"window": "7d", "limit": top_n}, "lb-volume-7d"),
+        ("/profit", {"window": "all", "limit": top_n}, "lb-profit-all"),
+        ("/volume", {"window": "1d",  "limit": top_n}, "lb-volume-1d"),
+        ("/volume", {"window": "7d",  "limit": top_n}, "lb-volume-7d"),
+        ("/volume", {"window": "30d", "limit": top_n}, "lb-volume-30d"),
     ]
     for path, params, tag in queries:
         try:
@@ -145,12 +150,17 @@ def dedupe_seeds(seeds: list[dict]) -> list[dict]:
             skipped += 1
             continue
         if addr not in seen:
-            seen[addr] = dict(s, address=addr)
+            seen[addr] = dict(s, address=addr, _source_count=1)
         else:
-            seen[addr]["source"] = f"{seen[addr]['source']},{s['source']}"
+            existing = set(seen[addr]["source"].split(","))
+            new_src = s["source"]
+            if new_src not in existing:
+                seen[addr]["source"] = f"{seen[addr]['source']},{new_src}"
+                seen[addr]["_source_count"] = seen[addr].get("_source_count", 1) + 1
     if skipped:
         print(f"   skipped {skipped} invalid addresses")
-    return list(seen.values())
+    # Sort multi-source wallets first so they get scored early
+    return sorted(seen.values(), key=lambda s: s.get("_source_count", 1), reverse=True)
 
 
 # ── Reporting ────────────────────────────────────────────────────────────────
@@ -285,10 +295,11 @@ async def run() -> int:
     parser.add_argument("--seed", action="append", help="Additional wallet address(es)", default=[])
     parser.add_argument("--label", action="append", help="Label(s) matching --seed entries", default=[])
     parser.add_argument("--seeds-file", type=Path, help="File with one address per line (or addr,label)")
-    parser.add_argument("--include-leaderboard", action="store_true", help="Fetch top profit/volume LB as seeds")
-    parser.add_argument("--top", type=int, default=20, help="Top N from leaderboard")
-    parser.add_argument("--discover-holders", action="store_true",
-                        help="Discover candidates from top-volume markets' holders")
+    parser.add_argument("--no-leaderboard", action="store_true",
+                        help="Skip leaderboard seeds (fetched across 7 windows by default)")
+    parser.add_argument("--top", type=int, default=50, help="Top N per leaderboard window (default 50)")
+    parser.add_argument("--no-holders", action="store_true",
+                        help="Skip holder discovery from top-volume markets (on by default)")
     parser.add_argument("--discover-markets", type=int, default=40,
                         help="How many top markets to crawl for holders")
     parser.add_argument("--discover-min-amount", type=float, default=1_000.0,
@@ -326,13 +337,13 @@ async def run() -> int:
     scan_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
     async with PolymarketClient(settings) as client:
-        if args.include_leaderboard:
-            print(f"[Leaderboard] Fetching top {args.top} from 1d/7d/30d profit + 7d volume…")
+        if not args.no_leaderboard:
+            print(f"[Leaderboard] Fetching top {args.top} × 7 windows (profit 1d/7d/30d/all + volume 1d/7d/30d)…")
             lb_seeds = await fetch_leaderboard_seeds(client, top_n=args.top)
             seeds.extend(lb_seeds)
-            print(f"   +{len(lb_seeds)} leaderboard seeds")
+            print(f"   +{len(lb_seeds)} leaderboard entries (pre-dedup)")
 
-        if args.discover_holders:
+        if not args.no_holders:
             print(f"[Discovery] Crawling holders of top {args.discover_markets} markets…")
             hold_seeds = await discover_from_holders(
                 client,
@@ -340,12 +351,13 @@ async def run() -> int:
                 min_holder_size_usd=args.discover_min_amount,
             )
             seeds.extend(hold_seeds)
-            print(f"   +{len(hold_seeds)} holder-discovered seeds")
+            print(f"   +{len(hold_seeds)} holder-discovered entries (pre-dedup)")
 
         seeds = dedupe_seeds(seeds)
+        multi_lb = sum(1 for s in seeds if s.get("_source_count", 1) >= 2)
         print(f"\n{'='*120}")
         print(f"SC-016 WALLET CONFIDENCE — {scan_ts}")
-        print(f"Seeds: {len(seeds)} unique wallets")
+        print(f"Seeds: {len(seeds)} unique wallets  |  {multi_lb} appear in 2+ sources (priority order)")
         print(f"{'='*120}")
 
         scores: list[WalletScore] = []
@@ -406,8 +418,19 @@ async def run() -> int:
     qualified = [s for s in scores if s.confidence >= args.min_confidence]
     green = [s for s in scores if "🟢" in s.risk_badge]
     black = [s for s in scores if "⚫" in s.risk_badge]
-    print(f"\nSummary: {len(qualified)} qualified ≥ {args.min_confidence} | "
+    seed_by_addr = {s["address"]: s for s in seeds}
+    multi_green = [
+        w for w in green
+        if seed_by_addr.get(w.address, {}).get("_source_count", 1) >= 2
+    ]
+    print(f"\nSummary: {len(scores)} scanned → {len(qualified)} qualified ≥ {args.min_confidence} | "
           f"{len(green)} 🟢 GREEN | {len(black)} ⚫ BLACK flags")
+    if multi_green:
+        print(f"  ★  {len(multi_green)} GREEN wallet(s) confirmed in 2+ leaderboard windows:")
+        for w in multi_green:
+            src_count = seed_by_addr[w.address].get("_source_count", 1)
+            sources = seed_by_addr[w.address].get("source", "")
+            print(f"     {w.label}  conf={w.confidence:.1f}  sources={src_count}  [{sources}]")
     return 0
 
 

@@ -282,8 +282,8 @@ def _run_scan(args: argparse.Namespace) -> dict | None:
     cmd = [
         sys.executable,
         str(SCRIPTS / "scan_wallet_confidence.py"),
-        "--include-leaderboard", "--top", str(args.top),
-        "--discover-holders", "--discover-markets", str(args.discover_markets),
+        "--top", str(args.top),
+        "--discover-markets", str(args.discover_markets),
         "--activity-limit", str(args.activity_limit),
         "--min-confidence", "30",  # low: we handle qualified/emerging filtering here
     ]
@@ -401,6 +401,23 @@ def _is_safe_for_autocopy(ws: dict, autocopy_min_confidence: int = 70) -> tuple[
     min_pnl = 500 if is_green else 200
     if pnl < min_pnl:
         return False, f"total_pnl=${pnl:.0f} < ${min_pnl} (insufficient track record)"
+
+    # 9. Category concentration — PolyCop copies ALL trades from a wallet.
+    # A wallet with 91% WR on crypto but 15% on politics yields net-negative
+    # results when copied blindly. Require strong category dominance so that
+    # the vast majority of copied trades fall in the wallet's proven edge zone.
+    # Threshold: 80% of trades must be in the dominant category.
+    # Wallets classified as "general_trader" or "unknown" are blocked entirely.
+    edge_type = ws.get("edge_type", "")
+    if edge_type in ("general_trader", "unknown", "hft_uncopyable"):
+        return False, f"edge_type={edge_type} (no dominant category — copying all trades is net-negative)"
+    cat_concentration = diag.get("category_concentration", 0.0)
+    min_concentration = 0.80
+    if cat_concentration < min_concentration:
+        return False, (
+            f"category_concentration={cat_concentration:.0%} < {min_concentration:.0%} "
+            f"(copy only wallets where ≥80% of trades are in their dominant category)"
+        )
 
     return True, "all checks passed"
 
@@ -582,8 +599,8 @@ def main() -> None:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("--interval", type=int, default=7200, help="Seconds between scans (7200 = 2h)")
-    parser.add_argument("--top", type=int, default=15, help="Leaderboard top N per window")
-    parser.add_argument("--discover-markets", type=int, default=20, help="Holders crawl: top N markets")
+    parser.add_argument("--top", type=int, default=25, help="Leaderboard top N per window (7 windows)")
+    parser.add_argument("--discover-markets", type=int, default=30, help="Holders crawl: top N markets")
     parser.add_argument("--activity-limit", type=int, default=300, help="Max activity fetched per wallet")
     parser.add_argument("--min-confidence", type=int, default=55, help="Threshold for QUALIFIED alert")
     parser.add_argument("--edge-threshold", type=int, default=65, help="edge_proof threshold for EMERGING")
