@@ -334,10 +334,10 @@ def _run_scan(args: argparse.Namespace) -> dict | None:
 
     try:
         proc = subprocess.run(
-            cmd, env=env, capture_output=True, text=True, timeout=900,
+            cmd, env=env, capture_output=True, text=True, timeout=1800,
         )
     except subprocess.TimeoutExpired:
-        log.error("Scan timed out after 15min")
+        log.error("Scan timed out after 30min")
         return None
     except Exception as exc:
         log.error(f"Scan subprocess error: {exc}")
@@ -480,17 +480,15 @@ def _is_safe_for_autocopy(ws: dict, autocopy_min_confidence: int = 70) -> tuple[
     if age > 14:
         return False, f"last_trade_age={age}d > 14d (dormant)"
 
-    # 6. Anti-luck sub-score (GREEN: 50, YELLOW: 30)
+    # 6. Anti-luck sub-score (GREEN: 50, YELLOW: 15)
     anti_luck = subs.get("anti_luck", 0)
-    min_luck = 50 if is_green else 30
+    min_luck = 50 if is_green else 15
     if anti_luck < min_luck:
         return False, f"anti_luck={anti_luck:.0f} < {min_luck} (luck pattern)"
 
-    # 7. Persistence — edge must hold across time periods (GREEN: 50, YELLOW: 25)
-    # YELLOW floor lowered: with 400+ resolved trades the sample compensates for
-    # split-half variability — a 71% WR over 491 trades is not a persistence problem.
+    # 7. Persistence — edge must hold across time periods (GREEN: 50, YELLOW: 15)
     persist = subs.get("persistence", 0)
-    min_persist = 50 if is_green else 25
+    min_persist = 50 if is_green else 15
     if persist < min_persist:
         return False, f"persistence={persist:.0f} < {min_persist} (unstable edge)"
 
@@ -501,20 +499,18 @@ def _is_safe_for_autocopy(ws: dict, autocopy_min_confidence: int = 70) -> tuple[
         return False, f"total_pnl=${pnl:.0f} < ${min_pnl} (insufficient track record)"
 
     # 9. Category concentration — PolyCop copies ALL trades from a wallet.
-    # A wallet with 91% WR on crypto but 15% on politics yields net-negative
-    # results when copied blindly. Require strong category dominance so that
-    # the vast majority of copied trades fall in the wallet's proven edge zone.
-    # Threshold: 80% of trades must be in the dominant category.
     # Wallets classified as "general_trader" or "unknown" are blocked entirely.
+    # Threshold lowered to 60%: accepts wallets with a dominant category even if
+    # some trades are in other markets (acceptable at small capital / high risk).
     edge_type = ws.get("edge_type", "")
     if edge_type in ("general_trader", "unknown", "hft_uncopyable"):
         return False, f"edge_type={edge_type} (no dominant category — copying all trades is net-negative)"
     cat_concentration = diag.get("category_concentration", 0.0)
-    min_concentration = 0.80
+    min_concentration = 0.60
     if cat_concentration < min_concentration:
         return False, (
             f"category_concentration={cat_concentration:.0%} < {min_concentration:.0%} "
-            f"(copy only wallets where ≥80% of trades are in their dominant category)"
+            f"(copy only wallets where ≥60% of trades are in their dominant category)"
         )
 
     return True, "all checks passed"
