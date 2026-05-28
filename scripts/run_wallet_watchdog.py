@@ -384,9 +384,9 @@ def _is_safe_for_autocopy(ws: dict, autocopy_min_confidence: int = 70) -> tuple[
     if age > 14:
         return False, f"last_trade_age={age}d > 14d (dormant)"
 
-    # 6. Anti-luck sub-score (GREEN: 50, YELLOW: 40)
+    # 6. Anti-luck sub-score (GREEN: 50, YELLOW: 30)
     anti_luck = subs.get("anti_luck", 0)
-    min_luck = 50 if is_green else 40
+    min_luck = 50 if is_green else 30
     if anti_luck < min_luck:
         return False, f"anti_luck={anti_luck:.0f} < {min_luck} (luck pattern)"
 

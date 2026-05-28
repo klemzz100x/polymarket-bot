@@ -597,7 +597,7 @@ def score_wallet(
     if diag.insider_flag_count >= 3:
         badge = "⚫ BLACK"
         reasons.append(f"Insider pattern suspected ({diag.insider_flag_count} flags)")
-    elif diag.n_resolved < 10:
+    elif diag.n_resolved < 5:
         badge = "🔴 RED"
         reasons.append(f"Insufficient sample: only {diag.n_resolved} resolved positions")
     elif confidence < 50:
