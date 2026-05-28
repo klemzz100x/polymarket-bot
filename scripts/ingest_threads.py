@@ -36,6 +36,11 @@ _PROFILE_URL_RE = re.compile(
     r'polymarket\.com/profile/(0x[0-9a-fA-F]{40}|[A-Za-z0-9_\-]{2,40})',
     re.IGNORECASE,
 )
+# polymarket.com/@username (most common format in threads)
+_AT_PROFILE_URL_RE = re.compile(
+    r'polymarket\.com/@([A-Za-z0-9_\-]{2,40})',
+    re.IGNORECASE,
+)
 _TWEET_URL_RE = re.compile(r'https?://(?:twitter\.com|x\.com)/\S+')
 
 # Common non-Polymarket mentions to skip
@@ -54,14 +59,18 @@ def extract_addresses(text: str) -> list[str]:
 def extract_usernames(text: str) -> list[str]:
     found: set[str] = set()
 
-    # @mentions
-    for m in _MENTION_RE.findall(text):
-        if m.lower() not in _SKIP_MENTIONS and len(m) >= 3:
+    # polymarket.com/@username (highest priority — definitive Polymarket usernames)
+    for m in _AT_PROFILE_URL_RE.findall(text):
+        found.add(m)
+
+    # polymarket.com/profile/USERNAME
+    for m in _PROFILE_URL_RE.findall(text):
+        if not _ADDR_RE.match(m):
             found.add(m)
 
-    # polymarket.com/profile/USERNAME or /profile/0x...
-    for m in _PROFILE_URL_RE.findall(text):
-        if not _ADDR_RE.match(m):  # skip if it's already a full address
+    # @mentions in text (lower priority — may include non-Polymarket accounts)
+    for m in _MENTION_RE.findall(text):
+        if m.lower() not in _SKIP_MENTIONS and len(m) >= 3:
             found.add(m)
 
     return list(found)
