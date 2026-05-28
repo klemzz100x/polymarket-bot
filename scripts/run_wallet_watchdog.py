@@ -820,7 +820,7 @@ def main() -> None:
     parser.add_argument("--interval", type=int, default=7200, help="Seconds between scans (7200 = 2h)")
     parser.add_argument("--top", type=int, default=50, help="Leaderboard top N per window (7 windows)")
     parser.add_argument("--discover-markets", type=int, default=60, help="Holders crawl: top N markets")
-    parser.add_argument("--activity-limit", type=int, default=300, help="Max activity fetched per wallet")
+    parser.add_argument("--activity-limit", type=int, default=500, help="Max activity fetched per wallet")
     parser.add_argument("--min-confidence", type=int, default=55, help="Threshold for QUALIFIED alert")
     parser.add_argument("--edge-threshold", type=int, default=65, help="edge_proof threshold for EMERGING")
     parser.add_argument("--max-emerging-trades", type=int, default=20, help="Max n_resolved for EMERGING")
