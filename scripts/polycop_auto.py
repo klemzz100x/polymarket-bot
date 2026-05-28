@@ -138,7 +138,8 @@ MAX_PER_TRADE_HARD_CAP_USD: float = float(
 )
 
 POLL_INTERVAL = 30   # seconds between queue checks
-CONV_TIMEOUT = 90    # seconds to wait for each PolyCop response
+CONV_TIMEOUT = 180   # seconds to wait for each PolyCop response (wallet validation can take 2+ min)
+WALLET_SET_TIMEOUT = 240  # extended timeout for Target Wallet (PolyCop fetches chain data)
 BANKROLL_REFRESH_INTERVAL = 3600  # re-fetch balance from PolyCop every 1h
 
 
@@ -338,16 +339,15 @@ def _print_buttons(message, prefix: str = "") -> None:
             print(f"{prefix}  → '{getattr(btn, 'text', '?')}'")
 
 
-async def _click_setting(conv, config_msg, btn_hint: str, value: str) -> tuple[object, bool]:
+async def _click_setting(
+    conv, config_msg, btn_hint: str, value: str, response_timeout: int | None = None
+) -> tuple[object, bool]:
     """
     Click a settings button, wait for the bot's input prompt, send value, wait for
     the updated config message.
 
-    Returns (updated_msg, success).
-    After sending the value, PolyCop may:
-      a) send a NEW config message (we catch with get_response)
-      b) edit the existing config message (we catch with get_edit)
-    We try both with short timeouts.
+    response_timeout overrides CONV_TIMEOUT for the post-send wait (use for Target Wallet
+    which triggers chain data fetching and can take 2-4 minutes).
     """
     btn = _find_button(config_msg.buttons, btn_hint)
     if not btn:
@@ -355,10 +355,10 @@ async def _click_setting(conv, config_msg, btn_hint: str, value: str) -> tuple[o
         _log_buttons(config_msg, "  available:")
         return config_msg, False
 
-    log.info(f"Clicking setting '{btn_hint}' → value '{value}'")
+    wait = response_timeout or CONV_TIMEOUT
+    log.info(f"Clicking setting '{btn_hint}' → value '{value}' (timeout={wait}s)")
     await btn.click()
 
-    # Bot should send a prompt message asking for the value
     try:
         prompt = await asyncio.wait_for(conv.get_response(), timeout=CONV_TIMEOUT)
         log.info(f"  Prompt received: {(prompt.text or '')[:80]}")
@@ -366,13 +366,12 @@ async def _click_setting(conv, config_msg, btn_hint: str, value: str) -> tuple[o
         log.warning(f"  No prompt received for '{btn_hint}' — may be a toggle, skipping")
         return config_msg, False
 
-    # Send our value
     await conv.send_message(value)
     log.info(f"  Sent: '{value}'")
 
-    # Wait for updated config (new message)
+    # Wait for updated config (new message) — use extended timeout for wallet validation
     try:
-        updated = await asyncio.wait_for(conv.get_response(), timeout=CONV_TIMEOUT)
+        updated = await asyncio.wait_for(conv.get_response(), timeout=wait)
         log.info(f"  Config updated (new message): {(updated.text or '')[:60]}")
         _log_buttons(updated, "  updated config")
         return updated, True
@@ -381,7 +380,7 @@ async def _click_setting(conv, config_msg, btn_hint: str, value: str) -> tuple[o
 
     # Fallback: bot edited the original message
     try:
-        updated = await asyncio.wait_for(conv.get_edit(), timeout=15)
+        updated = await asyncio.wait_for(conv.get_edit(), timeout=20)
         log.info(f"  Config updated (edited message): {(updated.text or '')[:60]}")
         return updated, True
     except asyncio.TimeoutError:
@@ -499,7 +498,11 @@ async def _follow_wallet_polycop(
             _log_buttons(config, "  config")
 
             # ── Step 4: Click Target Wallet → send address ─────────────────────
-            config, ok = await _click_setting(conv, config, "Target Wallet", wallet_addr)
+            # Extended timeout: PolyCop validates the address on-chain (can take 2-4 min)
+            config, ok = await _click_setting(
+                conv, config, "Target Wallet", wallet_addr,
+                response_timeout=WALLET_SET_TIMEOUT,
+            )
             if not ok:
                 return False, "Failed to set Target Wallet"
 

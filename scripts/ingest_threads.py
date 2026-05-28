@@ -91,28 +91,33 @@ async def lookup_username(username: str) -> str | None:
         return None
 
     candidates = [
+        f"https://data-api.polymarket.com/profiles?slug={username}",
         f"https://data-api.polymarket.com/profiles?username={username}",
-        f"https://data-api.polymarket.com/profile?username={username}",
+        f"https://data-api.polymarket.com/profiles?name={username}",
+        f"https://gamma-api.polymarket.com/users?slug={username}",
+        f"https://gamma-api.polymarket.com/users?username={username}",
     ]
-    headers = {"User-Agent": "polybot-ingest/1.0"}
+    headers = {"User-Agent": "Mozilla/5.0 polybot-ingest/1.0"}
 
-    async with httpx.AsyncClient(timeout=8, follow_redirects=True) as client:
+    def _extract(data: object) -> str | None:
+        entry = data[0] if isinstance(data, list) and data else data
+        if not isinstance(entry, dict):
+            return None
+        addr = (
+            entry.get("proxyWallet") or entry.get("proxy_wallet")
+            or entry.get("address") or entry.get("walletAddress")
+        )
+        return str(addr).lower() if addr and _ADDR_RE.match(str(addr)) else None
+
+    async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
         for url in candidates:
             try:
                 r = await client.get(url, headers=headers)
                 if r.status_code != 200:
                     continue
-                data = r.json()
-                entry = data[0] if isinstance(data, list) and data else data
-                if not isinstance(entry, dict):
-                    continue
-                addr = (
-                    entry.get("proxyWallet")
-                    or entry.get("proxy_wallet")
-                    or entry.get("address")
-                )
-                if addr and _ADDR_RE.match(str(addr)):
-                    return str(addr).lower()
+                result = _extract(r.json())
+                if result:
+                    return result
             except Exception:
                 continue
     return None
