@@ -39,7 +39,7 @@ async def discover_from_holders(
     *,
     n_markets: int = 50,
     holders_per_market: int = 30,
-    min_holder_size_usd: float = 1_000.0,
+    min_holder_size_usd: float = 200.0,
     market_concurrency: int = 4,
 ) -> list[dict]:
     """Crawl top markets for new wallet candidates.

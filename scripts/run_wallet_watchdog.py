@@ -203,6 +203,28 @@ def _alert_qualified(ws: dict) -> None:
     _tg_send(text)
 
 
+def _alert_scout(ws: dict, fixed_usd: float) -> None:
+    label = ws.get("label") or ws.get("address", "?")[:12]
+    addr = ws.get("address", "?")
+    conf = ws.get("confidence", 0)
+    badge = ws.get("risk_badge", "")
+    subs = ws.get("sub_scores", {})
+    diag = ws.get("diagnostics", {})
+    edge = ws.get("edge_type", "?").replace("category_specialist:", "")
+    n_res = diag.get("n_resolved", 0)
+    edge_proof = subs.get("edge_proof", 0)
+    win_rate = diag.get("win_rate", 0)
+    _tg_send(
+        f"<b>🔭 SCOUT — auto-copy ${fixed_usd:.2f}/trade</b>\n\n"
+        f"<b>{_html.escape(label)}</b>  {badge}\n"
+        f"Confiance : {conf} | Edge proof : {edge_proof:.0f}\n"
+        f"Win rate : {win_rate:.0%} sur {n_res} trades\n"
+        f"Edge type : {edge}\n\n"
+        f"<code>{addr}</code>\n\n"
+        f"<i>⚠️ Wallet court-terme ({n_res} trades). Taille fixe ${fixed_usd:.2f}/trade.</i>"
+    )
+
+
 def _alert_emerging(ws: dict) -> None:
     label = ws.get("label") or ws.get("address", "?")[:12]
     addr = ws.get("address", "?")
@@ -321,8 +343,17 @@ def _run_scan(args: argparse.Namespace) -> dict | None:
 
 # ── Classification ─────────────────────────────────────────────────────────────
 
-def _classify(ws: dict, *, min_confidence: int, edge_threshold: int, max_trades: int) -> str | None:
-    """Returns 'qualified', 'emerging', or None (skip)."""
+def _classify(
+    ws: dict,
+    *,
+    min_confidence: int,
+    edge_threshold: int,
+    max_trades: int,
+    scout_edge_threshold: int = 72,
+    scout_min_conf: int = 42,
+    scout_max_trades: int = 20,
+) -> str | None:
+    """Returns 'qualified', 'scout', 'emerging', or None (skip)."""
     badge = ws.get("risk_badge", "")
     if "BLACK" in badge:
         return None
@@ -335,10 +366,55 @@ def _classify(ws: dict, *, min_confidence: int, edge_threshold: int, max_trades:
 
     edge_proof = ws.get("sub_scores", {}).get("edge_proof", 0)
     n_resolved = ws.get("diagnostics", {}).get("n_resolved", 9999)
+
+    # SCOUT: strong short-term signal, 5-20 resolved trades, copy at flat $1-2
+    if (edge_proof >= scout_edge_threshold
+            and scout_min_conf <= conf < min_confidence
+            and 5 <= n_resolved <= scout_max_trades):
+        return "scout"
+
+    # EMERGING: watch-only, not enough data yet
     if edge_proof >= edge_threshold and n_resolved <= max_trades and conf >= 30:
         return "emerging"
 
     return None
+
+
+def _is_scout_for_autocopy(ws: dict, fixed_usd: float = 1.5) -> tuple[bool, str]:
+    """
+    Lightweight gate for short-term wallets: copy at flat $fixed_usd.
+
+    Bypasses persistence/PnL/category requirements — not enough history to measure them.
+    Only requires a strong per-trade edge signal and recent activity.
+    """
+    badge = ws.get("risk_badge", "")
+    diag = ws.get("diagnostics", {})
+    subs = ws.get("sub_scores", {})
+
+    if "BLACK" in badge:
+        return False, "badge=BLACK (absolute veto)"
+    if diag.get("insider_flag_count", 0) > 0:
+        return False, "insider_flag detected"
+
+    conf = ws.get("confidence", 0)
+    if conf < 42:
+        return False, f"conf={conf} < 42 (scout threshold)"
+
+    n_res = diag.get("n_resolved", 0)
+    if n_res < 5:
+        return False, f"n_resolved={n_res} < 5 (trop peu)"
+    if n_res > 20:
+        return False, f"n_resolved={n_res} > 20 (utiliser autocopy standard)"
+
+    edge_proof = subs.get("edge_proof", 0)
+    if edge_proof < 72:
+        return False, f"edge_proof={edge_proof:.0f} < 72 (signal trop faible)"
+
+    age = diag.get("last_trade_age_days", 999)
+    if age > 7:
+        return False, f"last_trade_age={age}d > 7d (inactif)"
+
+    return True, f"scout OK — n_res={n_res}, edge={edge_proof:.0f}, conf={conf}"
 
 
 def _is_safe_for_autocopy(ws: dict, autocopy_min_confidence: int = 70) -> tuple[bool, str]:
@@ -462,7 +538,6 @@ def _queue_for_polycop(ws: dict) -> None:
     except Exception:
         queue = []
 
-    # Skip if already queued
     if any(item.get("address") == ws.get("address") for item in queue):
         return
 
@@ -480,10 +555,43 @@ def _queue_for_polycop(ws: dict) -> None:
         "total_pnl_usd": diag.get("total_pnl_usd", 0),
         "queued_at": datetime.now(UTC).isoformat(),
         "status": "pending",
+        "tier": "standard",
     })
 
     POLYCOP_QUEUE.write_text(json.dumps(queue, indent=2, ensure_ascii=False), encoding="utf-8")
     log.info(f"Queued for PolyCop auto-copy: {ws.get('label') or ws.get('address','?')[:12]} ({size_pct}% bankroll)")
+
+
+def _queue_for_polycop_scout(ws: dict, fixed_usd: float) -> None:
+    """Add a SCOUT wallet to the queue with a fixed dollar cap (no bankroll %)."""
+    POLYCOP_QUEUE.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        queue: list[dict] = json.loads(POLYCOP_QUEUE.read_text(encoding="utf-8")) if POLYCOP_QUEUE.exists() else []
+    except Exception:
+        queue = []
+
+    if any(item.get("address") == ws.get("address") for item in queue):
+        return
+
+    diag = ws.get("diagnostics", {})
+    queue.append({
+        "address": ws.get("address"),
+        "label": ws.get("label") or ws.get("address", "?")[:12],
+        "confidence": ws.get("confidence", 0),
+        "risk_badge": ws.get("risk_badge", ""),
+        "edge_type": ws.get("edge_type", ""),
+        "size_pct": None,
+        "fixed_max_per_trade_usd": fixed_usd,
+        "n_resolved": diag.get("n_resolved", 0),
+        "total_pnl_usd": diag.get("total_pnl_usd", 0),
+        "queued_at": datetime.now(UTC).isoformat(),
+        "status": "pending",
+        "tier": "scout",
+    })
+
+    POLYCOP_QUEUE.write_text(json.dumps(queue, indent=2, ensure_ascii=False), encoding="utf-8")
+    log.info(f"Queued SCOUT for PolyCop: {ws.get('label') or ws.get('address','?')[:12]} (fixed ${fixed_usd})")
 
 
 # ── Main loop ──────────────────────────────────────────────────────────────────
@@ -500,6 +608,7 @@ def run_once(args: argparse.Namespace) -> None:
 
     new_qualified: list[dict] = []
     new_emerging: list[dict] = []
+    new_scouts: list[dict] = []
     promoted: list[dict] = []
 
     for ws in scores:
@@ -512,6 +621,9 @@ def run_once(args: argparse.Namespace) -> None:
             min_confidence=args.min_confidence,
             edge_threshold=args.edge_threshold,
             max_trades=args.max_emerging_trades,
+            scout_edge_threshold=args.scout_edge_threshold,
+            scout_min_conf=args.scout_min_conf,
+            scout_max_trades=args.scout_max_trades,
         )
         prev_status = seen.get(addr)
 
@@ -519,10 +631,16 @@ def run_once(args: argparse.Namespace) -> None:
             if prev_status is None:
                 new_qualified.append(ws)
                 seen[addr] = "qualified"
-            elif prev_status == "emerging":
+            elif prev_status in ("emerging", "scout"):
                 promoted.append(ws)
                 seen[addr] = "qualified"
             # already qualified → no alert
+
+        elif category == "scout":
+            if prev_status is None:
+                new_scouts.append(ws)
+                seen[addr] = "scout"
+            # already in seen → no re-alert
 
         elif category == "emerging":
             if prev_status is None:
@@ -577,16 +695,94 @@ def run_once(args: argparse.Namespace) -> None:
         time.sleep(1.5)
         # EMERGING → notification only, never auto-copy
 
+    # ── SCOUT: new short-term wallets — copy at flat $fixed_usd ───────────
+    for ws in sorted(new_scouts, key=lambda s: s.get("sub_scores", {}).get("edge_proof", 0), reverse=True):
+        ep = ws.get("sub_scores", {}).get("edge_proof", 0)
+        n = ws.get("diagnostics", {}).get("n_resolved", 0)
+        label = ws.get("label") or ws.get("address", "?")[:12]
+        log.info(f"SCOUT      {label:<20}  edge_proof={ep:.0f}  n_res={n}  conf={ws.get('confidence', 0)}")
+
+        ok, reason = _is_scout_for_autocopy(ws, fixed_usd=args.scout_fixed_usd)
+        if ok:
+            _alert_scout(ws, args.scout_fixed_usd)
+            _queue_for_polycop_scout(ws, args.scout_fixed_usd)
+            seen[ws.get("address", "")] = "scout_queued"
+        else:
+            # Signal présent mais pas encore copiable — watch only
+            _alert_emerging(ws)
+            log.info(f"  → scout watch-only: {reason}")
+        time.sleep(1.5)
+
+    # ── Re-check autocopy for previously seen "qualified" wallets ──────────
+    # Wallets added to seen.json in past scans passed conf≥55 but may have
+    # been blocked by stricter autocopy filters (badge RED, anti_luck, etc.).
+    # Re-evaluate them every scan so they get queued as soon as they qualify.
+    scores_by_addr = {ws.get("address", ""): ws for ws in scores}
+    retry_autocopy: list[dict] = []
+    retry_scouts: list[dict] = []
+    for addr, status in list(seen.items()):
+        if status == "qualified" and addr in scores_by_addr:
+            ws = scores_by_addr[addr]
+            ok, reason = _is_safe_for_autocopy(ws, autocopy_min_confidence=args.autocopy_min_confidence)
+            if ok:
+                retry_autocopy.append(ws)
+                seen[addr] = "autocopy_queued"
+        elif status == "scout" and addr in scores_by_addr:
+            ws = scores_by_addr[addr]
+            ok, reason = _is_scout_for_autocopy(ws, fixed_usd=args.scout_fixed_usd)
+            if ok:
+                retry_scouts.append(ws)
+                seen[addr] = "scout_queued"
+
+    for ws in sorted(retry_autocopy, key=lambda s: s.get("confidence", 0), reverse=True):
+        label = ws.get("label") or ws.get("address", "?")[:12]
+        log.info(f"RETRY-COPY {label:<20}  conf={ws.get('confidence', 0)}")
+        _queue_for_polycop(ws)
+        size_pct = _compute_copy_size_pct(ws)
+        is_green = "GREEN" in ws.get("risk_badge", "")
+        tier_label = "🟢 GREEN (conf-based)" if is_green else "🟡 YELLOW (flat 1%)"
+        _tg_send(
+            f"<b>🔄 Auto-copy (re-check)</b>\n"
+            f"<b>{_html.escape(label)}</b> qualifié depuis un scan précédent — passe maintenant les filtres\n"
+            f"Tier : {tier_label}\n"
+            f"Taille : <b>{size_pct}%</b> du bankroll"
+        )
+        time.sleep(1.5)
+
+    for ws in sorted(retry_scouts, key=lambda s: s.get("sub_scores", {}).get("edge_proof", 0), reverse=True):
+        label = ws.get("label") or ws.get("address", "?")[:12]
+        log.info(f"RETRY-SCOUT {label:<20}  conf={ws.get('confidence', 0)}")
+        _alert_scout(ws, args.scout_fixed_usd)
+        _queue_for_polycop_scout(ws, args.scout_fixed_usd)
+        time.sleep(1.5)
+
+    # ── Distribution log — visible chaque scan pour debugger sans SSH ──────
+    n_ge70 = sum(1 for ws in scores if ws.get("confidence", 0) >= 70)
+    n_ge55 = sum(1 for ws in scores if ws.get("confidence", 0) >= 55)
+    blocking: dict[str, int] = {}
+    for ws in scores:
+        addr = ws.get("address", "")
+        if ws.get("confidence", 0) >= 55 and seen.get(addr) != "autocopy_queued":
+            _, reason = _is_safe_for_autocopy(ws, autocopy_min_confidence=args.autocopy_min_confidence)
+            key = reason.split("(")[0].strip().split("=")[0].strip()
+            blocking[key] = blocking.get(key, 0) + 1
+    top_blockers = " | ".join(f"{r}×{n}" for r, n in sorted(blocking.items(), key=lambda x: -x[1])[:3])
+    log.info(
+        f"Distribution — conf≥70: {n_ge70} | conf≥55: {n_ge55} | "
+        f"top blockers: {top_blockers or 'none'}"
+    )
+
     _save_seen(seen)
 
     elapsed = time.time() - t0
     log.info(
         f"Done — {len(new_qualified)} qualified | {len(promoted)} promoted | "
-        f"{len(new_emerging)} emerging | {len(scores)} total | {elapsed:.0f}s"
+        f"{len(new_scouts)} scouts | {len(new_emerging)} emerging | "
+        f"{len(retry_autocopy)} retry-copied | {len(retry_scouts)} retry-scouts | "
+        f"{len(scores)} total | {elapsed:.0f}s"
     )
 
-    # Daily summary OR when something was found
-    something_found = bool(new_qualified or new_emerging or promoted)
+    something_found = bool(new_qualified or new_emerging or promoted or new_scouts or retry_scouts)
     if something_found or args.always_summary:
         _alert_summary(len(new_qualified), len(new_emerging), len(promoted), len(scores), elapsed)
 
@@ -599,13 +795,18 @@ def main() -> None:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("--interval", type=int, default=7200, help="Seconds between scans (7200 = 2h)")
-    parser.add_argument("--top", type=int, default=25, help="Leaderboard top N per window (7 windows)")
-    parser.add_argument("--discover-markets", type=int, default=30, help="Holders crawl: top N markets")
+    parser.add_argument("--top", type=int, default=50, help="Leaderboard top N per window (7 windows)")
+    parser.add_argument("--discover-markets", type=int, default=60, help="Holders crawl: top N markets")
     parser.add_argument("--activity-limit", type=int, default=300, help="Max activity fetched per wallet")
     parser.add_argument("--min-confidence", type=int, default=55, help="Threshold for QUALIFIED alert")
     parser.add_argument("--edge-threshold", type=int, default=65, help="edge_proof threshold for EMERGING")
     parser.add_argument("--max-emerging-trades", type=int, default=20, help="Max n_resolved for EMERGING")
     parser.add_argument("--autocopy-min-confidence", type=int, default=70, help="Minimum confidence for PolyCop auto-copy (must be GREEN + pass all hard filters)")
+    # SCOUT tier: short-term wallets copied at flat dollar amount
+    parser.add_argument("--scout-fixed-usd", type=float, default=1.5, help="Fixed $ per trade for SCOUT tier (default $1.50)")
+    parser.add_argument("--scout-edge-threshold", type=int, default=72, help="edge_proof min for SCOUT classification")
+    parser.add_argument("--scout-min-conf", type=int, default=42, help="Min confidence for SCOUT classification")
+    parser.add_argument("--scout-max-trades", type=int, default=20, help="Max n_resolved for SCOUT (short-term wallets only)")
     parser.add_argument("--once", action="store_true", help="Run one scan then exit")
     parser.add_argument("--always-summary", action="store_true", help="Send Telegram summary even when nothing found")
     args = parser.parse_args()
