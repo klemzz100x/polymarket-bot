@@ -1,0 +1,79 @@
+[
+  {
+    "address": "0x44c1dfe43260c94ed4f1d00de2e1f80fb113ebc1",
+    "label": "aenews2",
+    "source_thread": "seed_watchlist",
+    "source_url": "",
+    "added_at": "2026-05-28",
+    "edge_hint": "overreaction_fader",
+    "notes": "thread:helicerat0x",
+    "active": true,
+    "lookup_method": "manual"
+  },
+  {
+    "address": "0x5bffcf561bcae83af680ad600cb99f1184d6ffbe",
+    "label": "YatSen",
+    "source_thread": "seed_watchlist",
+    "source_url": "",
+    "added_at": "2026-05-28",
+    "edge_hint": "anchoring_bias",
+    "notes": "thread:0x_Discover",
+    "active": true,
+    "lookup_method": "manual"
+  },
+  {
+    "address": "0x9d84ce0306f8551e02efef1680475fc0f1dc1344",
+    "label": "ImJustKen",
+    "source_thread": "seed_watchlist",
+    "source_url": "",
+    "added_at": "2026-05-28",
+    "edge_hint": "reflexivity",
+    "notes": "thread:0x_Discover",
+    "active": true,
+    "lookup_method": "manual"
+  },
+  {
+    "address": "0xb40e89677d59665d5188541ad860450a6e2a7cc9",
+    "label": "Poligarch",
+    "source_thread": "seed_watchlist",
+    "source_url": "",
+    "added_at": "2026-05-28",
+    "edge_hint": "longshot_fader",
+    "notes": "thread:multiple",
+    "active": true,
+    "lookup_method": "manual"
+  },
+  {
+    "address": "0xec981ed70ae69c5cbcac08c1ba063e734f6bafcd",
+    "label": "0xheavy888",
+    "source_thread": "seed_watchlist",
+    "source_url": "",
+    "added_at": "2026-05-28",
+    "edge_hint": "end_of_event_sports",
+    "notes": "thread:0x_Discover",
+    "active": true,
+    "lookup_method": "manual"
+  },
+  {
+    "address": "0x594edb9112f526fa6a80b8f858a6379c8a2c1c11",
+    "label": "thread-extract-2",
+    "source_thread": "seed_watchlist",
+    "source_url": "",
+    "added_at": "2026-05-28",
+    "edge_hint": "weather_specialist",
+    "notes": "thread:multiple — conf 66, $96K PnL, 71% WR weather",
+    "active": true,
+    "lookup_method": "manual"
+  },
+  {
+    "address": "0x8c80d213c0cbad777d06ee3f58f6ca4bc03102c3",
+    "label": "thread-extract-1",
+    "source_thread": "seed_watchlist",
+    "source_url": "",
+    "added_at": "2026-05-28",
+    "edge_hint": "unknown",
+    "notes": "thread:multiple",
+    "active": true,
+    "lookup_method": "manual"
+  }
+]

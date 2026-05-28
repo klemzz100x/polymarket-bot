@@ -298,6 +298,26 @@ def _save_seen(seen: dict[str, str]) -> None:
     SEEN_FILE.write_text(json.dumps(seen, indent=2), encoding="utf-8")
 
 
+# ── Thread ingester subprocess ─────────────────────────────────────────────────
+
+def _run_thread_ingester() -> None:
+    """Process any new .txt files in twitter-threads/inbox/ before each scan."""
+    inbox = ROOT / "resources" / "twitter-threads" / "inbox"
+    if not inbox.exists() or not any(inbox.glob("*.txt")) and not any(inbox.glob("*.md")):
+        return
+    cmd = [sys.executable, str(SCRIPTS / "ingest_threads.py")]
+    env = {**os.environ, "PYTHONPATH": str(ROOT / "src")}
+    try:
+        proc = subprocess.run(cmd, env=env, capture_output=True, text=True, timeout=120)
+        if proc.stdout.strip():
+            for line in proc.stdout.strip().splitlines():
+                log.info(f"[ingest] {line}")
+        if proc.returncode != 0 and proc.stderr.strip():
+            log.warning(f"Thread ingester error: {proc.stderr.strip()[:200]}")
+    except Exception as exc:
+        log.warning(f"Thread ingester failed: {exc}")
+
+
 # ── Scan subprocess ────────────────────────────────────────────────────────────
 
 def _run_scan(args: argparse.Namespace) -> dict | None:
@@ -599,6 +619,7 @@ def _queue_for_polycop_scout(ws: dict, fixed_usd: float) -> None:
 # ── Main loop ──────────────────────────────────────────────────────────────────
 
 def run_once(args: argparse.Namespace) -> None:
+    _run_thread_ingester()  # ingest new threads before scan
     t0 = time.time()
     data = _run_scan(args)
     if not data:

@@ -28,6 +28,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parent.parent
+
 if hasattr(sys.stdout, "buffer"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
@@ -318,8 +320,30 @@ async def run() -> int:
                         default=Path("obsidian-vault/scans/sc-016-wallet-changelog.md"))
     args = parser.parse_args()
 
-    # Build seed list
+    # Build seed list — SEED_WATCHLIST + thread_wallets.json
     seeds = list(SEED_WATCHLIST)
+    thread_wallets_file = ROOT / "resources" / "thread_wallets.json"
+    if thread_wallets_file.exists():
+        try:
+            tw_entries = json.loads(thread_wallets_file.read_text(encoding="utf-8"))
+            tw_seeds = [
+                {
+                    "address": e["address"].lower(),
+                    "label": e.get("label") or e["address"][:12],
+                    "source": f"thread:{e.get('source_thread', '?')}",
+                    "hint": e.get("edge_hint", "unknown"),
+                }
+                for e in tw_entries
+                if e.get("address") and e.get("active", True)
+            ]
+            # Deduplicate against SEED_WATCHLIST
+            existing_addrs = {s["address"].lower() for s in seeds}
+            tw_new = [s for s in tw_seeds if s["address"] not in existing_addrs]
+            seeds.extend(tw_new)
+            print(f"[Threads] {len(tw_new)} wallet(s) chargés depuis thread_wallets.json")
+        except Exception as e:
+            print(f"[Threads] ⚠️  thread_wallets.json erreur: {e}")
+
     for i, addr in enumerate(args.seed):
         label = args.label[i] if i < len(args.label) else f"cli-seed-{i}"
         seeds.append({"address": addr.lower(), "label": label, "source": "cli", "hint": "unknown"})
