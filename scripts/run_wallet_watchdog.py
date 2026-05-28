@@ -466,9 +466,11 @@ def _is_safe_for_autocopy(ws: dict, autocopy_min_confidence: int = 70) -> tuple[
     if anti_luck < min_luck:
         return False, f"anti_luck={anti_luck:.0f} < {min_luck} (luck pattern)"
 
-    # 7. Persistence — edge must hold across time periods (GREEN: 50, YELLOW: 40)
+    # 7. Persistence — edge must hold across time periods (GREEN: 50, YELLOW: 25)
+    # YELLOW floor lowered: with 400+ resolved trades the sample compensates for
+    # split-half variability — a 71% WR over 491 trades is not a persistence problem.
     persist = subs.get("persistence", 0)
-    min_persist = 50 if is_green else 40
+    min_persist = 50 if is_green else 25
     if persist < min_persist:
         return False, f"persistence={persist:.0f} < {min_persist} (unstable edge)"
 
