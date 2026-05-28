@@ -1,0 +1,484 @@
+This trader built a trading bot with Claude and made $149,000 on Polymarket
+
+His bot makes 59.93 trades per hour or 1.82 trades per minute and trades mispricing on 5-minute BTC Up/Down markets with an average edge of 2.7%
+
+His strategy is simple:
+
+> Uses limit orders
+> Looks for undervalued outcomes relative to his probability model
+> Buys the opposite side as a hedge on average after 20.5 seconds or when he sees arbitrage edge
+
+His Polymarket account:
+
+https://polymarket.com/@xuanxuan008?via=670
+
+Using this strategy, he gets a 71% win rate and consistently grows his capital
+
+My trainer at the gym asked what I do for work.
+
+"Trading systems. Open-source."
+
+He laughed. "Like day trading?"
+
+"No. Anyone can see how it works. All the code is public."
+
+He put down his weights. "So you just look at code all day?"
+
+I didn't argue. I opened my laptop.
+
+One wallet I was tracking returned 71% in a single month. Another processed $4.1M in volume. One more turned $500 into $8,200.
+
+His face changed.
+
+"That's... from some code?"
+
+Exactly.
+
+Then I showed him the repos. All public. All free.
+
+First one: http://github.com/warproxxx/poly_data
+
+Every trade ever made. 86M+ trades. Free to download. Snapshot saves 2+ days of research.
+
+Second one: http://github.com/warproxxx/poly-maker
+
+Market making bot. Both sides of the book. Gas optimized. Google Sheets execution layer.
+
+Third one: http://github.com/pselamy/pattern-tracker
+
+ML + heuristics. Flagged that \$500 → \$8,200 wallet before anyone noticed.
+
+LLM auto market making. Open source from Polymarket team.
+
+My trainer went quiet. Then he asked: "Can my son run this? He's into computers."
+
+Profile: https://polymarket.com/@xuanxuan008?r=lunarlunar#w7FJaKQ
+
+I said yes. Then I showed him how to start.
+
+Most people think you need a finance degree or a fund.
+
+You don't. You just need to read the code and start.
+
+This trader made nearly +$8,000 in just 1 day on weather markets!
+
+Account: https://polymarket.com/0xdafdc201e4a769c4424462f9210763b221da2ad4?via=me_cool_off
+
+Trades that made him even richer today:
+$789 -> $5,023
+$257 -> $3,169
+
+Total PnL: +$10,500.
+
+Let’s break down his strategy on the market Highest temperature in Shenzhen on May 27:
+> buys Yes 33°C at 5.7¢ for $258
+> buys No 33°C at 0.7¢ for $445
+> buys Yes 34°C at 14.7¢ for $646
+> buys Yes 28°C at 0.4¢ for $90
+
+At first glance it looks chaotic.
+
+But this is probability trading.
+
+He constantly updates probabilities and restructures positions based on new weather data.
+
+33°C Yes became the key profitable position in this setup.
+
+The other positions were:
+> hedges
+> position restructuring
+> adaptation to new weather updates
+
+Net profit from this market:
+
+$2,911 - $445 - $646 - $90 = +$1,730
+
+That’s what adaptive trading based on weather data looks like.
+
+$36,600 PNL TRADING LONDON TEMPERATURES. WIN RATE 84%
+
+almost 3,000 weather trades. one city the whole time.
+
+the edge: most people trade what's obvious. this trader reads the Met Office forecast and enters before the market catches up
+
+the strategy:
+
+> find London temperature markets where Yes is priced at 1-5 cents
+> check the official Met Office forecast - if it aligns with the target temp -> buy
+> simultaneously buy No on adjacent temps (1-3°C lower) as a hedge
+> if London hits 24°C -> Yes wins. if it hits 23°C -> the No hedge wins instead
+
+then the exit:
+> start selling at 55-75 cents (25% of position)
+> sell another 50% at 90-95 cents
+> hold the last 25% to 99 cents or expiry
+
+real example:
+> London 24°C May 27 -> entry 4¢ -> exit 98-99¢ -> +$5,750 (+9,278%)
+> London 43-44°F Feb 15 -> entry 0¢ -> exit 50¢ -> +$1,500 (+49,900%)
+
+markets resolve via Wunderground - so the edge is knowing the final reading before most people check
+
+> i track this trader on 
+@CrispPredict
+ - backtest shows $2,000 in fixed copy mode at $100/trade returned +$591 in ~3 weeks with 99% win rate and only 9% max drawdown
+
+it's one of the cleanest risk profiles i've seen
+
+> full profile: [ http://polymarket.com/@meropi?modal=signup&mt=1&via=0 ]
+
+copy his trades:
+-> [ https://app.crisp.trade/trader/0x9977760c6bd6f824cac834d1a36ee99478d63020?ref=polydao ]
+
+Chicago HFT engineer pulled $190,492 in 24 days running Markov chains, Monte Carlo simulations and Claude as the brain - out of a $6 Hetzner box in his bedroom. 
+
+His old firm walked him out on May 1st for building it on company time. They didn't like that.
+
+Nobody would clear him after. So he opened a wallet, dropped Hermes Agent on Polymarket, and let it run.
+
+His wallet: http://polymarket.com/profile/0xce25e214d5cfe4f459cf67f08df581885aae7fdc?via=cvxv666
+
+The desk taught him one thing. Read the microstructure. Ignore the crowd. Fire before they catch up.
+
+Here's the stack.
+
+Claude Opus 4.7 reads two endpoints - Binance spot tick + Polymarket book. Computes Markov persistence: 
+
+P(X_{n+1} = Bull | X_n) ≥ 0.87
+
+Fires Monte Carlo 500 paths. Cross-checks SMC patterns - BOS, liquidity sweep, FVG. All four converge, Hermes submits.
+
+Hetzner runs it 24/7. Telegram pings.
+
+This is what Jane Street spent $6B and 4,032 GPUs to build. What Bridgewater's $2B AI fund calls "alpha uncorrelated to humans". What Man Group went public with in July 2025.
+
+Same thing. Running on a $6 box. But for Polymarket.
+
+You don’t even need to spend $6 - you can use Kreo power and copy every single trade from his wallet in just two clicks: http://kreo.app/@cvxv666
+
+Your bot has been bleeding for three weeks.
+You have changed the signal logic twice, adjusted the parameters four times and rebuilt entry conditions completely.
+Still bleeding.
+
+And i know why..
+Here is the thing nobody told you:
+The strategy is probably fine but the problem is not what your bot does.
+It is when your bot does it.
+I spent months to finally create a profitable one.
+Current result: +$10k in one month
+Wallet address: https://polymarket.com/@l5zn1bwom8etsk
+Polymarket is not one uniform market that behaves consistently 24 hours a day seven days a week.
+It's dozens of overlapping participant groups with completely different behaviour patterns, reaction speeds and emotional tendencies that dominate at different times.
+A strategy built around one group's behavior gets destroyed when a different group is running the show.
+Regime filtering is the discipline of matching your bot to the environment where its assumptions actually hold.
+It is the single highest-leverage change most developers never make.
+Weekday vs weekend behavior
+Split your bot's historical results by weekday and weekend right now.
+Before you change anything else.
+Before you rebuild any logic.
+Just look at the two numbers side by side.
+The split is almost always dramatic and almost always reveals something the aggregate results were hiding.
+Weekdays bring structured flow:
+> Professional traders executing with purpose
+> Institutional bots with clear logic
+> Participants reacting fast to new information with disciplined risk management
+Markets trend more cleanly.
+Inefficiencies close quickly.
+Price movements have conviction behind them.
+Weekends bring a completely different participant profile:
+> Slower, less disciplined traders
+> More emotional decision making
+> More overreaction to momentum
+> Slower recovery from moves that overshoot
+Mean reversion strategies that get crushed by fast weekday trends often print cleanly on weekends when overreactions are common and price drifts back to fair value with predictable timing.
+Momentum strategies that work beautifully on weekdays when trends have conviction often bleed on weekends when direction is unclear and price chops without resolution.
+The same signal.
+Completely opposite results.
+Different days of the week.
+The fix is a single filter at the execution level.
+Run your strategy only on the days where it historically makes money.
+Disable it on the days where it historically loses.
+You did not fix the strategy.
+You stopped forcing it into an environment where it never had an edge in the first place.
+Time of day edges
+The weekday vs weekend split is the macro level.
+UTC hour is the micro level.
+Both matter.
+Both are often more powerful than any signal improvement.
+When US markets are active (roughly 13:00 to 21:00 UTC), you have the fastest, most competitive participants on the platform simultaneously.
+Reaction times are measured in seconds.
+Inefficiencies close before most bots can act on them.
+Order books are deep and fills are clean.
+Breakout strategies and momentum plays work well in this window because moves have real participation behind them.
+Asian session hours bring a different dynamic entirely:
+> Thinner books
+> Slower participants
+> Price movements that lack the conviction of US hours and drift rather than trend
+Mean reversion often works better here because overreactions are common and recovery is slower and more predictable.
+The specific edge:
+US market open at 13:30 UTC and Asian open around 01:00 UTC create reliable volatility spikes.
+Strategies calibrated for volatility can find concentrated opportunity in those 30m windows that would take hours to accumulate during quiet periods.
+The practical implementation is straightforward.
+Pull your bot's historical trade results and group them by UTC hour.
+Plot the win rate and average return per hour.
+The pattern that emerges tells you exactly which hours your strategy belongs in.
+Gate your execution to those windows only.
+Performance stabilizes almost immediately without touching a single line of strategy logic.
+Inverting losing strategies
+A consistently losing strategy is not dead.
+It is misaligned.
+There is a critical distinction between a bot that loses randomly and a bot that loses consistently under the same conditions.
+Random losses mean noise.
+The strategy has no real signal and should be discarded.
+Consistent losses under the same conditions mean the signal is real but pointing in the wrong direction.
+That's actually VERYYYY useful information.
+A mean reversion bot that keeps buying dips and getting run over is not a bad bot.
+It is a bot operating in a trending regime where its assumptions are backwards.
+The signal is identifying something real about market behavior.
+It is just consistently interpreting it the wrong way.
+If your bot shows a 42% win rate - the opposite side of every trade is winning 58% of the time.
+58% win rate is already profitable territory on Polymarket for most strategy types.
+The test is verifying that the losses are structured not random.
+Look at your losing trades. Do they cluster around specific conditions - certain price ranges, certain times of day, certain market types?
+If yes - the losses are structured and flipping the logic will likely work.
+If they are distributed randomly across all conditions - the strategy has no real signal and inversion will not help.
+For strategies where inversion makes sense this is the fastest possible path from losing to profitable.
+Zero additional infrastructure.
+Zero new code beyond reversing the entry direction.
+One of the most powerful improvements available and almost nobody considers it.
+Loss clustering protection
+Losses on Polymarket are not evenly distributed across time.
+They cluster.
+A bot can perform normally for days, then hit a sequence of 6 or 8 losses in a short period that wipes out a week of accumulated gains.
+These clusters happen during regime shifts.
+Moments when market conditions change rapidly and your strategy's assumptions suddenly stop holding.
+New macroeconomic data drops and volatility spikes in a way your signal was not calibrated for.
+A platform-wide bug introduces ghost fills that corrupt your state management.
+Liquidity dries up suddenly and your fill quality collapses.
+Whatever the cause - the cluster is happening because the environment temporarily broke the conditions your strategy depends on.
+If your bot trades every window without protection it absorbs the entire cluster.
+The equity curve that was climbing steadily for two weeks drops sharply in 90 minutes.
+The protection is simple.
+A consecutive loss pause that skips the next several windows after 2 or 3 losses in a row.
+You are not predicting when conditions will turn bad.
+You are reacting immediately when they already started turning bad.
+That distinction is important.
+Prediction requires knowing something.
+Reaction requires only measuring something.
+Measuring consecutive losses is trivial.
+Pausing execution when they occur is a single conditional check.
+The impact on long-term equity curves is significant because you are cutting exposure during the periods where your strategy is most likely to continue losing.
+You do not eliminate the losses.
+You reduce how many of them you absorb from each cluster.
+Over hundreds of clusters across months of operation that difference compounds into a substantially better equity curve.
+Conditional pauses as risk management
+Consecutive loss pauses are one form of conditional execution control.
+The broader framework is designing your bot to pause automatically whenever specific conditions indicate the environment is temporarily hostile to your strategy.
+Win rate falling below your minimum threshold over a rolling window of recent trades.
+Fill rate dropping below baseline - indicating liquidity problems or execution issues.
+Drawdown exceeding a defined percentage of bankroll in a single session.
+Volatility spike beyond the range your strategy was calibrated for.
+Ghost fill detection triggering repeatedly - indicating platform instability.
+Each of these conditions is measurable in real time.
+Each one can trigger an automatic pause that protects your capital while the condition persists.
+The implementation is a monitoring layer that runs alongside your strategy logic and evaluates these conditions on every trade cycle.
+When any condition fires, execution stops.
+An alert fires to your phone.
+You investigate.
+When conditions return to normal, execution resumes.
+This is not pessimistic risk management.
+It is operational discipline that keeps your bot alive through the inevitable periods when the environment temporarily turns against you.
+Bots without conditional pause logic absorb every bad period at full exposure.
+Bots with it survive those periods with capital intact and resume with full capacity when conditions improve.
+Long-term that difference is enormous.
+Deployment across markets
+Once your strategy has solid regime filtering in place the most powerful scaling lever is deployment breadth not depth.
+Most developers optimize one bot on one market trying to squeeze every possible edge out of that single setup.
+The better approach is taking one working filtered strategy and deploying it across multiple markets simultaneously.
+BTC, ETH, SOL, XRP, DOGE and HYPE each have different volatility profiles, liquidity characteristics and participant behavior patterns.
+A strategy filtered for weekday US hours that struggles on BTC might print cleanly on SOL where volatility is higher and mispricings are more frequent.
+The same mean reversion logic filtered for weekend sessions might find more opportunity on ETH than BTC because ETH attracts a different weekend participant profile.
+You are not changing the strategy for each market.
+You are deploying the same tested logic and letting the regime filters determine when it runs on each asset.
+Some assets in some regimes will show positive results.
+Others will not.
+Spread the deployment and find the combinations that work empirically rather than theoretically.
+The practical result is multiple streams of consistent profit from one core strategy idea running in the conditions where it belongs.
+The total is greater than any single optimized deployment could achieve.
+Final recommendations
+The most common waste in Polymarket bot development is discarding working strategies.
+Developers rebuild from scratch when the problem was never the strategy.
+It was the conditions the strategy was running in.
+Weekday versus weekend filters reveal hidden performance splits that aggregate results obscure.
+Time of day filters find the windows where your specific signal type has real edge.
+Strategy inversion recovers dead bots by flipping structured losing signals into winning ones.
+Loss clustering protection keeps capital intact through the inevitable bad periods.
+Conditional pauses prevent small problems from becoming large ones.
+Market deployment breadth multiplies returns from a single working idea.
+None of these require new strategies.
+All of them require looking at when and where your existing strategy works and ruthlessly restricting execution to only those conditions.
+The discipline to stop trading when conditions are wrong is harder than building new signals.
+It is also worth more.
+If you made it this far - congrats
+I’m opening my FREE ALPHA channel (limited to 20 spots/day)
+Inside: prediction market insights + deep dive into bots building.
+Join here: https://t.me/+jCBHygDAJa9hMTJk
+I am going to drop a full scale article with a detailed guide based on my experience tomorrow.
+Don't miss this out.
+This HFT bot is printing +$40,000/week on 5-minute markets!
+
+Account: https://polymarket.com/0x89b5cdaaa4866c1e738406712012a630b4078beb?via=me_cool_off
+
++$538,000 in 3 months!
+
+1000+ trades daily.
+
+With Polymarket’s taker delay, latency sniping is much weaker now.
+
+Fast bots used to instantly buy stale quotes for near risk-free profit.
+
+Now that edge is weaker.
+
+This bot doesn’t rely on speed alone.
+
+It enters quickly, then dynamically manages positions:
+> averages in
+> hedges
+> adds momentum exposure
+> quickly repositions
+
+Its edge is now:
+> risk management
+> execution
+> infrastructure
+> momentum reading
+> adaptive strategy
+
+Bots relying only on stale quote sniping are already down badly or gone.
+
+This bot proves the winner today isn’t the fastest.
+
+It’s the one with infrastructure and momentum trading skills.
+
+One of the most stable and profitable HFT bots on 5-minute markets right now.
+
+This trader turned $863 into +$20,579 in just a few weeks on 5-minute BTC markets on Polymarket
+
+Account: [https://polymarket.com/@biiiiiin?tab=activity&r=farxxxxx#RzbG4H7]
+
+May 5: +$863 funded.
+Now: +$20,579 PnL.
+Win rate: 70.8%
+Volume: $188,033.20
+USDC balance: $11,012.96
+
+Best trades:
+
+$13,700 -> BTC Down (1:30-1:35PM)
+$9,900 -> BTC Down (1:15-1:20PM)
+$6,800 -> BTC Up (1:00-1:05PM)
+$6,200 -> BTC Down (1:10-1:15PM)
+$3,500 -> BTC Up (1:25-1:30PM)
+$2,300 -> BTC Down (1:20-1:25PM)
+
+The bot started with micro-sized scalps, but quickly scaled into aggressive 5-minute BTC cycles.
+
+Now it makes consistent profits across intraday volatility bursts.
+
+Strategies:
+
+>trades both Up/Down sides of 5-minute BTC markets
+>rotates exposure across adjacent time windows
+>stacks positions during volatility spikes
+>scales into momentum instead of waiting for confirmation
+>exploits mispricing between sequential contracts
+
+It doesn’t always catch perfect direction.
+
+So it compensates with repetition and dense trade frequency.
+
+It also increases sizing when volatility clusters form, instead of staying flat.
+This bot wins through trade quantity, not trade precision.
+
+Early on it was grinding small wins ($10–$200 per trade).
+Now it’s printing $2k–$13k hits during active sessions.
+
+This bot made $858,760 on 
+@Polymarket
+ trading Bitcoin 5-minute markets. 44,203 trades. 83% win rate. Built with Claude Code.
+
+The account is called Bonereaper. Joined March 25, 2026. Two months. $858K in profit. Top 1% by volume at $24.1M traded.
+
+> The strategy is pure microstructure. BTC Up/Down 5-minute windows. Entry at 3-22 cents. Exit at 100 cents. Best single trade: $11.91K on a $358 position - 3,324% return. 
+
+The bot runs 24/7, scalps every window, never sleeps.
+
+// Yesterday alone: $15,778 profit in a single day. //
+
+The edge isn't in predicting Bitcoin direction. It's in finding mispriced 5-minute windows where the market underestimates probability - buying at 3 cents what should be worth 15, holding to settlement at 100.
+
+Claude Code built the logic. The bot executes it across every BTC window simultaneously. No human could run this manually at 44,000+ trades.
+
+Live wallet: https://polymarket.com/@bonereaper?r=Atenov#U9HAiZP
+
+I found this wallet on 
+@CrispPredict
+ - full profile, trade history, entry patterns, win rate breakdown, everything visible before you decide to copytrade.
+
+Check the full profile and copytrade directly:
+http://app.crisp.trade/trader/0xeebde7a0e019a63e6b476eb425505b7b3e6eba30?ref=atenov_d
+
+ found an interesting  trader on Polymarket
+
+Who seems to have turned prediction markets into a money printing machine through the formula
+
+(expected edge × execution speed × repetition) = infinite money glitch
+
+→ over +$535,000 PnL
+→ ~$53M total volume
+→ 160,000+ trades
+→Account age is about 3 months
+→ average hold time ~35 minutes
+→ almost every position size is small
+
+And the most interesting part:
+
+he’s not trying to predict the future
+
+It looks like he simply found tiny inefficiencies inside the market itself
+
+Typical setup:
+
+→ enters dozens of positions daily
+→ takes small statistical edges
+→ exits quickly
+→ repeats this thousands of times
+
+No all-ins
+
+No  the market is wrong
+
+No insane predictions
+
+Just speed, discipline, and repetition
+
+While everyone else is searching for one huge 100x trade
+
+He seems to be printing money from microscopic edges at industrial scale
+
+His Polymarket profile: https://polymarket.com/@ohanism?r=tom310#ol8dy2c
+His X profile: 
+@seemeohan
+
+found a wallet running the same strategy as the $1.5M world cup trader
+
+- invested $660k across every team at 1.7¢
+- already locked $1,673,324 in profit
+- sold every survivor as odds climbed
+- only France alone made him $338k profit from $40k
+- 12 teams sold. tournament still ongoing.
+
+only difference: he cashed out the big ones early. what's left are pure lottery tickets.
+
+profile: https://polymarket.com/@restart77?r=0xSpivach
+
