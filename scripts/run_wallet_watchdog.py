@@ -524,31 +524,31 @@ def _compute_copy_size_pct(ws: dict) -> float:
     """
     Compute recommended copy size as % of bankroll.
 
-    YELLOW badge → flat 1.0% (learning tier, limited conviction)
-    GREEN badge  → confidence-based formula: 0.5% – 2.0%
+    YELLOW badge → flat 2.5% (~$2.43 on $97 bankroll, raised to min $2.50)
+    GREEN badge  → confidence-based formula: 2.0% – 5.0%
     """
     badge = ws.get("risk_badge", "")
     is_green = "GREEN" in badge
 
     if not is_green:
-        # YELLOW (or unknown): flat 1% — participate but limit exposure
-        return 1.0
+        # YELLOW: flat 2.5%
+        return 2.5
 
     # GREEN: confidence-based sizing
     conf = ws.get("confidence", 70)
     subs = ws.get("sub_scores", {})
 
-    # Base: 0.5% at conf=70, 2.0% at conf=100 (linear)
-    base_pct = 0.5 + (conf - 70) / 30.0 * 1.5
-    base_pct = max(0.5, min(2.0, base_pct))
+    # Base: 2.0% at conf=70, 5.0% at conf=100 (linear)
+    base_pct = 2.0 + (conf - 70) / 30.0 * 3.0
+    base_pct = max(2.0, min(5.0, base_pct))
 
     # Persistence bonus: wallet still edges consistently over time
     persist_bonus = 0.25 if subs.get("persistence", 0) >= 70 else 0.0
 
     # Anti-luck bonus: diversified PnL, not a lucky jackpot
-    luck_bonus = 0.25 if subs.get("anti_luck", 0) >= 70 else 0.0
+    luck_bonus = 0.5 if subs.get("anti_luck", 0) >= 70 else 0.0
 
-    return round(min(2.0, base_pct + persist_bonus + luck_bonus), 2)
+    return round(min(5.0, base_pct + persist_bonus + luck_bonus), 2)
 
 
 def _queue_for_polycop(ws: dict) -> None:
@@ -684,7 +684,7 @@ def run_once(args: argparse.Namespace) -> None:
             _queue_for_polycop(ws)
             size_pct = _compute_copy_size_pct(ws)
             is_green = "GREEN" in ws.get("risk_badge", "")
-            tier_label = "🟢 GREEN (conf-based)" if is_green else "🟡 YELLOW (flat 1%)"
+            tier_label = "🟢 GREEN (conf-based)" if is_green else "🟡 YELLOW (flat 2.5%)"
             _tg_send(
                 f"<b>🤖 Auto-copy queued</b>\n"
                 f"<b>{label}</b> ajouté à la file PolyCop\n"
@@ -763,7 +763,7 @@ def run_once(args: argparse.Namespace) -> None:
         _queue_for_polycop(ws)
         size_pct = _compute_copy_size_pct(ws)
         is_green = "GREEN" in ws.get("risk_badge", "")
-        tier_label = "🟢 GREEN (conf-based)" if is_green else "🟡 YELLOW (flat 1%)"
+        tier_label = "🟢 GREEN (conf-based)" if is_green else "🟡 YELLOW (flat 2.5%)"
         _tg_send(
             f"<b>🔄 Auto-copy (re-check)</b>\n"
             f"<b>{_html.escape(label)}</b> qualifié depuis un scan précédent — passe maintenant les filtres\n"
@@ -826,7 +826,7 @@ def main() -> None:
     parser.add_argument("--max-emerging-trades", type=int, default=20, help="Max n_resolved for EMERGING")
     parser.add_argument("--autocopy-min-confidence", type=int, default=70, help="Minimum confidence for PolyCop auto-copy (must be GREEN + pass all hard filters)")
     # SCOUT tier: short-term wallets copied at flat dollar amount
-    parser.add_argument("--scout-fixed-usd", type=float, default=1.5, help="Fixed $ per trade for SCOUT tier (default $1.50)")
+    parser.add_argument("--scout-fixed-usd", type=float, default=2.5, help="Fixed $ per trade for SCOUT tier (default $2.50)")
     parser.add_argument("--scout-edge-threshold", type=int, default=72, help="edge_proof min for SCOUT classification")
     parser.add_argument("--scout-min-conf", type=int, default=42, help="Min confidence for SCOUT classification")
     parser.add_argument("--scout-max-trades", type=int, default=20, help="Max n_resolved for SCOUT (short-term wallets only)")

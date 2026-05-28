@@ -134,7 +134,7 @@ _BANKROLL_USD: float = float(
 # Hard cap: no single copy trade can ever exceed this amount, regardless of bankroll
 # or size_pct. Protects against misconfigured bankroll or PolyCop parsing errors.
 MAX_PER_TRADE_HARD_CAP_USD: float = float(
-    os.environ.get("POLYCOP_MAX_PER_TRADE_CAP_USD") or "3.0"
+    os.environ.get("POLYCOP_MAX_PER_TRADE_CAP_USD") or "5.0"
 )
 
 POLL_INTERVAL = 30   # seconds between queue checks
@@ -432,7 +432,7 @@ async def _follow_wallet_polycop(
 
     Returns (success, message).
     """
-    POLYCOP_MIN_TRADE = 1.20
+    POLYCOP_MIN_TRADE = 2.50
 
     if fixed_usd is not None:
         # SCOUT tier: fixed dollar amount, bankroll not required
